@@ -8,5 +8,6 @@ namespace Proj_ICFT.Services.FormularioServices.Interface
         public Task<List<Tipo>> listarTipoByCategoriaId(int id);
         public Task<List<Frequencia>> listarFrequencias();
         public Task<List<InstrucoesAdicionais>> listarInstrucoesAdicionais();
+        public Task<List<RemedioViewModel>> converterMedicamentos(List<MedicamentosExportacaoModel> listaModel);
     }
 }

@@ -25,28 +25,45 @@ namespace Proj_ICFT.Services.FormularioServices.Implementacao
         public async Task<List<Categoria>> listarCategorias()
         {
 
-            return await _categoriaDbContext.Categoria.Include(x=> x.tipos).OrderBy(c=> c.Name).ToListAsync();
-                
-         }
+            return await _categoriaDbContext.Categoria.Include(x => x.tipos).OrderBy(c => c.Name).ToListAsync();
 
-        public async Task<List<Frequencia>> listarFrequencias ()
+        }
+
+        public async Task<List<Frequencia>> listarFrequencias()
         {
-            return await _frequenciaDbContext.Frequencia.OrderBy(f=>f.Name).ToListAsync();
+            return await _frequenciaDbContext.Frequencia.OrderBy(f => f.Name).ToListAsync();
         }
 
         public async Task<List<InstrucoesAdicionais>> listarInstrucoesAdicionais()
         {
-            return await _instrucoesAdicionaisDbContext.InstrucoesAdicionais.OrderBy(i=> i.name).ToListAsync();
+            return await _instrucoesAdicionaisDbContext.InstrucoesAdicionais.OrderBy(i => i.name).ToListAsync();
         }
 
         public async Task<List<Tipo>> listarTipoByCategoriaId(int id)
         {
 
-            return await _tipoDbContext.Tipo.Where(s => s.CategoriaId == id).OrderBy(t=> t.Name).ToListAsync();
+            return await _tipoDbContext.Tipo.Where(s => s.CategoriaId == id).OrderBy(t => t.Name).ToListAsync();
 
         }
 
+        public async Task<List<RemedioViewModel>> converterMedicamentos(List<MedicamentosExportacaoModel> listaModel)
+        {
+            var remedios = new List<RemedioViewModel>();
+
+            foreach (var model in listaModel)
+            {
+                var categoria = await _categoriaDbContext.Categoria.FindAsync(model.categoria);
+                var subcategoria = await _tipoDbContext.Tipo.FindAsync(model.subcategoria);
+                var frequencia = await _frequenciaDbContext.Frequencia.FindAsync(model.frequencia);
+                List<InstrucoesAdicionais> instrucoes = await _instrucoesAdicionaisDbContext.InstrucoesAdicionais.Where(i => model.instrucoesAdicionais.Contains(i.id)).ToListAsync();
+
+                var remedio = new RemedioViewModel(categoria, subcategoria, frequencia, instrucoes);
+
+                remedios.Add(remedio);
 
 
+            }
+            return remedios;
+        }
     }
 }
