@@ -45,6 +45,23 @@ namespace Proj_ICFT.Controllers
             return View(formulario);
         }
 
+        [HttpPost]
+        public async Task<JsonResult> ExportarDados ([FromBody] ExportacaoModel dados)
+        {
+
+            var remedios = await _formularioServices.converterMedicamentos(dados.medicamentos);
+
+
+
+            ICTPaciente ict = new ICTPaciente(dados.nome, remedios.Sum(r=> r.PesoTotal));
+
+
+
+
+            return Json(ict);
+
+        }
+
 
         public async Task<FormularioViewModel> carregarFormulario()
         {
