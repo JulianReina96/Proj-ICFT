@@ -7,9 +7,16 @@
 @model FormularioViewModel;
 
 <script src="~/js/jquery-3.7.1.min.js"></script>
-
+<script src="~/css/bootstrap.css"></script>
+<script src="~/css/bootstrap-icons.css"></script>
+<script src="~/js/bootstrap.js"></script>
+<script src="~/js/sweetalert2.all.js"></script>
+<script type="text/javascript" src="https://unpkg.com/xlsx@0.15.1/dist/xlsx.full.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js"></script>
 <script type="text/javascript">
     $(document).ready(function () {
+        let dadosMapeados = [];
+        document.getElementById('btnObterICT').setAttribute('disabled', 'disabled');
         $('#categorias').change(function () {
             var categoriaId = $(this).val();
 
@@ -26,49 +33,193 @@
             });
         });
 
-    const salvarBtn = document.getElementById('salvar');
-    const cardsDiv = document.getElementById('cards');
+        const salvarBtn = document.getElementById('salvar');
+        const exportarBtn = document.getElementById('btnObterICT');
+        const gerarPdfBtn = document.getElementById('btnGerarPDF');
+        const cardsDiv = document.getElementById('cards');
 
-    salvarBtn.addEventListener('click', () => {
-        // Obtém os valores dos campos
+        salvarBtn.addEventListener('click', () => {
+            if (!validarCampos()) {
+                return;
+            }
+            // Obtém os valores dos campos
+            const remedio = document.getElementById('remedio').value;
             const categorias = document.getElementById('categorias').options[document.getElementById('categorias').selectedIndex].text;
             const frequencia = document.getElementById('frequencia').options[document.getElementById('frequencia').selectedIndex].text;
-            const subcategoria = document.getElementById('subcategorias').options[document.getElementById('subcategorias').selectedIndex].text
-            const instrucoesAdicionais = document.getElementById('instrucoesAdicionais').options[document.getElementById('instrucoesAdicionais').selectedIndex].text;
+            const subcategoria = document.getElementById('subcategorias').options[document.getElementById('subcategorias').selectedIndex].text;
+            const instrucoesAdicionais = Array.from(document.querySelectorAll('input[name="InstrucoesAdicionais"]:checked')).map(checkbox => checkbox.nextElementSibling.textContent);
+            // Cria um novo card
+            const newCard = document.createElement('div');
+            newCard.classList.add('card'); // Adiciona uma classe para estilizar
+            newCard.innerHTML = `
+                        <h2>Informações do Medicamento</h2><button id="remover" onclick="remover()" type="button"><i class="bi bi-trash3-fill"></i></button>
+                    <h4> Medicamento: <strong>${remedio}</strong></h4>
+                                <p>Categoria: ${categorias}</p>
+                                <p>Tipo: ${subcategoria}</p>
+                        <p>frequencia : ${frequencia}</p>
+                        <p>Instruções Adicionais: ${instrucoesAdicionais.join(', ')}</p>
+                        `;
 
-        // Cria um novo card
-        const newCard = document.createElement('div');
-        newCard.classList.add('card'); // Adiciona uma classe para estilizar
-        newCard.innerHTML = `
-        <h2>Informações do Card</h2><button id="remover" onclick="remover()" type="button">Remover</button>
-                    <p>Categoria: ${categorias}</p>
-                    <p>Tipo: ${subcategoria}</p>                
-            <p>frequencia : ${frequencia}</p>
-            <p>Instrucoes Adicionais: ${instrucoesAdicionais}</p>
-          `;
 
-        // Adiciona o card à div de cards
-        cardsDiv.appendChild(newCard);
 
-        // Mapeia os cards (pode ser feito a cada clique ou em outro momento)
-        const cards = document.querySelectorAll('.card');
-        const dadosMapeados = [];
+                        const quebraLinha = document.createElement('br');
+            // Adiciona o card à div de cards
+            cardsDiv.appendChild(newCard);
+            cardsDiv.appendChild(quebraLinha);
+            const cards = document.querySelectorAll('.card');
 
-        cards.forEach(card => {
+            // Mapeia os cards (pode ser feito a cada clique ou em outro momento)
+
+
             const dadosCard = {
-                categorias: card.querySelector('p:nth-child(1)').textContent.split(': ')[1],
-                subcategoria: card.querySelector('p:nth-child(2)').textContent.split(': ')[1],
-                frequencia: card.querySelector('p:nth-child(3)').textContent.split(': ')[1],
-                instrucoesAdicionais: card.querySelector('p:nth-child(4)').textContent.split(': ')[1]
+                categoria: document.getElementById('categorias').options[document.getElementById('categorias').selectedIndex].value,
+                subcategoria: document.getElementById('subcategorias').options[document.getElementById('subcategorias').selectedIndex].value,
+                frequencia: document.getElementById('frequencia').options[document.getElementById('frequencia').selectedIndex].value,
+                instrucoesAdicionais: Array.from(document.querySelectorAll('input[name="InstrucoesAdicionais"]:checked')).map(checkbox => checkbox.value)
             };
             dadosMapeados.push(dadosCard);
+
+
+            // Reseta os elementos HTML para seus valores padrão
+            document.getElementById('categorias').selectedIndex = 0;
+            document.getElementById('subcategorias').innerHTML = '<option value="">Selecione uma subcategoria</option>';
+            document.getElementById('frequencia').selectedIndex = 0;
+            document.querySelectorAll('input[name="InstrucoesAdicionais"]').forEach(checkbox => checkbox.checked = false);
+            document.getElementById('remedio').value = '';
+            console.log(dadosMapeados);
+
+            document.getElementById('btnObterICT').removeAttribute("disabled");
+            document.getElementById('btnGerarPDF').removeAttribute("hidden");
+
         });
 
-        console.log(dadosMapeados); // Exibe os dados mapeados no console
-    });
+        exportarBtn.addEventListener('click', () => {
+
+            if(document.getElementById("nomePaciente").value === ''){
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Nome do paciente não informado',
+                    text: 'Informe o nome do paciente para prosseguir'
+                });
+                return;
+            }
+
+            exportExcel(dadosMapeados);
+
+
+        });
+
+        gerarPdfBtn.addEventListener('click', () => {
+            gerarPDF();
+        });
+
+        // Exibe os dados mapeados no console
     });
 
+
+    function validarCampos() {
+
+
+        const remedio = document.getElementById('remedio').value;
+        const categorias = document.getElementById('categorias').value;
+        const subcategorias = document.getElementById('subcategorias').value;
+        const frequencia = document.getElementById('frequencia').value;
+
+        let mensagemErro = '';
+
+        if (remedio === '') {
+            mensagemErro += '<p>O campo <b>"Nome do Remédio"</b> precisa ser preenchido.</p>';
+        }
+        if (categorias === '') {
+            mensagemErro += '<p>O campo <b>"Categoria"</b> precisa ser preenchido.</p>';
+        }
+        if (subcategorias === '') {
+            mensagemErro += '<p>O campo <b>"Subcategoria"</b> precisa ser preenchido.</p>';
+        }
+        if (frequencia === '') {
+            mensagemErro += '<p>O campo <b>"Frequência"</b> precisa ser preenchido.</p>';
+        }
+
+        if (mensagemErro !== '') {
+            Swal.fire({
+                icon: 'error',
+                title: 'Campos obrigatórios',
+                html: mensagemErro
+            });
+            return false;
+        }
+        return true;
+    }
+
+
+    function exportExcel(dadosMapeados) {
+        const dadosExportacao = { nome: document.getElementById('nomePaciente').value, medicamentos: dadosMapeados };
+        console.log(JSON.stringify(dadosExportacao));
+
+
+        $.ajax({
+            url: '@Url.Action("ExportarDados", "Home")', // Substitua por sua action
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify(dadosExportacao),
+            success: function (response) {
+
+                downloadExcel(response);
+
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Dados exportados com sucesso!',
+                    text: response.message
+                });
+            },
+            error: function (xhr, status, error) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Erro ao exportar dados',
+                    text: xhr.responseText
+                });
+            }
+        });
+    }
+
+    function downloadExcel(data) {
+
+
+
+        var nome = document.getElementById('nomePaciente').value;
+
+        nome = nome.replace(/ /g, '_');
+        var row = [];
+        row.push(data);
+
+
+        const wb = XLSX.utils.json_to_sheet(row);
+        const ws = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(ws, wb, 'Dados');
+        XLSX.writeFile(ws, 'IC-' + nome + '.xlsx');
+    }
+
+    function gerarPDF() {
+        const nomePaciente = document.getElementById('nomePaciente').value;
+        const cards = document.querySelectorAll('.card');
+        let conteudo = `<h1>Paciente: ${nomePaciente}</h1>`;
+
+        cards.forEach(card => {
+            conteudo += card.outerHTML;
+        });
+
+        const opt = {
+            margin: 1,
+            filename: 'Receita-' + nomePaciente.replace(/ /g, '_') + '.pdf',
+            html2canvas: { scale: 2 },
+            jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+        };
+
+        html2pdf().from(conteudo).set(opt).save();
+    }
 </script>
+
+
 
 
 
@@ -79,18 +230,25 @@
     <!-- Author: FormBold Team -->
     <!-- Learn More: https://formbold.com -->
     <div class="formbold-form-wrapper">
-        <img src="your-image-url-here.jpg">
+
         <form action="https://formbold.com/s/FORM_ID" method="POST">
             <div class="formbold-mb-6">
-                <label for="qusOne" class="formbold-form-label">
-                    How would you rate your overall experience with our website?
-                </label>
-                <button id="salvar" type="button">TESTE BOTAO</button>
+                <h3>Informe a receita e o nome do paciente</h3>
+                <br />
+
+                <label id="paciente" placeholder="Nome do Paciente" class="formbold-form-label">Nome do Paciente</label>
+                <input id="nomePaciente" class="formbold-form-input">
+
+
+
+                <label for="remedioLbl" class="formbold-form-label">Nome do Remedio</label>
+                <input id="remedio" type="text" class="formbold-form-input">
                 <div class="formbold-radio-flex">
                     <div class="formbold-radio-group">
                         <select name="Categorias" id="categorias">
                             <option value="" disabled selected>Informe a forma de dosagem:</option>
                             @foreach (var option in Model.categorias)
+
                             {
                                 <option value="@option.Id">@option.Name</option>
                             }
@@ -102,215 +260,42 @@
                     </div>
 
                     <div class="formbold-radio-group">
-                        <label class="formbold-radio-label">
-                            <select required name="Frequencia" id="frequencia">
-                                <option value="" disabled selected>Informe a frequencia de dosagem:</option>
-                                @foreach (var option in Model.frequencias)
-                                {
-                                    <option value="@option.Id">@option.Name</option>
-                                }
-                            </select>
-                            <span class="formbold-radio-checkmark"></span>
-                        </label>
+
+                        <select required name="Frequencia" id="frequencia">
+                            <option value="" disabled selected>Informe a frequencia de dosagem:</option>
+                            @foreach (var option in Model.frequencias)
+
+                            {
+                                <option value="@option.Id">@option.Name</option>
+                            }
+                        </select>
+                        <span class="formbold-radio-checkmark"></span>
+
                     </div>
+
 
 
                     <div class="formbold-radio-group">
-                        <label class="formbold-radio-label">
-                            <select required name="InstrucoesAdicionais" id="instrucoesAdicionais">
-                                <option value="" disabled selected>Informe as instruçoes adicionais:</option>
-                                @foreach (var option in Model.instrucoes)
-                                {
-                                    <option value="@option.id">@option.name</option>
-                                }
-                            </select>
-                            <span class="formbold-radio-checkmark"></span>
-                        </label>
+                        <label class="formbold-form-label">Informe as instruções adicionais:</label>
+                        @foreach (var option in Model.instrucoes)
+
+                        {
+                            <div style="width:max-content">
+                                <input type="checkbox" id="instrucoesAdicionais_@option.id" name="InstrucoesAdicionais" value="@option.id">
+                                <label for="instrucoesAdicionais_@option.id">@option.name</label>
+                            </div>
+                        }
                     </div>
 
 
+                    <button id="salvar" class="btn btn-primary" type="button">Adicionar medicamento</button>
                     <div id="cards"></div>
 
-                    <div class="formbold-radio-group">
-                        <label class="formbold-radio-label">
-                            <input class="formbold-input-radio"
-                                   type="radio"
-                                   name="qusOne"
-                                   id="qusOne" />
-                            Fair
-                            <span class="formbold-radio-checkmark"></span>
-                        </label>
-                    </div>
 
-                    <div class="formbold-radio-group">
-                        <label class="formbold-radio-label">
-                            <input class="formbold-input-radio"
-                                   type="radio"
-                                   name="qusOne"
-                                   id="qusOne" />
-                            Poor
-                            <span class="formbold-radio-checkmark"></span>
-                        </label>
-                    </div>
-
-                    <div class="formbold-radio-group">
-                        <label class="formbold-radio-label">
-                            <input class="formbold-input-radio"
-                                   type="radio"
-                                   name="qusOne"
-                                   id="qusOne" />
-                            Vary Poor
-                            <span class="formbold-radio-checkmark"></span>
-                        </label>
-                    </div>
                 </div>
             </div>
-
-            <div class="formbold-mb-6">
-                <label for="qusTwo" class="formbold-form-label">
-                    How satisfied are you whth the comprehensive of our offer?
-                </label>
-
-                <div class="formbold-radio-flex">
-                    <div class="formbold-radio-group">
-                        <label class="formbold-radio-label">
-                            <input class="formbold-input-radio"
-                                   type="radio"
-                                   name="qusTwo"
-                                   id="qusTwo" />
-                            Very Good
-                            <span class="formbold-radio-checkmark"></span>
-                        </label>
-                    </div>
-
-                    <div class="formbold-radio-group">
-                        <label class="formbold-radio-label">
-                            <input class="formbold-input-radio"
-                                   type="radio"
-                                   name="qusTwo"
-                                   id="qusTwo" />
-                            Good
-                            <span class="formbold-radio-checkmark"></span>
-                        </label>
-                    </div>
-
-                    <div class="formbold-radio-group">
-                        <label class="formbold-radio-label">
-                            <input class="formbold-input-radio"
-                                   type="radio"
-                                   name="qusTwo"
-                                   id="qusTwo" />
-                            Fair
-                            <span class="formbold-radio-checkmark"></span>
-                        </label>
-                    </div>
-
-                    <div class="formbold-radio-group">
-                        <label class="formbold-radio-label">
-                            <input class="formbold-input-radio"
-                                   type="radio"
-                                   name="qusTwo"
-                                   id="qusTwo" />
-                            Poor
-                            <span class="formbold-radio-checkmark"></span>
-                        </label>
-                    </div>
-
-                    <div class="formbold-radio-group">
-                        <label class="formbold-radio-label">
-                            <input class="formbold-input-radio"
-                                   type="radio"
-                                   name="qusTwo"
-                                   id="qusTwo" />
-                            Vary Poor
-                            <span class="formbold-radio-checkmark"></span>
-                        </label>
-                    </div>
-                </div>
-            </div>
-
-            <div class="formbold-mb-6">
-                <label for="qusThree" class="formbold-form-label">
-                    How satisfied are you whth the customer support of our website?
-                </label>
-
-                <div class="formbold-radio-flex">
-                    <div class="formbold-radio-group">
-                        <label class="formbold-radio-label">
-                            <input class="formbold-input-radio"
-                                   type="radio"
-                                   name="qusThree"
-                                   id="qusThree" />
-                            Very Good
-                            <span class="formbold-radio-checkmark"></span>
-                        </label>
-                    </div>
-
-                    <div class="formbold-radio-group">
-                        <label class="formbold-radio-label">
-                            <input class="formbold-input-radio"
-                                   type="radio"
-                                   name="qusThree"
-                                   id="qusThree" />
-                            Good
-                            <span class="formbold-radio-checkmark"></span>
-                        </label>
-                    </div>
-
-                    <div class="formbold-radio-group">
-                        <label class="formbold-radio-label">
-                            <input class="formbold-input-radio"
-                                   type="radio"
-                                   name="qusThree"
-                                   id="qusThree" />
-                            Fair
-                            <span class="formbold-radio-checkmark"></span>
-                        </label>
-                    </div>
-
-                    <div class="formbold-radio-group">
-                        <label class="formbold-radio-label">
-                            <input class="formbold-input-radio"
-                                   type="radio"
-                                   name="qusThree"
-                                   id="qusThree" />
-                            Poor
-                            <span class="formbold-radio-checkmark"></span>
-                        </label>
-                    </div>
-
-                    <div class="formbold-radio-group">
-                        <label class="formbold-radio-label">
-                            <input class="formbold-input-radio"
-                                   type="radio"
-                                   name="qusThree"
-                                   id="qusThree" />
-                            Vary Poor
-                            <span class="formbold-radio-checkmark"></span>
-                        </label>
-                    </div>
-                </div>
-            </div>
-
-            <div class="formbold-mb-3">
-                <label for="message" class="formbold-form-label">
-                    What should we change in oirder to live up to your expectations?
-                </label>
-                <textarea rows="6"
-                          name="message"
-                          id="message"
-                          class="formbold-form-input"></textarea>
-            </div>
-
-            <div>
-                <label for="email" class="formbold-form-label"> Email <span>(Only if you want to hear more from us)</span> </label>
-                <input type="email"
-                       name="email"
-                       id="email"
-                       class="formbold-form-input" />
-            </div>
-
-            <button class="formbold-btn">Send Feedback</button>
+            <button type="button" disabled class="formbold-btn btn-success" id="btnObterICT">Obter ICT</button>
+            <button type="button" hidden class="formbold-btn btn-secondary" id="btnGerarPDF">Gerar PDF</button>
         </form>
     </div>
 </div>
@@ -458,7 +443,6 @@
         padding: 14px 25px;
         border: none;
         font-weight: 500;
-        background-color: #6a64f1;
         color: white;
         cursor: pointer;
         margin-top: 25px;
