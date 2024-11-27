@@ -1,6 +1,7 @@
 using Proj_ICFT.Data;
 using Proj_ICFT.Services.FormularioServices.Implementacao;
 using Proj_ICFT.Services.FormularioServices.Interface;
+using Proj_ICFT.Services.PacienteServices.Interface;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,10 +14,12 @@ builder.Services.AddSqlServer<FrequenciaDbContext>(builder.Configuration.GetConn
 builder.Services.AddSqlServer<TipoDbContext>(builder.Configuration.GetConnectionString("DefaultConnection"));
 builder.Services.AddSqlServer<CategoriaDbContext>(builder.Configuration.GetConnectionString("DefaultConnection"));
 builder.Services.AddSqlServer<InstrucoesAdicionaisDbContext>(builder.Configuration.GetConnectionString("DefaultConnection"));
+builder.Services.AddSqlServer<PacienteICTDbContext>(builder.Configuration.GetConnectionString("DefaultConnection"));
 
 
 
 builder.Services.AddScoped<IFormularioServices, FormularioServices>();
+builder.Services.AddScoped<IPacienteServices, PacienteServices>();
 
 
 var app = builder.Build();

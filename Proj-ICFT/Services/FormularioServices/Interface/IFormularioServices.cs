@@ -1,4 +1,5 @@
 ﻿using Proj_ICFT.Models;
+using Proj_ICFT.Models.ViewModels;
 
 namespace Proj_ICFT.Services.FormularioServices.Interface
 {
@@ -10,4 +11,6 @@ namespace Proj_ICFT.Services.FormularioServices.Interface
         public Task<List<InstrucoesAdicionais>> listarInstrucoesAdicionais();
         public Task<List<RemedioViewModel>> converterMedicamentos(List<MedicamentosExportacaoModel> listaModel);
     }
+
 }
+

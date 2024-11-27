@@ -1,49 +1,139 @@
 ﻿<!DOCTYPE html>
-<html lang="en">
+<html lang="pt-br">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - Calculadora IC</title>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/Proj_ICFT.styles.css" asp-append-version="true" />
+
+
+
+    <!-- Favicons -->
+    <link href="~/img/favicon.png" rel="icon">
+    <link href="~/img/apple-touch-icon.png" rel="apple-touch-icon">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,600;1,700&family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&family=Raleway:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&display=swap" rel="stylesheet">
+
+    <!-- Vendor CSS Files -->
+    <link href="~/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="~/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
+    <link href="~/vendor/aos/aos.css" rel="stylesheet">
+    <link href="~/vendor/glightbox/css/glightbox.min.css" rel="stylesheet">
+    <link href="~/vendor/swiper/swiper-bundle.min.css" rel="stylesheet">
+    <link href="~/vendor/jquery-ui/jquery-ui.min.css" rel="stylesheet">
+    <link href="~/vendor/jquery-ui/jquery-ui.theme.min.css" rel="stylesheet">
+
+    <!-- Template Main CSS File -->
+    <link href="~/css/main.css" rel="stylesheet" asp-append-version="true">
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="~/vendor/aos/aos.js"></script>
+    <script src="~/vendor/glightbox/js/glightbox.min.js"></script>
+    <script src="~/vendor/purecounter/purecounter_vanilla.js"></script>
+    <script src="~/vendor/swiper/swiper-bundle.min.js"></script>
+    <script src="~/vendor/isotope-layout/isotope.pkgd.min.js"></script>
+    <script src="~/vendor/php-email-form/validate.js"></script>
+    <script src="~/js/uteis.js"></script>
+    <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="~/vendor/jquery-ui/jquery-ui.min.js"></script>
+    <script src="~/js/main.js"></script>
+
+
+    <!-- =======================================================
+    * Template Name: Impact - v1.0.0
+    * Template URL: https://bootstrapmade.com/impact-bootstrap-business-website-template/
+    * Author: BootstrapMade.com
+    * License: https://bootstrapmade.com/license/
+    ======================================================== -->
 </head>
 <body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Form">Calculadora IC</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                @* <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
-                    </ul>
-                </div> *@
-            </div>
-        </nav>
-    </header>
-    <div class="container">
+    @* <section id="topbar" class="topbar d-flex align-items-center">
+    <div class="container d-flex justify-content-center justify-content-md-between">
+    <div class="contact-info d-flex align-items-center">
+    <i class="bi bi-envelope d-flex align-items-center"><a href="mailto:contact@example.com">hildafraga.prac@gmail.com</a></i>
+    @*<i class="bi bi-phone d-flex align-items-center ms-4"><span>71 98148-9477</span></i>*@
+    @*   </div>
+    <div class="social-links d-none d-md-flex align-items-center">
+    <a href="#" class="twitter"><i class="bi bi-twitter"></i></a>
+    <a href="#" class="facebook"><i class="bi bi-facebook"></i></a>
+    <a href="#" class="instagram"><i class="bi bi-instagram"></i></a>
+    <a href="#" class="linkedin"><i class="bi bi-linkedin"></i></i></a>
+    </div>
+    </div>
+    </section>*@
+
+    <header id="header" class="header d-flex align-items-center">
+
+        <div class="container-fluid container-xl d-flex align-items-center justify-content-between">
+            <a asp-action="Index" asp-controller="Home" class="logo d-flex align-items-center">
+
+                <h1>PRAC<span>.</span></h1>
+            </a>
+
+            <nav id="navbar" class="navbar">
+                <ul>
+                    <li><a asp-action="Index" asp-controller="Home">Form</a></li>
+                    <li><a asp-action="PacientesAnalisados" asp-controller="Paciente">Resultado Pacientes</a></li>
+                    @* <li><a href="/prac#portfolio">Artigos</a></li>
+                    <li><a asp-action="TCLE" asp-controller="Home">Formulário</a></li>
+                    <li><a href="/prac#contact">Contato</a></li>
+                    <li><a asp-action="Login" asp-controller="Account">Administrador</a></li>
+                    <li><a asp-action="ResultadosObtidos" asp-controller="Resultados">Resultados</a></li> *@
+                    <!--Fase de implementação-->
+                    <!--<li><a asp-action="UploadArtigo" asp-controller="Upload">Upload de Artigos</a></li>-->
+
+                </ul>
+            </nav>
+
+            <i class="mobile-nav-toggle mobile-nav-show bi bi-list"></i>
+            <i class="mobile-nav-toggle mobile-nav-hide d-none bi bi-x"></i>
+
+        </div>
+    </header><!-- End Header -->
+
+
+    <div class="container-fluid p-0">
         <main role="main" class="pb-3">
             @RenderBody()
         </main>
     </div>
 
-    <footer class="border-top footer text-muted">
+
+    <footer id="footer" class="footer">
         <div class="container">
-            &copy; 2024 - Calculadora IC @* <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a> *@
+            <div class="row gy-4">
+                <div>
+                    <img class="img-fluid" src="~/img/clients/Colaboradores (1).png" />
+                </div>
+            </div>
         </div>
+        <div class="container mt-4">
+            <div class="copyright">
+                <h6> <strong>Calculadora de Indice de Complexidade </strong></h6>
+                <h7></h7>
+                <br />
+                <h8>Sistema desenvolvido por <a href="https://www.linkedin.com/in/julianreina/" style="color:#0000EE"><u>Julian Reina</u></a></h8>
+            </div>
+        </div>
+
     </footer>
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
+
+    <a href="#" class="scroll-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
+
+    <div id="preloader"></div>
+
+
+
+
+
+
+    <!-- Template Main JS File -->
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

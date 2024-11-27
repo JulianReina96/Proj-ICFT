@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Proj_ICFT.Data;
 using Proj_ICFT.Models;
+using Proj_ICFT.Models.ViewModels;
 using Proj_ICFT.Services.FormularioServices.Interface;
 
 namespace Proj_ICFT.Services.FormularioServices.Implementacao

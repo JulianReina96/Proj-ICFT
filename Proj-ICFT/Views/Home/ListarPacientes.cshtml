@@ -1,0 +1,226 @@
+﻿
+@using Proj_ICFT.Models.ViewModels;
+@using X.PagedList
+@using X.PagedList.Extensions
+@using X.PagedList.Mvc.Core
+
+
+@model  ExibicaoICTViewModel
+
+@{
+    ViewData["Title"] = "PacientesListados";
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+}
+
+
+
+<fieldset>
+
+    <div id="loading" class="loading" style="display:none;">
+        <div class="loading-spinner"></div>
+    </div>
+
+
+    @{
+        int qtdArtigos = Model.PacienteICT.Count;
+        
+    }
+
+    <div class="containerProperty container w-100 p-3 border ">
+
+        <div class="containerGridArtigo">
+            <div style="display: flex; align-items: end">
+                <h4 style="color: white">Total de artigos: @Html.DisplayFor(x => qtdArtigos)</h4>
+            </div>
+            <center><h1 style="color:white">Artigos Publicados</h1></center>
+        </div>
+       @*  <div class="containerGridArtigo">
+            <div>
+                <h4 style="color: white">
+                    Artigos analisados: @Html.DisplayFor(x => qtdAnalisados)
+                </h4>
+            </div> *@
+            <center><img src="~/img/Prac-icon.png" class="logoLogin"></center>
+        </div>
+        <div class="fieldset-content">
+            <div class="form-group">
+                <div class="table-responsive custom-table-responsive">
+
+                    <table class="table myTable custom-table">
+                        <thead>
+                            <tr>
+
+                                @{
+                                    string FilterName; string FilterData; string FilterAnalise;
+                                    FilterName = FilterData = FilterAnalise = "bi bi-funnel";
+
+                                    if (Model.Ordenacao == "nome")
+                                    {
+                                        FilterName = "bi bi-funnel-fill";
+                                    }
+                                    else if (Model.Ordenacao == "data")
+                                    {
+                                        FilterData = "bi bi-funnel-fill";
+                                    }
+                                    else if (Model.Ordenacao == "ict")
+                                    {
+                                        FilterAnalise = "bi bi-funnel-fill";
+                                    }
+
+                                }
+
+                                @*Local*@
+                                @* <th scope="col">Nome do artigo<a data-toggle="tooltip" data-placement="top" title="Filtrar por nome" href="/Analise/ArtigosPublicados?ordenacao=nome&pagina=@Model.Pagina" style="border:none" id="teste"><i class="@FilterName"></i></a></th>
+                                <th scope="col">Data do Upload<a data-toggle="tooltip" data-placement="top" title="Filtrar por Data" href="/Analise/ArtigosPublicados?ordenacao=data&pagina=@Model.Pagina" style="border:none"><i class="@FilterData"></i></a></th>
+                                <th scope="col">Análise RR<a data-toggle="tooltip" data-placement="top" title="Filtrar por Status Analise" href="/Analise/ArtigosPublicados?ordenacao=analise&pagina=@Model.Pagina" style="border:none"><i class="@FilterAnalise"></i></a></th>*@
+
+                                @*Publicado*@
+                            <th scope="col">Identidade Paciente<a data-toggle="tooltip" data-placement="top" title="Filtrar por identidade" href="PacientesAnalisados?ordenacao=nome&pagina=@Model.Pagina" style="border:none" id="teste"><i class="@FilterName"></i></a></th>
+                                <th scope="col">Data do Upload<a data-toggle="tooltip" data-placement="top" title="Filtrar por Data" href="PacientesAnalisados?ordenacao=data&pagina=@Model.Pagina" style="border:none"><i class="@FilterData"></i></a></th>
+                            <th scope="col">ICT<a data-toggle="tooltip" data-placement="top" title="Filtrar por ICT" href="PacientesAnalisados?ordenacao=analise&pagina=@Model.Pagina" style="border:none"><i class="@FilterAnalise"></i></a></th>
+
+
+
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{
+                                int numeroPagina = 1;
+                                if (Model.Pagina > 0)
+                                    numeroPagina = Convert.ToInt32(Model.Pagina);
+
+                                int tamanhoPagina = 15;
+                            IPagedList<PacienteICT> pagedList = Model.PacienteICT.ToPagedList(numeroPagina, tamanhoPagina);
+
+                            }
+
+
+
+                            @foreach (var item in pagedList)
+                            {
+
+                                @using (Html.BeginForm("FormularioAnalise", "Analise", Microsoft.AspNetCore.Mvc.Rendering.FormMethod.Post, new { id = "teste" + item.ID }))
+                                {
+
+                                    <tr class="spacer"><td colspan="2"></td></tr>
+                                    <tr scope="row">
+                                        <td class="MarcadorSize">
+
+                                            <b> @Html.DisplayFor(model => item.NomePaciente)</b>
+                                            
+                                        </td>
+
+                                        <td>
+                                            <div class="inputPercentual col-1 data">
+                                                <b>@Html.DisplayFor(model => item.dataCriacao)</b>
+                                                <span></span>
+                                            </div>
+                                        </td>
+
+                                        <td>
+                                            <div class="inputPercentual col-1">
+                                                <b>@Html.DisplayFor(model => item.ICT)</b>
+                                            </div>
+
+                                        </td>
+
+                                        <td>
+                                            <input asp-for="id" hidden type="number" id="paciente" value="@item.ID">                                                                                        
+                                            <input type="hidden" name="deleteClicked" value="false" />
+                                            <input type="hidden" name="pagina" value="@Model.Pagina" />
+                                            <input type="hidden" name="ordenacao" value="@Model.Ordenacao" />
+
+
+                                            <div>
+                                                
+                                                <button id="btn-Detalhar" hidden @* data-itemid="@item.Id"*@ class="btn btn-info submit-button @Html.DisplayFor(model => item.ID)">Detalhar análise</button>
+                                                <button type="button" class="btn delete-button" name="delete-button-@item.ID" id="@item.ID">
+                                                    <i class="fa fa-trash" aria-hidden="true"></i>
+                                                </button>
+                                            </div>                                            
+                                        </td>
+
+
+                                    </tr>
+                                    <tr class="spacer"><td colspan="2"></td></tr>
+
+                                }
+                            }
+
+
+                        </tbody>
+                    </table>
+                    <div>
+                        @{
+                            var ordenacao = Model.Ordenacao;
+                        }
+
+
+
+                    @Html.PagedListPager(pagedList, pagina => Url.Action("PacientesAnalisados", new { pagina, ordenacao = ordenacao }),
+                                 new PagedListRenderOptions
+                        {
+                            LiElementClasses = new string[] { "page-item" },
+                            UlElementClasses = new string[] { "pagination justify-content-center" },
+                            PageClasses = new string[] { "page-link" },
+                            //DisplayLinkToNextPage =X.PagedList.Web.Common.PagedListDisplayMode.Always,
+                            //DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
+                            MaximumPageNumbersToDisplay = 15,
+                            DisplayEllipsesWhenNotShowingAllPageNumbers = true,
+                        })
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+       
+
+
+
+</fieldset>
+
+<style>
+
+
+</style>
+
+<script type="text/javascript" src="~/js/Artigos.js"></script>
+
+<script>
+    var deleteButtons = document.querySelectorAll('.delete-button');
+
+   
+
+    deleteButtons.forEach(function (button) {
+        button.addEventListener('click', function (event) {
+            var form = document.getElementById('teste' + button.id)
+            Swal.fire({
+                title: '<strong style="color:#f8bb86;">Atenção !</strong>',
+                type: 'warning',
+                html: 'Tem certeza que deseja deletar esse artigo?',
+                customClass: 'swal-wide',
+                showCloseButton: false,
+                showCancelButton: true,
+                focusConfirm: false,
+                allowOutsideClick: false,
+                confirmButtonText: ' Deletar ',
+                confirmButtonAriaLabel: 'Deletar',
+                cancelButtonText: 'Cancelar',
+                confirmButtonColor: '#dd3333',
+                cancelButtonColor: '#b2bcc5'
+
+            })
+                .then((result) => {
+                    if (result.value) {
+                        var ancestor = event.target.closest('td');
+                        var input = ancestor.querySelector('input[name="deleteClicked"]');
+                        input.value = 'true';
+                        form.submit();
+                    }
+                });
+        });
+    });
+
+</script>

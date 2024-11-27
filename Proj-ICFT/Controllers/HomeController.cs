@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Proj_ICFT.Models;
 using Proj_ICFT.Services.FormularioServices.Implementacao;
 using Proj_ICFT.Services.FormularioServices.Interface;
+using Proj_ICFT.Services.PacienteServices.Interface;
 using System.Diagnostics;
 
 namespace Proj_ICFT.Controllers
