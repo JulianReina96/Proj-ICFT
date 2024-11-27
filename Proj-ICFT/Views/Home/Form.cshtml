@@ -53,11 +53,11 @@
             newCard.classList.add('card'); // Adiciona uma classe para estilizar
             newCard.innerHTML = `
                         <h2>Informações do Medicamento</h2><button id="remover" onclick="remover()" type="button"><i class="bi bi-trash3-fill"></i></button>
-                    <h4> Medicamento: <strong>${remedio}</strong></h4>
-                                <p>Categoria: ${categorias}</p>
-                                <p>Tipo: ${subcategoria}</p>
-                        <p>frequencia : ${frequencia}</p>
-                        <p>Instruções Adicionais: ${instrucoesAdicionais.join(', ')}</p>
+                    <h4> <b>Medicamento:</b> <strong>${remedio}</strong></h4>
+                                <p><b>Categoria:</b< ${categorias}</p>
+                               <p> <b>Tipo:</b> ${subcategoria}</p>
+                        <p><b>Frequencia:</b> ${frequencia}</p>
+                        <p><b>Instruções Adicionais:</b> ${instrucoesAdicionais.join(', ')}</p>
                         `;
 
 
@@ -202,7 +202,7 @@
     function gerarPDF() {
         const nomePaciente = document.getElementById('nomePaciente').value;
         const cards = document.querySelectorAll('.card');
-        let conteudo = `<h1>Paciente: ${nomePaciente}</h1>`;
+        let conteudo = `<h1>Paciente: ${nomePaciente}</h1><br>`;
 
         cards.forEach(card => {
             conteudo += card.outerHTML;

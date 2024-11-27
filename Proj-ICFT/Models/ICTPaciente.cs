@@ -1,15 +1,21 @@
-﻿namespace Proj_ICFT.Models
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace Proj_ICFT.Models
 {
-    public class ICTPaciente
+    [Serializable]
+    [Table("PacienteICT")]
+    public class PacienteICT
     {
         public string NomePaciente { get; set; }
-        public int ICTotal { get; set; }
+        public int ICT { get; set; }
+
+        public DateTime dataCriacao { get; set; }
 
 
-        public ICTPaciente(string nomePaciente, int icTotal)
+        public PacienteICT(string nomePaciente, int icTotal)
         {
             NomePaciente = nomePaciente;
-            ICTotal = icTotal;
+            ICT = icTotal;
         }
     }
 }

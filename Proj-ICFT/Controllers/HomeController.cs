@@ -51,9 +51,16 @@ namespace Proj_ICFT.Controllers
 
             var remedios = await _formularioServices.converterMedicamentos(dados.medicamentos);
 
+            int pesoTotal = remedios.Sum(r => r.PesoTotal);
+
+            var subcategorias = remedios.Select(r => r.subcategoria).DistinctBy(c=> c.CategoriaId).ToList();
 
 
-            ICTPaciente ict = new ICTPaciente(dados.nome, remedios.Sum(r=> r.PesoTotal));
+            pesoTotal = pesoTotal + subcategorias.Sum(s => s.Peso);
+
+
+
+            PacienteICT ict = new PacienteICT(dados.nome, pesoTotal);
 
 
 
