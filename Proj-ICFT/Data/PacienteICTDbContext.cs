@@ -4,14 +4,22 @@ using System.Collections.Generic;
 
 namespace Proj_ICFT.Data
 {
-    public class CategoriaDbContext : DbContext
+
+
+    public class PacienteICTDbContext : DbContext
     {
 
 
-        public DbSet<Categoria> Categoria { get; set; }
+        public DbSet<PacienteICT> Paciente { get; set; }
+        public DbSet<Remedio_Paciente> Remedio_Pacientes { get; set; }
 
 
-        public CategoriaDbContext(DbContextOptions<CategoriaDbContext> options) : base(options) { }
+        public PacienteICTDbContext(DbContextOptions<PacienteICTDbContext> options) : base(options) { }
 
     }
+
+
+
+
+    
 }

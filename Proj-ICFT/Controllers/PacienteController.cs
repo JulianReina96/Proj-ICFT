@@ -81,6 +81,8 @@ namespace Proj_ICFT.Controllers
                         }
                         Pacientes.PacienteICT = pacienteOrdenado;
                     }
+                    else
+                        Pacientes.PacienteICT = pacienteModel;
 
                     return View(Pacientes);
                 }

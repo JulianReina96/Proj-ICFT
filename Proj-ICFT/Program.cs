@@ -18,6 +18,7 @@ builder.Services.AddSqlServer<PacienteICTDbContext>(builder.Configuration.GetCon
 
 
 
+
 builder.Services.AddScoped<IFormularioServices, FormularioServices>();
 builder.Services.AddScoped<IPacienteServices, PacienteServices>();
 

@@ -12,12 +12,14 @@ namespace Proj_ICFT.Controllers
     {
 
         private readonly IFormularioServices _formularioServices;
+        private readonly IPacienteServices _pacienteServices;
         private readonly ILogger<HomeController> _logger;
 
-        public HomeController(ILogger<HomeController> logger, IFormularioServices formularioServices)
+        public HomeController(ILogger<HomeController> logger, IFormularioServices formularioServices, IPacienteServices pacienteServices)
         {
             _logger = logger;
             _formularioServices = formularioServices;
+            _pacienteServices = pacienteServices;
         }
 
         public async Task<JsonResult> ObterSubcategorias(int categoriaId)
@@ -62,6 +64,12 @@ namespace Proj_ICFT.Controllers
 
 
             PacienteICT ict = new PacienteICT(dados.nome, pesoTotal);
+
+             _pacienteServices.salvarPaciente(ict, dados.medicamentos);
+
+
+
+
 
 
 

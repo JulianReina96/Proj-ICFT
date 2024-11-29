@@ -13,7 +13,7 @@ namespace Proj_ICFT.Models
 
         public DateTime dataCriacao { get; set; }
         
-        public virtual ICollection<RemedioViewModel> Medicamentos { get; set; } = new List<RemedioViewModel>();
+        public virtual List<Remedio_Paciente> Remedio_Paciente { get; set; }
 
 
         public PacienteICT(string nomePaciente, int icTotal)
