@@ -6,7 +6,7 @@
         public int subcategoria { get; set; }
         public int frequencia { get; set; }
 
-        public List<int>? instrucoesAdicionais { get; set; }
+        public int instrucoesAdicionais { get; set; }
 
     }
 }

@@ -68,13 +68,34 @@ namespace Proj_ICFT.Services.FormularioServices.Implementacao
 
             // Agora que o ID do paciente foi gerado, podemos atualizar os registros de Remedio_Paciente
             foreach (var remedio in remedios)
-                paciente.Remedio_Paciente.Add(new Remedio_Paciente(paciente.ID, remedio.categoria, remedio.subcategoria, remedio.instrucoesAdicionais[0], remedio.frequencia));                
+                paciente.Remedio_Paciente.Add(new Remedio_Paciente(paciente.ID, remedio.categoria, remedio.subcategoria, remedio.instrucoesAdicionais, remedio.frequencia));                
             
 
             _pacienteDbContext.SaveChanges();
             } catch (Exception ex)
             {
                 throw ex;
+            }
+
+
+        }
+
+
+        public void deletarPaciente(int id)
+        {
+
+            var paciente = _pacienteDbContext.Paciente.Include(r=> r.Remedio_Paciente).FirstOrDefault(p=> p.ID == id);
+
+            if(paciente!=null)
+            {
+                foreach(var item in paciente.Remedio_Paciente)
+                {
+                    _pacienteDbContext.Remedio_Pacientes.Remove(item);
+                }
+
+            _pacienteDbContext.Paciente.Remove(paciente);
+
+            _pacienteDbContext.SaveChanges();
             }
 
 

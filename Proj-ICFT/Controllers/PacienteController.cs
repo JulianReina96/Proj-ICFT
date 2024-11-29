@@ -43,6 +43,7 @@ namespace Proj_ICFT.Controllers
                         pacienteModel = pacientesSalvos.PacienteICT
                     .Select(x => new PacienteICT()
                     {
+                        ID = x.ID,
                         NomePaciente = x.NomePaciente,
                         ICT = x.ICT,
                         dataCriacao = x.dataCriacao,
@@ -102,5 +103,63 @@ namespace Proj_ICFT.Controllers
             }
 
         }
-    } 
-}
+
+
+        public async Task<IActionResult> DeletarPaciente(ExibicaoICTViewModel paciente)
+        {
+            try
+            {                
+                if (paciente.deleteClicked)
+                {
+                    _pacienteServices.deletarPaciente(paciente.id);
+                    TempData["SuccessMessage"] = "Paciente removido com sucesso";
+                    return RedirectToAction("PacientesAnalisados", "Paciente");
+                }
+                else
+                {
+                    TempData["ErrorMessage"] = "Erro ao deletar paciente";
+                    return RedirectToAction("PacientesAnalisados", "Paciente");
+                }
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+
+            }
+        }
+
+
+        public async Task<JsonResult> ExportarTodosPacientes()
+        {
+            try
+            {
+                var pacientes = await _pacienteServices.listarPacientesICT();
+
+                List<PacienteICT> pacientesExportacao = new List<PacienteICT>();
+
+                pacientesExportacao = pacientes.Select(x => new PacienteICT()
+                {
+                    ID = x.ID,
+                    NomePaciente = x.NomePaciente,
+                    ICT = x.ICT,
+                    dataCriacao = x.dataCriacao,
+                }).ToList();
+
+
+                return Json(pacientesExportacao);
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+
+            }
+        }
+
+
+
+
+    }
+} 
+

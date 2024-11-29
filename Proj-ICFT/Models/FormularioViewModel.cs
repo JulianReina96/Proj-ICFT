@@ -7,6 +7,8 @@
 
         public List<InstrucoesAdicionais> instrucoes { get; set; }
 
+        public Alerta? Alerta { get; set; }
+
         public FormularioViewModel(List<Categoria> categorias, List<Frequencia> frequencias, List<InstrucoesAdicionais> instrucoes)
         {
             this.categorias = categorias;

@@ -49,7 +49,7 @@ namespace Proj_ICFT.Controllers
         }
 
         [HttpPost]
-        public async Task<JsonResult> ExportarDados ([FromBody] ExportacaoModel dados)
+        public async Task<IActionResult> ExportarDados ([FromBody] ExportacaoModel dados)
         {
 
             var remedios = await _formularioServices.converterMedicamentos(dados.medicamentos);
@@ -74,7 +74,7 @@ namespace Proj_ICFT.Controllers
 
 
 
-            return Json(ict);
+            return Ok();
 
         }
 

@@ -1,0 +1,60 @@
+﻿@{
+    string ErrorMessage = (string)TempData["ErrorMessage"];
+    string SuccessMessage = (string)TempData["SuccessMessage"];
+    string WarningMessage = (string)TempData["WarningMessage"];
+}
+@model Alerta
+
+<center id="msgAlerts">
+    @if (!string.IsNullOrEmpty(ErrorMessage))
+    {
+        <script>
+            Swal.fire({
+                  title: '<strong style="color:#f27474;">Erro !</strong>',
+                  type: 'error',
+                  html: '@ErrorMessage',
+                  customClass: 'swal-wide',
+                  showCloseButton: true,
+                  showCancelButton: false,
+                  focusConfirm: false,
+                  allowOutsideClick: false,
+                  confirmButtonText: ' OK ',
+                  confirmButtonAriaLabel: 'OK'
+            })
+        </script>
+    }
+    @if (!string.IsNullOrEmpty(SuccessMessage))
+    {
+        <script>
+            Swal.fire({
+                   title: '<strong style="color:#a5dc86;">Sucesso !</strong>',
+                   type: 'success',
+                   html: '@SuccessMessage',
+                   customClass: 'swal-wide',
+                   showCloseButton: true,
+                   showCancelButton: false,
+                   focusConfirm: false,
+                   allowOutsideClick: false,
+                   confirmButtonText: ' OK ',
+                   confirmButtonAriaLabel: 'OK'
+            })
+        </script>
+    }
+    @if (!string.IsNullOrEmpty(WarningMessage))
+    {
+        <script>
+            Swal.fire({
+                title: '<strong style="color:#f8bb86;">Atenção !</strong>',
+                type: 'warning',
+                html: '@WarningMessage',
+                customClass: 'swal-wide',
+                showCloseButton: true,
+                showCancelButton: false,
+                focusConfirm: false,
+                allowOutsideClick: false,
+                confirmButtonText: ' OK ',
+                confirmButtonAriaLabel: 'OK'
+            })
+        </script>
+    }
+</center>

@@ -7,6 +7,7 @@ namespace Proj_ICFT.Services.PacienteServices.Interface
     {
         public Task<List<PacienteICT>> listarPacientesICT();
         public void salvarPaciente(PacienteICT paciente, List<MedicamentosExportacaoModel> remedios);
+        public void deletarPaciente(int id);
         //public Task<PacienteICT> buscarPacienteICT(int id);
         //public Task<PacienteICT> salvarPacienteICT(PacienteICT paciente);
         //public Task<PacienteICT> atualizarPacienteICT(PacienteICT paciente);

@@ -31,18 +31,17 @@
 
         <div class="containerGridArtigo">
             <div style="display: flex; align-items: end">
-                <h4 style="color: white">Total de artigos: @Html.DisplayFor(x => qtdArtigos)</h4>
+                <h4 style="color: white">Total de pacientes: @Html.DisplayFor(x => qtdArtigos)</h4>
             </div>
-            <center><h1 style="color:white">Artigos Publicados</h1></center>
+            <center><h1 style="color:white">Pacientes Analisados</h1></center>
+            
         </div>
        @*  <div class="containerGridArtigo">
             <div>
                 <h4 style="color: white">
                     Artigos analisados: @Html.DisplayFor(x => qtdAnalisados)
                 </h4>
-            </div> *@
-            <center><img src="~/img/Prac-icon.png" class="logoLogin"></center>
-        </div>
+            </div> *@            
         <div class="fieldset-content">
             <div class="form-group">
                 <div class="table-responsive custom-table-responsive">
@@ -80,7 +79,7 @@
                                 <th scope="col">Data do Upload<a data-toggle="tooltip" data-placement="top" title="Filtrar por Data" href="PacientesAnalisados?ordenacao=data&pagina=@Model.Pagina" style="border:none"><i class="@FilterData"></i></a></th>
                             <th scope="col">ICT<a data-toggle="tooltip" data-placement="top" title="Filtrar por ICT" href="PacientesAnalisados?ordenacao=analise&pagina=@Model.Pagina" style="border:none"><i class="@FilterAnalise"></i></a></th>
 
-
+                            <th scope="col"></th>
 
                             </tr>
                         </thead>
@@ -90,7 +89,7 @@
                                 if (Model.Pagina > 0)
                                     numeroPagina = Convert.ToInt32(Model.Pagina);
 
-                                int tamanhoPagina = 15;
+                                int tamanhoPagina = 10;
                             IPagedList<PacienteICT> pagedList = Model.PacienteICT.ToPagedList(numeroPagina, tamanhoPagina);
 
                             }
@@ -100,7 +99,7 @@
                             @foreach (var item in pagedList)
                             {
 
-                                @using (Html.BeginForm("FormularioAnalise", "Analise", Microsoft.AspNetCore.Mvc.Rendering.FormMethod.Post, new { id = "teste" + item.ID }))
+                                @using (Html.BeginForm("DeletarPaciente", "Paciente", Microsoft.AspNetCore.Mvc.Rendering.FormMethod.Post, new { id = "teste" + item.ID }))
                                 {
 
                                     <tr class="spacer"><td colspan="2"></td></tr>
@@ -171,12 +170,14 @@
                         })
 
                     </div>
+                    <div><button onclick="exportExcel()" class="btn btn-primary">Exportar ICT</button></div>
                 </div>
             </div>
         </div>
+        </div>
 
-       
 
+    @await Html.PartialAsync("~/Views/Alertas/_Alertas.cshtml", Model.Alerta)
 
 
 </fieldset>
@@ -189,6 +190,55 @@
 <script type="text/javascript" src="~/js/Artigos.js"></script>
 
 <script>
+
+    function exportExcel() {                
+        $.ajax({
+            url: '@Url.Action("ExportarTodosPacientes", "Paciente")', // Substitua por sua action
+            type: 'GET',
+            contentType: 'application/json',
+            success: function (response) {
+
+                downloadExcel(response);
+
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Dados exportados com sucesso!',
+                    text: response.message,
+                    allowOutsideClick: false,
+                    allowEscapeKey: false,
+
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        location.reload(); // Substitua pela URL desejada
+                    }
+                });
+
+            },
+            error: function (xhr, status, error) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Erro ao exportar dados',
+                    text: xhr.responseText
+                });
+            }
+        });
+    }
+
+    function downloadExcel(data) {  
+           var rows = data.map(paciente => ({
+            NomePaciente: paciente.nomePaciente,
+               ICT: paciente.ict
+           }));
+
+           const wb = XLSX.utils.book_new();
+           const ws = XLSX.utils.json_to_sheet(rows);
+           XLSX.utils.book_append_sheet(wb, ws, 'Dados');
+           XLSX.writeFile(wb, 'Pacientes_Analisados.xlsx');
+       }
+
+
+
+
     var deleteButtons = document.querySelectorAll('.delete-button');
 
    
@@ -199,7 +249,7 @@
             Swal.fire({
                 title: '<strong style="color:#f8bb86;">Atenção !</strong>',
                 type: 'warning',
-                html: 'Tem certeza que deseja deletar esse artigo?',
+                html: 'Tem certeza que deseja deletar esse paciente?',
                 customClass: 'swal-wide',
                 showCloseButton: false,
                 showCancelButton: true,
