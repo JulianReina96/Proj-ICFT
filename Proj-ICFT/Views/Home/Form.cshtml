@@ -171,11 +171,11 @@
             data: JSON.stringify(dadosExportacao),
             success: function (response) {
 
-                downloadExcel(response);
+                // downloadExcel(response);
 
                 Swal.fire({
                     icon: 'success',
-                    title: 'Dados exportados com sucesso!',
+                    title: 'Dados calculados com sucesso!',
                     text: response.message,
                     allowOutsideClick: false,
                     allowEscapeKey: false,
