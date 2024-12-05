@@ -1,0 +1,169 @@
+﻿@using Proj_ICFT.Models.ViewModels
+
+
+
+@model ReceitaViewModel
+
+@{
+    ViewData["Title"] = "ArtigoAnalisado";
+}
+
+<fieldset>
+
+    @{
+        var total = Convert.ToInt32(Model.PesoTotal);
+    }
+    <div class="containerProperty container w-100 p-3 border ">
+        <div class="soma-metricas">
+            @*<div>
+            <p style="color: white; text-align: center">
+            data da analise: 03/08/2023
+            </p>
+            </div>*@
+            <div style="text-align: center; grid-column-start: 2" class="col">
+                <h1 style="display: inline-block; color:white">
+                    @Html.DisplayFor(model => model.NomePaciente)
+                </h1>
+            </div>
+            <div style="text-align: right" class="col">
+                <h1>
+                    <a id="num" style="cursor:pointer; color:white" onmouseout="this.style.color='#ffffff'" onmouseover="this.style.color='#00F'" data-bs-toggle="modal" data-bs-target="#TermoConsentimento">
+                        @Html.DisplayFor(model => total)%
+                    </a>
+                </h1>
+            </div>
+        </div>
+        @* <center><img src="~/img/Prac-icon.png" class="logoLogin"></center> *@
+
+        <div class="fieldset-content">
+            <div class="form-group">
+                <div class="table-responsive custom-table-responsive">
+
+                    <table class="table custom-table">
+                        <thead>
+                            <tr>
+                                <th scope="col">Categoria</th>
+                                <th scope="col">SubCategoria</th>
+                                <th scope="col">Frequência</th>
+                                <th scope="col">Instruções</th>
+                                <th scope="col">Peso Total</th>      
+                                <th scope="col">Ação</th>      
+                                
+                            </tr>
+                        </thead>
+                        <tbody>
+
+
+
+
+
+                            @foreach (var item in Model.RemedioList)
+                            {
+
+
+
+                                <tr class="spacer"><td colspan="2"></td></tr>
+                                <tr scope="row">
+                                    <td class="MarcadorSize">
+                                        <b> @Html.DisplayFor(model => item.categoria)</b>
+                                    </td>
+
+                                    <td>
+                                        <div class="MarcadorSize">
+                                            <b>@Html.DisplayFor(model => item.subcategoria)</b>
+                                            <span value"></span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="MarcadorSize">
+                                            <b>@Html.DisplayFor(model => item.frequencia)</b>
+                                            <span value"></span>
+                                        </div>
+                                    </td>
+                                     <td>
+                                        <div class="MarcadorSize">
+                                            <b>@Html.DisplayFor(model => item.instrucoes)</b>
+                                            <span value"></span>
+                                        </div>
+                                    </td>
+                                     <td>
+                                        <div class="MarcadorSize">
+                                            <b>Botao Remover</b>
+                                            <span value"></span>
+                                        </div>
+                                    </td>
+
+
+
+                                </tr>
+                                <tr class="spacer"><td colspan="2"></td></tr>
+
+
+                              
+
+                                }
+
+                            }
+
+
+
+                        </tbody>
+                    </table>
+
+                    <div class="containerFlexRodapeArtigo">
+                        <div>
+                            <button onclick="history.back()" class="btn btn-primary">Retornar</button>
+                        </div>                      
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+    </div>
+
+    @*------------------------Modal Porcentagem de RR-------------------------*@
+    <div class="modal fade" id="TermoConsentimento" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="TermoConsentimentoModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="TermoConsentimentoModalLabel">Como é calculada está porcentagem?</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>
+                        Esta porcentagem é calculada a partir da soma das porcentagens das métricas,
+                        obtidas a partir da coleta dos formulários preenchidos por pesquisadores,
+                        onde os mesmos definiram a importância de cada uma das métricas para a
+                        rastreabilidade cientifica dos artigos!
+                        <br />
+                        <br />
+                    <p>
+                        Obs. Como estamos trabalhando com números decimais, usamos uma margem de erro de 3%
+                        na soma das métricas
+                    </p>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        @await Html.PartialAsync("~/Views/Alertas/_Alertas.cshtml", Model.Alerta);
+
+    </div>
+
+</fieldset>
+
+
+
+<script>
+
+    let meuTexto = document.getElementById("nomeRevista");
+    if (meuTexto.textContent.length <= 34) {
+        meuTexto.outerHTML = `<h5>${meuTexto.textContent}</h5>`;
+    } else {
+        meuTexto.outerHTML = `<h6>${meuTexto.textContent}</h6>`;
+    }
+
+</script>
