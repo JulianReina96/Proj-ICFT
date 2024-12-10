@@ -1,0 +1,110 @@
+﻿
+@using Proj_ICFT.Models.DTO
+@model AdministradorDTO
+@{
+    ViewData["Title"] = "Login";
+}
+
+<body>
+    <div style="margin-top: 85px">
+        <div class="container-sm containerProperty  w-100 p-3 border ">
+            @using (Html.BeginForm("Signin2", "Account", FormMethod.Post)) //alterar para caminho da controller
+            {
+                <center><h1 style="color:white">Acesso ao Portal</h1></center>
+                <center><img src="~/img/Prac-icon.png" class="logoLogin"></center>
+
+
+                <div class="col-md-6 offset-md-3">
+                    <label asp-for="Email"></label>
+                    <div class="col-md-12">
+                        <input asp-for="Email" class="form-control" id="login" aria-describedby="login" placeholder=" Insira o login" required>
+                        <span asp-validation-for="Email" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="col-md-6 offset-md-3">
+                    <label asp-for="Senha"></label>
+                    <div class="col-md-12">
+                        <input asp-for="Senha" type="password" class="form-control" id="senha" placeholder="Senha" required>
+                        <span asp-validation-for="Senha" class="text-danger"></span>
+
+                    </div>
+                </div>
+                <center>
+                    <button type="submit" id="btnLogin" class="btn btn-primary btn-lg btn-block" style="width: 200px; margin: 15px">Login</button>
+                </center>
+
+            }
+            @*<partial name="~/Views/Alertas/_Alertas.cshtml" for="Alertas" view-data="ViewData"/>*@
+
+            @await Html.PartialAsync(Alerta.ALERTAS)
+            <form action="~/Account/ForgotPassword">
+                <center>
+                    <button type="submit" id="btnForgot" class="btn btn-primary btn-lg btn-block" style="width: 150px;height: 30px;font-size: small;line-height: 0px;">Esqueci a senha</button>
+                </center>
+            </form>
+
+        </div>
+
+        <!--Redirecionamento pela url local, alterar ao final do projeto-->
+
+
+        <button id="btnLoginGoogle" onclick="login()" class="btn btn-primary btn-lg btn-block col-md-6 offset-md-3" hidden>Google</button>
+
+        @*<script src="https://www.gstatic.com/firebasejs/9.17.2/firebase-app.js"></script>
+        <script src="https://www.gstatic.com/firebasejs/6.2.0/firebase-auth.js"></script>
+
+        <script>
+
+        const firebaseConfig = {
+        apiKey: "AIzaSyCk1aomK6uaqR2q0hglXd-36cxqPDZTaEw",
+        authDomain: "prac-f7996.firebaseapp.com",
+        projectId: "prac-f7996",
+        storageBucket: "prac-f7996.appspot.com",
+        messagingSenderId: "24438927052",
+        appId: "1:24438927052:web:220c20decf46210bea1c69",
+        measurementId: "G-LDQN1Z2L22"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        var provider = new firebase.auth.GoogleAuthProvider();
+        provider.addScope('https://www.googleapis.com/auth/contacts.readonly');
+        function login() {
+
+
+        firebase.auth().signInWithPopup(provider).then(function (result) {
+        // ESTE NÃO É O JWT, É O TOKEN PARA OBTER INFOS DO GOOGLE
+        var token = result.credential.accessToken;
+        console.log("!!!");
+        var user = result.user;
+        firebase.auth()
+        .currentUser
+        .getIdToken()
+        .then((idToken) => {
+        // ESTE É O TOKEN JWT QUE VAMOS MANDAR PARA API
+        console.log(idToken);
+
+        // chamo controller Front -> Controller Web API
+
+        }).catch(function (error) {
+        console.log(error);
+
+        Swal.fire({
+        title: 'Usuário não autorizado',
+        icon: 'error',
+        confirmButtonText: 'Ok'
+        })
+        });
+        }).catch(function (error) {
+        // DEU RUIM
+        console.log(error);
+        });
+        }
+
+
+        </script>
+        *@
+
+    </div>
+</body>

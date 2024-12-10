@@ -1,3 +1,5 @@
+using Firebase.Auth;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Proj_ICFT.Models;
@@ -15,13 +17,25 @@ namespace Proj_ICFT.Controllers
         private readonly IPacienteServices _pacienteServices;
         private readonly ILogger<HomeController> _logger;
 
-        public HomeController(ILogger<HomeController> logger, IFormularioServices formularioServices, IPacienteServices pacienteServices)
+        FirebaseAuthProvider auth;
+
+        public HomeController(IFormularioServices formularioServices, IPacienteServices pacienteServices, ILogger<HomeController> logger)
         {
-            _logger = logger;
             _formularioServices = formularioServices;
             _pacienteServices = pacienteServices;
+            _logger = logger;
+
+            auth = new FirebaseAuthProvider(
+                           new FirebaseConfig("AIzaSyCY6ZiTuU3iDVMe37SK2p1oWCCoe7ltEV4"));
         }
 
+
+        public IActionResult Login()
+        {
+            return View();
+        }
+
+        [Authorize]
         public async Task<JsonResult> ObterSubcategorias(int categoriaId)
         {
             // Lógica para buscar as subcategorias no banco de dados

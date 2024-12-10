@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 using Proj_ICFT.Data;
 using Proj_ICFT.Services.FormularioServices.Implementacao;
 using Proj_ICFT.Services.FormularioServices.Interface;
@@ -23,6 +25,26 @@ builder.Services.AddScoped<IFormularioServices, FormularioServices>();
 builder.Services.AddScoped<IPacienteServices, PacienteServices>();
 
 
+builder.Services
+    .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.Authority = "https://securetoken.google.com/web-ict-56392";
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidIssuer = "https://securetoken.google.com/web-ict-56392",
+            ValidateAudience = true,
+            ValidAudience = "web-ict-56392",
+            ValidateLifetime = true
+        };
+        options.RequireHttpsMetadata = false;
+        options.MetadataAddress = "https://securetoken.google.com/web-ict-56392/.well-known/openid-configuration";
+
+    });
+
+
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -42,6 +64,6 @@ app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Form}/{id?}");
+    pattern: "{controller=Home}/{action=Login}/{id?}");
 
 app.Run();
