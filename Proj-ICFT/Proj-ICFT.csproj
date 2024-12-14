@@ -18,6 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="JsonFire\" />
     <Folder Include="Utils\" />
     <Folder Include="Views\NovaPasta\" />
   </ItemGroup>

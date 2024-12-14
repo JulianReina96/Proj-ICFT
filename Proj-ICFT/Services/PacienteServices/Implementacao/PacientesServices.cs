@@ -27,12 +27,12 @@ namespace Proj_ICFT.Services.FormularioServices.Implementacao
             
         }
 
-        public async Task<List<PacienteICT>> listarPacientesICT()
+        public async Task<List<PacienteICT>> listarPacientesICT(string email)
         {
             try
             {
 
-            return await _pacienteDbContext.Paciente.Include(r=> r.Remedio_Paciente).ToListAsync();
+            return await _pacienteDbContext.Paciente.Include(r=> r.Remedio_Paciente).Where(r=> r.UsuarioCriacao == email).ToListAsync();
             }
             catch(Exception ex)
             {
@@ -56,10 +56,6 @@ namespace Proj_ICFT.Services.FormularioServices.Implementacao
 
             try
             {
-
-
-
-
             paciente.dataCriacao = DateTime.Now;
             paciente.Remedio_Paciente = new List<Remedio_Paciente>();
 

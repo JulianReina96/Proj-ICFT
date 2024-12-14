@@ -1,5 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Firebase.Auth;
+using FirebaseAdmin.Auth;
+using Microsoft.AspNetCore.Mvc;
 using Proj_ICFT.Models;
+using Proj_ICFT.Models.Filter;
 using Proj_ICFT.Models.ViewModels;
 using Proj_ICFT.Services.FormularioServices.Interface;
 using Proj_ICFT.Services.PacienteServices.Interface;
@@ -9,27 +12,50 @@ namespace Proj_ICFT.Controllers
 {
     public class PacienteController : Controller
     {
+        FirebaseAuthProvider auth;
         private readonly IPacienteServices _pacienteServices;
 
         public PacienteController(IPacienteServices pacienteServices)
         {
             _pacienteServices = pacienteServices;
+            auth = new FirebaseAuthProvider(
+                            new FirebaseConfig("AIzaSyCY6ZiTuU3iDVMe37SK2p1oWCCoe7ltEV4"));
         }
         public IActionResult Index()
         {
             return View();
         }
 
+        public string getUsuarioEmail()
+        {
+            try
+            {
 
+            var token = HttpContext.Session.GetString("_UserToken");
+            FirebaseToken decodedToken = FirebaseAdmin.Auth.FirebaseAuth.DefaultInstance.VerifyIdTokenAsync(token).Result;
+            if (token == null)
+            {
+                return null;
+            }
+            var user = auth.GetUserAsync(token).Result;
+            return user.Email;
+            }catch(Exception ex)
+            {
 
+               throw ex;
+            }
+        }
+
+        [SessionFilter]
         public async Task<IActionResult> PacientesAnalisados(string ordenacao, int pagina)
         {
 
             ExibicaoICTViewModel pacientesSalvos = new ExibicaoICTViewModel();
             try
             {
+                var email = getUsuarioEmail();
 
-                pacientesSalvos.PacienteICT = await _pacienteServices.listarPacientesICT();
+                pacientesSalvos.PacienteICT = await _pacienteServices.listarPacientesICT(email);
 
                 if (pacientesSalvos.PacienteICT != null)
                 {
@@ -104,7 +130,7 @@ namespace Proj_ICFT.Controllers
 
         }
 
-
+        [SessionFilter]
         public async Task<IActionResult> DeletarPaciente(ExibicaoICTViewModel paciente)
         {
             try
@@ -129,12 +155,13 @@ namespace Proj_ICFT.Controllers
             }
         }
 
-
+        [SessionFilter]
         public async Task<JsonResult> ExportarTodosPacientes()
         {
             try
             {
-                var pacientes = await _pacienteServices.listarPacientesICT();
+                var email = getUsuarioEmail();
+                var pacientes = await _pacienteServices.listarPacientesICT(email);
 
                 List<PacienteICT> pacientesExportacao = new List<PacienteICT>();
 

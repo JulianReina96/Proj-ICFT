@@ -10,16 +10,18 @@ namespace Proj_ICFT.Models
         public int ID { get; set; }
         public string NomePaciente { get; set; }
         public int ICT { get; set; }
+        public string? UsuarioCriacao { get; set; }
 
         public DateTime dataCriacao { get; set; }
         
         public virtual List<Remedio_Paciente> Remedio_Paciente { get; set; }
 
 
-        public PacienteICT(string nomePaciente, int icTotal)
+        public PacienteICT(string nomePaciente, int icTotal, string usuario)
         {
             NomePaciente = nomePaciente;
             ICT = icTotal;
+            UsuarioCriacao = usuario;
         }
 
         public PacienteICT() { }

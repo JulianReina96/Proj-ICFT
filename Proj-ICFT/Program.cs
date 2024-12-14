@@ -4,8 +4,12 @@ using Proj_ICFT.Data;
 using Proj_ICFT.Services.FormularioServices.Implementacao;
 using Proj_ICFT.Services.FormularioServices.Interface;
 using Proj_ICFT.Services.PacienteServices.Interface;
+using Proj_ICFT.Services.UsuariosService.Implementacao;
+using Proj_ICFT.Services.UsuariosService.Interface;
 
 var builder = WebApplication.CreateBuilder(args);
+var services = builder.Services;
+var configuration = builder.Configuration;
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
@@ -17,12 +21,14 @@ builder.Services.AddSqlServer<TipoDbContext>(builder.Configuration.GetConnection
 builder.Services.AddSqlServer<CategoriaDbContext>(builder.Configuration.GetConnectionString("DefaultConnection"));
 builder.Services.AddSqlServer<InstrucoesAdicionaisDbContext>(builder.Configuration.GetConnectionString("DefaultConnection"));
 builder.Services.AddSqlServer<PacienteICTDbContext>(builder.Configuration.GetConnectionString("DefaultConnection"));
+builder.Services.AddSqlServer<UsuariosDbContext>(builder.Configuration.GetConnectionString("DefaultConnection"));
 
 
 
 
 builder.Services.AddScoped<IFormularioServices, FormularioServices>();
 builder.Services.AddScoped<IPacienteServices, PacienteServices>();
+builder.Services.AddScoped<IUsuarioService, UsuarioService>();
 
 
 builder.Services
@@ -43,7 +49,16 @@ builder.Services
 
     });
 
+services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(60);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = false;
+}); //adicionado tempo de sessão ativa
 
+// Add services to the container.
+services.AddMvc().AddSessionStateTempDataProvider();
+services.AddSession();
 
 var app = builder.Build();
 
@@ -60,10 +75,21 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+app.UseCors(x => x
+         .AllowAnyOrigin()
+         .AllowAnyMethod()
+         .AllowAnyHeader());
+
+
+//app.UseHttpsRedirection();
+app.UseSession();
+
+app.UseAuthentication();
+
 app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Login}/{id?}");
+    pattern: "{controller=Account}/{action=Login}/{id?}");
 
 app.Run();

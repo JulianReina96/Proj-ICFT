@@ -1,8 +1,10 @@
 using Firebase.Auth;
+using FirebaseAdmin.Auth;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Proj_ICFT.Models;
+using Proj_ICFT.Models.Filter;
 using Proj_ICFT.Services.FormularioServices.Implementacao;
 using Proj_ICFT.Services.FormularioServices.Interface;
 using Proj_ICFT.Services.PacienteServices.Interface;
@@ -30,12 +32,7 @@ namespace Proj_ICFT.Controllers
         }
 
 
-        public IActionResult Login()
-        {
-            return View();
-        }
-
-        [Authorize]
+        [SessionFilter]
         public async Task<JsonResult> ObterSubcategorias(int categoriaId)
         {
             // Lógica para buscar as subcategorias no banco de dados
@@ -53,7 +50,7 @@ namespace Proj_ICFT.Controllers
         {
             return View();
         }
-
+        [SessionFilter]
         public async Task<IActionResult> Form()
         {
             var formulario = await carregarFormulario();
@@ -61,7 +58,7 @@ namespace Proj_ICFT.Controllers
             
             return View(formulario);
         }
-
+        [SessionFilter]
         [HttpPost]
         public async Task<IActionResult> ExportarDados ([FromBody] ExportacaoModel dados)
         {
@@ -75,9 +72,19 @@ namespace Proj_ICFT.Controllers
 
             pesoTotal = pesoTotal + subcategorias.Sum(s => s.Peso);
 
+            var token = HttpContext.Session.GetString("_UserToken");
+            FirebaseToken decodedToken = FirebaseAdmin.Auth.FirebaseAuth.DefaultInstance.VerifyIdTokenAsync(token).Result;
+            if (token == null)
+            {
+                TempData["WarningMessage"] = "É preciso estar logado para realizar a inserção de pacientes";
+                return RedirectToAction("Login", "Account");
 
+            }
 
-            PacienteICT ict = new PacienteICT(dados.nome, pesoTotal);
+            var user = await auth.GetUserAsync(token);
+            string email = user.Email;
+
+            PacienteICT ict = new PacienteICT(dados.nome, pesoTotal, email);
 
              _pacienteServices.salvarPaciente(ict, dados.medicamentos);
 
