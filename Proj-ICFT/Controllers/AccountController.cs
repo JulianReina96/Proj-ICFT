@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Proj_ICFT.Models;
 using Proj_ICFT.Models.DTO;
+using Proj_ICFT.Models.Filter;
 using Proj_ICFT.Models.ModelUrl;
 using System.Text;
 
@@ -27,6 +28,12 @@ namespace Proj_ICFT.Controllers
         }
 
         public IActionResult Login()
+        {
+            return View();
+        }
+
+        [SessionFilter]
+        public IActionResult Register()
         {
             return View();
         }
@@ -72,24 +79,24 @@ namespace Proj_ICFT.Controllers
                     var Refreshtoken = VerifyAndRefreshToken(usertoken);
                     HttpContext.Session.SetString("_UserToken", Refreshtoken);
                     object isAdmin;
-                    if (decodedToken.Claims.TryGetValue("admin", out isAdmin))
+                    //if (decodedToken.Claims.TryGetValue("admin", out isAdmin))
 
-                    {
-                        if ((bool)isAdmin)
-                        {
-                            return View("Administrador");
+                    //{
+                    //    if ((bool)isAdmin)
+                    //    {
+                    //        return View("Administrador");
 
-                        }
-                        else
-                        {
-                            return View("Usuario");
-                        }
-                    }
-                    else
-                    {
+                    //    }
+                    //    else
+                    //    {
+                    //        return View("Usuario");
+                    //    }
+                    //}
+                    //else
+                    //{
                         return RedirectToAction("PacientesAnalisados", "Paciente");
                         // return View("Login");
-                    }
+                    //}
                 }
                 else
                 {
@@ -140,14 +147,73 @@ namespace Proj_ICFT.Controllers
                 throw new Exception("Token inválido ou expirado", ex);
             }
         }
-    
 
-    public IActionResult Register()
-    {
-        return View();
+        [SessionFilter]
+        public async Task<IActionResult> NewRegister(AdministradorDTO user)
+        {
+            try
+            {
+                ModelUrlJson url = new ModelUrlJson();
+
+
+                await auth.CreateUserWithEmailAndPasswordAsync(user.Email, user.Senha);
+                var newUser = await auth.SignInWithEmailAndPasswordAsync(user.Email, user.Senha);
+
+                // criação de role ADMIN para novos usuarios cadastrados pelo administrador
+                var token = newUser.FirebaseToken;
+
+                var claims = new Dictionary<string, object>()
+                {
+                    { "admin", true },
+                };
+                if (FirebaseApp.DefaultInstance == null)
+
+                {
+                    FirebaseApp.Create(new AppOptions()
+                    {
+                        Credential = GoogleCredential.FromFile(url.UrlJson),
+                    });
+                }
+                var decoded = await FirebaseAdmin.Auth.FirebaseAuth.DefaultInstance.VerifyIdTokenAsync(token);
+                var uid = decoded.Uid;
+                await FirebaseAdmin.Auth.FirebaseAuth.DefaultInstance.SetCustomUserClaimsAsync(uid, claims);
+
+                TempData["SuccessMessage"] = "Usuario Cadastrado com Sucesso";
+                return View("Register");
+            }
+            catch (Firebase.Auth.FirebaseAuthException ex)
+            {
+                if (ex.Reason.ToString() == "EmailExists")
+                {
+                    TempData["ErrorMessage"] = "Email já pertence a um administrador";
+                    return View("Register");
+                }
+                else
+                {
+                    TempData["ErrorMessage"] = "Ocorrreu um erro!";
+                    return View("Register");
+                }
+            }
+        }
+
+        public IActionResult ForgotPassword()
+        {
+            return View();
+        }
+
+        [SessionFilter]
+        public async Task<IActionResult> Logout()
+        {
+            string token = "";
+
+            HttpContext.Session.SetString("_UserToken", token);
+            return View("Login");
+
+        }
+
     }
-
-    }
-
 }
+        
+
+    
 

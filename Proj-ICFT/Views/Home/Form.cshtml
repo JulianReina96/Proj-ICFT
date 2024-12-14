@@ -41,24 +41,25 @@
             const categorias = document.getElementById('categorias').options[document.getElementById('categorias').selectedIndex].text;
             const frequencia = document.getElementById('frequencia').options[document.getElementById('frequencia').selectedIndex].text;
             const subcategoria = document.getElementById('subcategorias').options[document.getElementById('subcategorias').selectedIndex].text;
-            const instrucoesAdicionais = document.getElementById('instrucoesAdicionais').options[document.getElementById('instrucoesAdicionais').selectedIndex].text;
-            
-            
+            const instrucoesAdicionais = Array.from(document.querySelectorAll('input[name="InstrucoesAdicionais"]:checked')).map(checkbox => checkbox.nextElementSibling.textContent);
+
+
             // Cria um novo card
             const newCard = document.createElement('div');
             id = dadosMapeados.length + 1;
             newCard.id = 'card' + (dadosMapeados.length + 1);
             newCard.classList.add('card'); // Adiciona uma classe para estilizar
             newCard.innerHTML = `
-                                    <h2>Informações do Medicamento</h2>
-                        <h4> <b>Medicamento:</b> <strong>${remedio}</strong></h4>
-                                    <p><b>Categoria:</b> ${categorias}</p>
-                                   <p> <b>Tipo:</b> ${subcategoria}</p>
-                            <p><b>Frequencia:</b> ${frequencia}</p>
-                            <p><b>Instruções Adicionais:</b> ${instrucoesAdicionais}</p>
-                            `;
-            
- 
+                                        <h2>Informações do Medicamento</h2>
+                            <h4> <b>Medicamento:</b> <strong>${remedio}</strong></h4>
+                                        <p><b>Categoria:</b> ${categorias}</p>
+                                       <p> <b>Tipo:</b> ${subcategoria}</p>
+                                <p><b>Frequencia:</b> ${frequencia}</p>
+                                   <p><b>Instruções Adicionais:</b> ${instrucoesAdicionais.join(', ')}</p>
+
+                                `;
+
+
 
 
             const quebraLinha = document.createElement('br');
@@ -74,8 +75,9 @@
                 categoria: document.getElementById('categorias').options[document.getElementById('categorias').selectedIndex].value,
                 subcategoria: document.getElementById('subcategorias').options[document.getElementById('subcategorias').selectedIndex].value,
                 frequencia: document.getElementById('frequencia').options[document.getElementById('frequencia').selectedIndex].value,
-                instrucoesAdicionais: document.getElementById('instrucoesAdicionais').options[document.getElementById('instrucoesAdicionais').selectedIndex].value,
-                
+                instrucoesAdicionais: Array.from(document.querySelectorAll('input[name="InstrucoesAdicionais"]:checked')).map(checkbox => checkbox.value)
+
+
             };
             dadosMapeados.push(dadosCard);
 
@@ -84,8 +86,9 @@
             document.getElementById('categorias').selectedIndex = 0;
             document.getElementById('subcategorias').innerHTML = '<option value="">Selecione uma subcategoria</option>';
             document.getElementById('frequencia').selectedIndex = 0;
-            document.getElementById('instrucoesAdicionais').selectedIndex = 0;
-            
+            document.querySelectorAll('input[name="InstrucoesAdicionais"]').forEach(checkbox => checkbox.checked = false);
+
+
             document.getElementById('remedio').value = '';
             console.log(dadosMapeados);
 
@@ -125,7 +128,7 @@
         const categorias = document.getElementById('categorias').value;
         const subcategorias = document.getElementById('subcategorias').value;
         const frequencia = document.getElementById('frequencia').value;
-        const instrucao = document.getElementById('instrucoesAdicionais').value;
+
 
 
         let mensagemErro = '';
@@ -142,9 +145,6 @@
         }
         if (frequencia === '') {
             mensagemErro += '<p>O campo <b>"Frequência"</b> precisa ser preenchido.</p>';
-        }
-        if (instrucao === '') {
-            mensagemErro += '<p>O campo <b>"Instruções Adicionais"</b> precisa ser preenchido.</p>';
         }
 
         if (mensagemErro !== '') {
@@ -181,10 +181,10 @@
                     allowEscapeKey: false,
 
                 }).then((result) => {
-                if (result.isConfirmed) {
-                    location.reload(); // Substitua pela URL desejada
-                }
-            });
+                    if (result.isConfirmed) {
+                        location.reload(); // Substitua pela URL desejada
+                    }
+                });
 
             },
             error: function (xhr, status, error) {
@@ -234,7 +234,7 @@
     }
 
     function remover(id) {
-        const card = document.getElementById('card'+id);
+        const card = document.getElementById('card' + id);
         card.remove();
 
         if (document.querySelectorAll('.card').length === 0) {
@@ -242,7 +242,7 @@
             document.getElementById('btnGerarPDF').setAttribute('hidden', 'hidden');
         }
 
-        dadosMapeados[id-1].remove();
+        dadosMapeados[id - 1].remove();
     }
 
 
@@ -308,17 +308,19 @@
                     <br />
 
 
-                    <div class="formbold-radio-group">
-
-                        <select class="form-select" required name="InstrucoesAdicionais" id="instrucoesAdicionais">
-                            <option value="" disabled selected>Informe as instruções adicionais:</option>
-                            @foreach (var option in Model.instrucoes)
-                            {
-                                <option value="@option.id">@option.name</option>
-                            }
-                        </select>
+                    <div>
+                        <strong><label>Informe as instruções adicionais:</label></strong>
+                        <h6 style="color:red; font-size:0.7rem !important;">Não obrigatorio*</h6>
+                        <br /> <br />
+                        @foreach (var option in Model.instrucoes)
+                        {
+                            <div>
+                                <label for="instrucoesAdicionais_@option.id">@option.name</label>
+                                <input type="checkbox" class="checkboxPage" id="instrucoesAdicionais_@option.id" name="InstrucoesAdicionais" value="@option.id">
+                            </div>
+                        }
                     </div>
-                    
+
 
 
                     <button id="salvar" class="btn btn-primary" type="button">Adicionar medicamento</button>
@@ -411,6 +413,10 @@
         display: flex;
         flex-direction: column;
         gap: 10px;
+    }
+
+    .checkboxPage{
+        width:25px !important;
     }
 
     .formbold-radio-label {

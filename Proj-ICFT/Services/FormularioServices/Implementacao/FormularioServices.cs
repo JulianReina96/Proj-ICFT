@@ -56,7 +56,7 @@ namespace Proj_ICFT.Services.FormularioServices.Implementacao
                 var categoria = await _categoriaDbContext.Categoria.FindAsync(model.categoria);
                 var subcategoria = await _tipoDbContext.Tipo.FindAsync(model.subcategoria);
                 var frequencia = await _frequenciaDbContext.Frequencia.FindAsync(model.frequencia);
-                var instrucoes = await _instrucoesAdicionaisDbContext.InstrucoesAdicionais.FindAsync(model.instrucoesAdicionais);
+                List<InstrucoesAdicionais> instrucoes = await _instrucoesAdicionaisDbContext.InstrucoesAdicionais.Where(i => model.instrucoesAdicionais.Contains(i.id)).ToListAsync();
 
                 //cadastrar entidade de remedio pra inserir no banco pra buscar e salvar
 

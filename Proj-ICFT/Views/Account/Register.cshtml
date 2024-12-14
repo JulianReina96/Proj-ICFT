@@ -1,0 +1,42 @@
+﻿@using Proj_ICFT.Models.DTO
+@model AdministradorDTO
+
+@{
+    ViewData["Title"] = "Register";
+}
+
+@using (Html.BeginForm("NewRegister", "Account", FormMethod.Post))
+{
+    <div style="margin-top: 85px">
+        <div class="containerProperty container w-100 p-3 border ">
+            <center><h1 style="color:white">Cadastro Administrador</h1></center>
+            <center><img src="~/img/ictLogo.png" width="200px" class="logoLogin"></center>
+
+
+            <div class="col-md-6 offset-md-3">
+                <label asp-for="Email"></label>
+                <div class="col-md-12">
+                    <input asp-for="Email" class="form-control" id="login" aria-describedby="login" placeholder=" Insira o email" required>
+                    <span asp-validation-for="Email" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="col-md-6 offset-md-3">
+                <label asp-for="Senha"></label>
+                <div class="col-md-12">
+                    <input asp-for="Senha" type="password" class="form-control" id="senha" placeholder="Senha" minlength="6" required>
+                    <span asp-validation-for="Senha" class="text-danger"></span>
+
+                </div>
+            </div>
+            <center style="margin: 15px">
+                <button type="submit" id="btnLogin" class="btn btn-primary btn-lg btn-block" style="width: 300px">Registrar</button>
+            </center>
+
+
+            @await Html.PartialAsync(Alerta.ALERTAS)
+
+
+        </div>
+    </div>
+}
