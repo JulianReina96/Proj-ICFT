@@ -41,7 +41,7 @@
             const categorias = document.getElementById('categorias').options[document.getElementById('categorias').selectedIndex].text;
             const frequencia = document.getElementById('frequencia').options[document.getElementById('frequencia').selectedIndex].text;
             const subcategoria = document.getElementById('subcategorias').options[document.getElementById('subcategorias').selectedIndex].text;
-            const instrucoesAdicionais = Array.from(document.querySelectorAll('input[name="InstrucoesAdicionais"]:checked')).map(checkbox => checkbox.nextElementSibling.textContent);
+            const instrucoesAdicionais = Array.from(document.querySelectorAll('input[name="InstrucoesAdicionais"]:checked')).map(checkbox => checkbox.previousElementSibling.textContent);
 
 
             // Cria um novo card
@@ -317,6 +317,7 @@
                             <div>
                                 <label for="instrucoesAdicionais_@option.id">@option.name</label>
                                 <input type="checkbox" class="checkboxPage" id="instrucoesAdicionais_@option.id" name="InstrucoesAdicionais" value="@option.id">
+                               
                             </div>
                         }
                     </div>
