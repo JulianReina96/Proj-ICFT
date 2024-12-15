@@ -2,6 +2,8 @@
 {
     public class ModelUrlJson
     {
-        public string UrlJson = @"JsonFire\\jsonFire.json";
+        public string UrlJson = Path.GetFullPath("..\\JsonFire\\jsonFire.json");
+
+        
     }
 }
