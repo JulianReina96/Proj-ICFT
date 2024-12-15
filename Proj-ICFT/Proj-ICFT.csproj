@@ -28,4 +28,10 @@
     <Folder Include="Views\NovaPasta\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Content Update="wwwroot\JsonFire\jsonFire.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
 </Project>
