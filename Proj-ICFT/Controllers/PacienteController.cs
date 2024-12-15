@@ -123,7 +123,7 @@ namespace Proj_ICFT.Controllers
             }
             catch (Exception ex)
             {
-                TempData["WarningMessage"] = "Houve um erro durante a sua solicitação." + ex.Message;
+                TempData["WarningMessage"] = "Houve um erro durante a sua solicitação." + ex;
                 return RedirectToAction("Login", "Account");
 
             }
