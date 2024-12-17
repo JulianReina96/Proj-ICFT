@@ -8,7 +8,7 @@ namespace Proj_ICFT.Models
     {
         public int Id { get; set; }
         public string Name { get; set; }
-        public int Peso { get; set; }
+        public float Peso { get; set; }
 
 
     }
