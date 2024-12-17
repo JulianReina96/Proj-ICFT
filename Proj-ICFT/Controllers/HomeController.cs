@@ -68,7 +68,7 @@ namespace Proj_ICFT.Controllers
 
             int pesoTotal = remedios.Sum(r => r.PesoTotal);
 
-            var subcategorias = remedios.Select(r => r.subcategoria).DistinctBy(c=> c.CategoriaId).ToList();
+            var subcategorias = remedios.Select(r => r.subcategoria).DistinctBy(c=> c.Id).ToList();
 
 
             pesoTotal = pesoTotal + subcategorias.Sum(s => s.Peso);
@@ -81,6 +81,8 @@ namespace Proj_ICFT.Controllers
                 return RedirectToAction("Login", "Account");
 
             }
+
+            
 
             var user = await auth.GetUserAsync(token);
             string email = user.Email;

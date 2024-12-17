@@ -22,6 +22,7 @@ builder.Services.AddSqlServer<CategoriaDbContext>(builder.Configuration.GetConne
 builder.Services.AddSqlServer<InstrucoesAdicionaisDbContext>(builder.Configuration.GetConnectionString("DefaultConnection"));
 builder.Services.AddSqlServer<PacienteICTDbContext>(builder.Configuration.GetConnectionString("DefaultConnection"));
 builder.Services.AddSqlServer<UsuariosDbContext>(builder.Configuration.GetConnectionString("DefaultConnection"));
+builder.Services.AddSqlServer<InstrucoesAdicionaisPacienteDbContext>(builder.Configuration.GetConnectionString("DefaultConnection"));
 
 
 
