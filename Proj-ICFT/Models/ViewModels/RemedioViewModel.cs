@@ -7,8 +7,7 @@
         public Tipo subcategoria { get; set; }
         public Frequencia frequencia { get; set; }
         public List<InstrucoesAdicionais> instrucoes { get; set; }
-
-        public int PesoTotal => frequencia.Peso + instrucoes.Sum(i => i.Peso);
+        public double PesoTotal => frequencia.Peso + instrucoes.Sum(i => i.Peso);
 
 
         public RemedioViewModel(Categoria categoria, Tipo subcategoria, Frequencia frequencia, List<InstrucoesAdicionais> instrucoes)

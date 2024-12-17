@@ -53,7 +53,7 @@ namespace Proj_ICFT.Controllers
             ExibicaoICTViewModel pacientesSalvos = new ExibicaoICTViewModel();
             try
             {
-                var email = getUsuarioEmail();
+                var email = getUsuarioEmail();  
 
                 pacientesSalvos.PacienteICT = await _pacienteServices.listarPacientesICT(email);
 

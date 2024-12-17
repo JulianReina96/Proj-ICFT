@@ -7,7 +7,7 @@
 
         public Alerta? Alerta { get; set; }
 
-        public int PesoTotal => RemedioList.Sum(r => r.PesoTotal);
+        public double PesoTotal => RemedioList.Sum(r => r.PesoTotal);
 
 
     }
