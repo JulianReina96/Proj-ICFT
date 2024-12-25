@@ -172,11 +172,12 @@
             success: function (response) {
 
                 // downloadExcel(response);
+                console.log(response);
 
                 Swal.fire({
                     icon: 'success',
                     title: 'Dados calculados com sucesso!',
-                    text: response.message,
+                    text: "Valor Calculado: " + response,
                     allowOutsideClick: false,
                     allowEscapeKey: false,
 

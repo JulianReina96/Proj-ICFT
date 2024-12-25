@@ -59,12 +59,13 @@ namespace Proj_ICFT.Controllers
 
                 if (pacientesSalvos.PacienteICT != null)
                 {
+                    
                     ExibicaoICTViewModel Pacientes = new ExibicaoICTViewModel();
                     Pacientes.Ordenacao = ordenacao;
                     Pacientes.Pagina = pagina;
                     List<PacienteICT> pacienteModel = new List<PacienteICT>();
 
-                    foreach (var item in pacientesSalvos.PacienteICT.OrderBy(i => i.NomePaciente))
+                    foreach (var item in pacientesSalvos.PacienteICT.OrderByDescending(i => i.dataCriacao))
                     {
                         pacienteModel = pacientesSalvos.PacienteICT
                     .Select(x => new PacienteICT()
