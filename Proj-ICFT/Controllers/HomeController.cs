@@ -51,6 +51,11 @@ namespace Proj_ICFT.Controllers
             return View();
         }
 
+        public IActionResult Home()
+        {
+            return View();
+        }
+
         [SessionFilter]
         public async Task<IActionResult> Form()
         {
@@ -66,7 +71,7 @@ namespace Proj_ICFT.Controllers
 
             var remedios = await _formularioServices.converterMedicamentos(dados.medicamentos);
 
-            int pesoTotal = remedios.Sum(r => r.PesoTotal);
+            var pesoTotal = remedios.Sum(r => r.PesoTotal);
 
             var subcategorias = remedios.Select(r => r.subcategoria).DistinctBy(c=> c.Id).ToList();
 
