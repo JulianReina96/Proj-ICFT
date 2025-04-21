@@ -103,7 +103,7 @@ namespace Proj_ICFT.Controllers
 
 
 
-            return Ok();
+            return Ok(pesoTotal);
 
         }
 

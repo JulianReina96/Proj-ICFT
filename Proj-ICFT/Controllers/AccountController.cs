@@ -94,7 +94,7 @@ namespace Proj_ICFT.Controllers
                     //}
                     //else
                     //{
-                        return RedirectToAction("PacientesAnalisados", "Paciente");
+                        return RedirectToAction("Form", "Home");
                         // return View("Login");
                     //}
                 }

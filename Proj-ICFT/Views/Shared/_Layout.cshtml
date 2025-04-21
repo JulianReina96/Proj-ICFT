@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - Calculadora IC</title>
+    <title>@ViewData["Title"] - Calculadora ICFT</title>
     <link rel="stylesheet" href="~/css/main.css" asp-append-version="true" />
 
 
@@ -86,16 +86,13 @@
     <header id="header" class="header d-flex align-items-center">
 
         <div class="container-fluid container-xl d-flex align-items-center justify-content-between">
-            <a asp-action="Form" asp-controller="Home" class=" d-flex align-items-center">
+            <a asp-action="Form" asp-controller="Home" class="logo d-flex align-items-center">
 
-                
-                <img src="~/img/LogoSemFundo.png" height="200px !important" alt="">
-                
+                <h1>Calculadora ICFT<span>.</span></h1>
             </a>
 
             <nav id="navbar" class="navbar">
                 <ul>
-                    <li><a asp-action="Home" asp-controller="Home">Home</a></li>
                     <li><a asp-action="Form" asp-controller="Home">Receita</a></li>
                     <li><a asp-action="PacientesAnalisados" asp-controller="Paciente">Resultado Pacientes</a></li>
                     <li><a asp-action="Register" asp-controller="Account">Registrar</a></li>
@@ -135,7 +132,7 @@
         </div>
         <div class="container mt-4">
             <div class="copyright">
-                <img src="~/img/LogoSemFundo.png" height="200px !important" alt="">
+                <h6> <strong>Calculadora de Índice de Complexidade </strong></h6>
                 <h7></h7>
                 <br />
                 <h8>Sistema desenvolvido por <a href="https://www.linkedin.com/in/julianreina/" style="color:#40f84c"><u>Julian Reina</u></a></h8>

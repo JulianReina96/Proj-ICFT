@@ -32,7 +32,7 @@ namespace Proj_ICFT.Services.FormularioServices.Implementacao
             try
             {
 
-            return await _pacienteDbContext.Paciente.Include(r=> r.Remedio_Paciente).Where(r=> r.UsuarioCriacao == email).ToListAsync();
+            return await _pacienteDbContext.Paciente.Include(r=> r.Remedio_Paciente).Where(r=> r.UsuarioCriacao == email).OrderByDescending(r=> r.dataCriacao).ToListAsync();
             }
             catch(Exception ex)
             {
@@ -104,7 +104,9 @@ namespace Proj_ICFT.Services.FormularioServices.Implementacao
             {
                 foreach(var item in paciente.Remedio_Paciente)
                 {
+                    
                     _pacienteDbContext.Remedio_Pacientes.Remove(item);
+                    
                 }
 
             _pacienteDbContext.Paciente.Remove(paciente);
