@@ -1,0 +1,672 @@
+﻿@{
+    ViewData["Title"] = "Index";
+
+}
+@model List<string>
+
+
+<div>
+    <section id="hero" class="hero ">
+        <div class="container position-relative ">
+            <div class="row gy-5" data-aos="fade-in">
+                <div class="col-lg-6 order-2 order-lg-1 d-flex flex-column justify-content-center text-center text-lg-start">
+                    <h2> Simplificando o uso de medicamentos, o paciente é protagonista</h2>
+                    @* <h2>Bem vindo ao <span>Pharma</span><strong>SIM</strong></h2> *@
+                    <p>
+                        <i>
+                            Descomplicamos o uso do Medication Regimen Complexity Index(ICFT) de Melchiors and cols, 2007, por meio de
+                            uma ferramenta automatizada desenvolvida a partir da tradução
+                            e validação do trabalho para o português.
+
+
+
+                        </i>
+                    </p>
+                    <div class="d-flex justify-content-center justify-content-lg-start">
+                        <div class="position-relative">
+                            @* <form action="~/Analise/ConsultaArtigo">
+                            <select name="Artigos" id="Artigos" style="display: none">
+                            <option value="" disabled selected>Consulte aqui a rastreabilidade científica dos artigos</option>
+                            @foreach (var option in Model)
+                            {
+                            <option value="@option">@option</option>
+                            }
+                            </select>
+                            <button type="submit" id="submitButton" class="position-absolute border-3 rounded-pill" style="position: absolute; top: 50%; right: 10px; transform: translateY(-50%);">
+                            <i class="bi bi-search"></i>
+                            </button>
+                            </form> *@
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="col-lg-6 order-1 order-lg-2">
+                    <img src="~/img/PersonaHome.png" class="img-fluid" alt="" data-aos="zoom-out" data-aos-delay="100">
+                </div>
+            </div>
+        </div>
+
+        @*   <div class="icon-boxes position-relative">
+        <div class="container position-relative">
+        <div class="row gy-4 mt-5">
+
+
+        <div class="col-xl-3 col-md-6" data-aos="fade-up" data-aos-delay="100">
+        <div class="icon-box text-center" type="button" style="border:none" data-bs-toggle="modal" data-bs-target="#RastreabilidadeModal">
+        <div class="icon"><i class="bi bi-easel"></i></div>
+        <h4 class="title justify-content-center" style="color:white"> Rastreabilidade</h4>
+
+        </div>
+        </div>
+
+        <!--End Icon Box -->
+        <!--Modal Rastreabilidade-->
+        <div class="modal fade" id="RastreabilidadeModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="RastreabilidadeModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+        <div class="modal-header">
+        <h5 class="modal-title" id="RastreabilidadeModalLabel">Rastreabilidade</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+
+        <p>
+        A rastreabilidade é definida como sendo o mapeamento de todo o percurso que se deve
+        percorrer durante a execução ou ainda a capacidade de monitorar um produto, que pode
+        ser uma pesquisa, desde o início de sua elaboração, até seu último estágio (SILVA et
+        al., 2020). O sistema de rastreabilidade funciona como um conjunto de ferramentas que
+        possibilitam identificar dados e fatos relacionados ao produto em questão, durante e
+        após sua cadeia de formação, de modo que o histórico seja preservado. Neste processo,
+        existem muitas vantagens, como evitar perdas de informações e/ou misturas de produtos
+        parecidos, ter um banco de dados com as etapas de processamento necessárias, além de
+        prevenir não conformidades; ainda que a qualidade do produto em si não possa ser
+        assegurada, a rastreabilidade permite que os dados utilizados para sua execução possam
+        ser recuperados de forma rápida e eficiente, facilitando um processo de investigação de
+        fatos não conformes (RAMALHO et al.,2020).
+
+        </p>
+
+        <h6><strong>Referência:</strong> <a href="http://oaji.net/articles/2020/5433-1585089901.pdf">RASI</a> </h6>
+
+
+        </div>
+
+        </div>
+        </div>
+        </div>
+        <div class="col-xl-3 col-md-6" data-aos="fade-up" data-aos-delay="200">
+
+        <div class="icon-box text-center" type="button" data-bs-toggle="modal" data-bs-target="#reprodutibilidadeModal">
+        <div class="icon"><i class="bi bi-gem" style="text-align: center"></i></div>
+
+        <h4 class="title justify-content-center" style="color:white">Reprodutibilidade </h4>
+
+
+        </div>
+        </div>
+
+
+
+        <!-- Modal Reprodutibilidade -->
+        <div class="modal fade" id="reprodutibilidadeModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="reprodutibilidadeModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+        <div class="modal-header">
+        <h5 class="modal-title" id="reprodutibilidadeModalLabel">Reprodutibilidade</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+
+        <p>
+        Segundo o subcomitê da US National Science Foundation, a “reprodutibilidade é uma
+        condição mínima necessária para que uma descoberta seja considerada verossímil e se
+        refere à capacidade de um pesquisador de duplicar os resultados de um estudo anterior,
+        usando os mesmos materiais, sejam eles os dados brutos ou a mesma análise estatística,
+        que foram usados ​​pelo primeiro pesquisador”. Ainda segundo a fonte, a ciência é um
+        processo cumulativo que depende da investigação repetida das mesmas questões sob
+        diferentes ângulos, onde cada estudo se baseia em percepções produzidas a partir de
+        estudos anteriores, podendo o processo científico pode ter sua eficiência comprometida
+        se forem divulgados resultados ilusórios produzidos de forma intencional ou não (NSF,
+        2021).
+
+        </p>
+        <h6><strong>Referência:</strong><a href="https://www.nsf.gov/publications/pub_summ.jsp?ods_key=nsf22001&org=CCF">National Science Foundation</a></h6>
+
+        </div>
+
+        </div>
+        </div>
+        </div>
+
+
+        <!--End Icon Box -->
+
+        <div class="col-xl-3 col-md-6 " data-aos="fade-up" data-aos-delay="300">
+
+        <div class="icon-box text-center" type="button" style="border:none" data-bs-toggle="modal" data-bs-target="#PesquisaModal">
+        <div class="icon"><i class="bi bi-geo-alt"></i></div>
+
+        <h4 class="title justify-content-center" style="color:white">  Pesquisa </h4>
+
+        </div>
+        </div>
+
+
+        <!--End Icon Box -->
+        <!-- Modal Pesquisa -->
+        <div class="modal fade" id="PesquisaModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="PesquisaModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+        <div class="modal-header">
+        <h5 class="modal-title" id="PesquisaModalLabel">Pesquisa</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+
+        <p>
+        O conceito de Pesquisa Científica diz respeito a “toda investigação original que vise
+        contribuir para a constituição de uma ciência”. Para que esta seja concebida é necessário
+        que haja atividade científica uma vez que esta visa diretamente à concepção e realização
+        de pesquisas científicas, à comunicação de seus resultados, à interação científica entre
+        pesquisadores e à orientação ou supervisão de processos de formação de pesquisadores
+        (FAPESP, 2014).
+
+        </p>
+
+        <p>
+
+        Todo o processo de execução de uma pesquisa científica, inclui diferentes etapas e
+        muito mais pessoas do que apenas os pesquisadores são envolvidos sendo seu fluxo
+        iniciado bem antes de um artigo ser publicado e ter o conhecimento disseminado. Todo
+        o processo - desde a decisão do que pesquisar, passando pela elaboração cuidadosa das
+        informações e pelos testes experimentais até a publicação por editores - precisa estar
+        atento à rastreabilidade e reprodutibilidade dos dados. Todos os envolvidos - gestores da
+
+        pesquisa e apoio administrativo (os quais são essenciais para o sucesso da
+        implementação de requisitos da qualidade), bem como os demais (financiadores,
+        editores) devem estar atentos que os esforços para aumentar estes critérios são
+        fundamentais para o processo científico e para a integridade científica, e estão longe de
+        serem burocracia (NATURE, 2021).
+
+        </p>
+
+        <h6><strong>Referências:</strong> <a href="https://fapesp.br/12592/anexo-i-politica-para-acesso-aberto-as-publicacoes-resultantes-de-auxilios-e-bolsas-fapesp"> Fapesp </a>, <a href="https://doi.org/10.1038/d41586-021-01167-9">DOI</a></h6>
+
+        </div>
+
+        </div>
+        </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6" data-aos="fade-up" data-aos-delay="500">
+
+        <div class="icon-box text-center" type="button" style="border:none" data-bs-toggle="modal" data-bs-target="#RedesBayesianasModal">
+        <div class="icon"><i class="bi bi-diagram-3"></i></div>
+        <h4 class="title justify-content-center" style="color:white">PLN</h4>
+
+        </div>
+        </div>
+
+        <!--End Icon Box -->
+        <!-- Modal Redes Bayesianas -->
+        <div class="modal fade" id="RedesBayesianasModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="RedesBayesianasModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+        <div class="modal-header">
+        <h5 class="modal-title" id="RedesBayesianasModalLabel">Processamento da linguagem natural</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+
+        <p>
+        É uma tecnologia, cuja função é criar algoritmos que possam dar sentido à linguagem
+        natural utilizando técnicas de Aprendizado Profundo e grandes conjuntos de dados.
+        Possibilita, dentre outras coisas, análise de texto, análise de sentimentos e mídia social,
+        extração de informações por meio de tarefas, solucionar questões como classificação de
+        um texto, reconhecimento de entidades nomeadas, desambiguação de sentido e
+        modelagem da linguagem
+
+        </p>
+
+        <h6><strong>Referência: </strong><a href="https://www.researchgate.net/publication/362379308_Processamento_de_Linguagem_Natural_via_Aprendizagem_Profunda">Oliveira, 2022</a> </h6>
+
+        </div>
+
+        </div>
+        </div>
+        </div>
+
+        </div>
+        </div>
+        </div> *@
+
+
+    </section>
+    <!-- End Hero Section -->
+    <!-- ======= Portfolio Section ======= -->
+
+
+    <section id="portfolio" class="portfolio sections-bg">
+
+        <div class="container" data-aos="fade-up">
+            <div class="section-header" style="padding-bottom: 0px">
+                <h1>CALCULADORA AQUI ???</h1>
+            </div>
+        
+
+            </center>
+
+        </div>
+    </section>
+    
+   
+
+    <section id="portfolio" class="portfolio sections-bg">
+
+        <div class="container" data-aos="fade-up">
+            <div class="section-header" style="padding-bottom: 0px">
+                <h2>A manutenção do tratamento medicamentoso</h2>
+            </div>
+            <div class="col-12 ">
+                <div class="card box-shadow">
+
+                    <div class="card-body">
+                        <p>
+                            A manutenção do tratamento medicamentoso é de grande importância para o paciente.
+                            Assim, a manuteção da regularidade, tona-se um dos grandes desafios, bem como a persistência e uso conforme prescrição.
+
+
+
+
+
+                        </p>
+
+                        <p>
+                            A adesão ao tratamento medicamentoso refere-se ao grau em que os pacientes seguem corretamente as orientações prescritas por profissionais de saúde em relação ao uso de medicamentos.
+                            Porém, em um  contexto de uso de muitos medicamentos a adesão corre o risco de não ser cumprida devido a confusão considerando as dose e horários de administração.
+                        </p>
+
+                        <p>
+                            O  uso simultâneo de mais de cinco medicamentos é chamado de  polifarmácia.
+                            E,embora a polifarmácia possa ser necessária em certos casos, como em pacientes com condições crônicas, isso pode dificultar o gerenciamento, principalmente em regimes complexos de administração.
+                        </p>
+
+                        <p>
+                            Sabe-se que a  simplificação do  regime medicamentoso pode reduzir a  complexidade do tratamento e quando avaliamos  a complexidade temos  a possibilidade de identificar o tamanho(score) e oportunidades de simplificação.
+
+                            A avaliação da complexidade do tratamento medicamentoso é fundamental para identificar fatores que podem interferir na adesão, segurança e eficácia do tratamento.
+                        </p>
+
+
+                    </div>
+                </div>
+            </div>
+
+            </center>
+
+        </div>
+    </section>
+    
+    <section id="portfolio" class="portfolio sections-bg">
+
+        <div class="container" data-aos="fade-up">
+            <div class="section-header" style="padding-bottom: 0px">
+                <h2>A importância da avaliação da complexidade do tratamento medicamentoso</h2>
+            </div>
+
+            <div style="display:grid; grid-template-columns: 33% 33% 33%;">
+
+                <center data-aos="fade-up">
+                    <div class="icon-box text-center" type="button" style="border:none;padding: 20px;border-radius: 15px;box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);margin: 30px;background-color: #008374; transition-duration: 0.5s;" data-bs-toggle="modal" data-bs-target="#IAModal">
+                        <h4 style="color: white">Adesão ao tratamento</h4>
+                        <img src="~/img/portfolio/IA.jpg" class="img-fluid" alt="" style="border-radius: 10px;">
+                    </div>
+                </center>
+
+                <center data-aos="fade-up">
+                    <div class="icon-box text-center" type="button" style="border:none;padding: 20px;border-radius: 15px;box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);margin: 30px;background-color: #008374; transition-duration: 0.5s;" data-bs-toggle="modal" data-bs-target="#VacinaModal">
+                        <h4 style="color: white">Redução do risco de erros</h4>
+                        <img src="~/img/portfolio/Vacina(1).jpg" class="img-fluid" alt="" style="border-radius: 10px;">
+                    </div>
+                </center>
+
+                <center data-aos="fade-up">
+                    <div class="icon-box text-center" type="button" style="border:none;padding: 20px;border-radius: 15px;box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);margin: 30px;background-color: #008374; transition-duration: 0.5s;" data-bs-toggle="modal" data-bs-target="#mentalHealthModal">
+                        <h4 style="color: white">Prevenção de interações medicamentosas e eventos adversos</h4>
+                        <img src="~/img/portfolio/SaudeMental.jpg" class="img-fluid" alt="" style="border-radius: 10px;">
+                    </div>
+                </center>
+
+                <center data-aos="fade-up">
+                    <div class="icon-box text-center" type="button" style="border:none;padding: 20px;border-radius: 15px;box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);margin: 30px;background-color: #008374; transition-duration: 0.5s;" data-bs-toggle="modal" data-bs-target="#AnormalidadesModal">
+                        <h4 style="color: white">Adaptação do tratamento às condições do paciente</h4>
+                        <img src="~/img/portfolio/Anormalidades.jpeg" class="img-fluid" alt="" style="border-radius: 10px;">
+                    </div>
+                </center>
+
+                <center data-aos="fade-up">
+                    <div class="icon-box text-center" type="button" style="border:none;padding: 20px;border-radius: 15px;box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);margin: 30px;background-color: #008374; transition-duration: 0.5s;" data-bs-toggle="modal" data-bs-target="#ImunidadeModal">
+                        <h4 style="color: white">Otimização dos resultados clínicos</h4>
+                        <img src="~/img/portfolio/Imunidade.jpeg" class="img-fluid" alt="" style="border-radius: 10px;">
+                    </div>
+                </center>
+
+                <center data-aos="fade-up">
+                    <div class="icon-box text-center" type="button" style="border:none;padding: 20px;border-radius: 15px;box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);margin: 30px;background-color: #008374; transition-duration: 0.5s;" data-bs-toggle="modal" data-bs-target="#PrematuridadeModal">
+                        <h4 style="color: white">Redução dos custos de saúde</h4>
+                        <img src="~/img/portfolio/Prematuridade.jpeg" class="img-fluid" alt="" style="border-radius: 10px;">
+                    </div>
+                </center>
+
+                @*  <center data-aos="fade-up">
+                <div class="icon-box text-center" type="button" style="border:none;padding: 20px;border-radius: 15px;box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);margin: 30px;background-color: #008374; transition-duration: 0.5s;" data-bs-toggle="modal" data-bs-target="#GravidezModal">
+                <h4 style="color: white">Gravidez</h4>
+                <img src="~/img/portfolio/Gravidez.jpeg" class="img-fluid" alt="" style="border-radius: 10px;">
+                </div>
+                </center>
+
+                <center data-aos="fade-up">
+                <div class="icon-box text-center" type="button" style="border:none;padding: 20px;border-radius: 15px;box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);margin: 30px;background-color: #008374; transition-duration: 0.5s;" data-bs-toggle="modal" data-bs-target="#VariantesModal">
+                <h4 style="color: white">Variantes Covid-19</h4>
+                <img src="~/img/portfolio/Variantes.jpeg" class="img-fluid" alt="" style="border-radius: 10px;">
+                </div>
+                </center> *@
+
+            </div>
+            </center>
+
+        </div>
+    </section><!-- End Portfolio Section -->
+    <!-- Modal IA -->
+    <div class="modal fade" id="IAModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="IAModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="IAModalLabel">Melhorar adesão ao tratamento</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>
+                        Regimes complexos, com várias doses diárias, diferentes horários e múltiplos medicamentos, podem ser difíceis de seguir.
+                        Simplificar o tratamento, quando possível, aumenta a probabilidade de o paciente cumprir as orientações.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Vacina -->
+    <div class="modal fade" id="VacinaModal" style="overflow:hidden" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="VacinaModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="VacinaModalLabel">Reduzir riscos de erro</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>
+                        Tratamentos complexos estão associados a um maior risco de erros na administração, como doses incorretas ou esquecimentos.
+                        Identificar a complexidade ajuda a implementar estratégias para prevenir esses erros, como o uso de sistemas de dispensação personalizada ou lembretes.
+                    </p>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Saúde Mental -->
+    <div class="modal fade" id="mentalHealthModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="mentalHealthModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="mentalHealthModalLabel">Prevenir interações medicamentosas e eventos adversos</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>
+                        Regimes com múltiplos medicamentos aumentam o risco de interações medicamentosas e efeitos colaterais.
+                        Avaliar a complexidade permite ajustar a prescrição para minimizar esses riscos.
+                    </p>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Anormalidades -->
+    <div class="modal fade" id="AnormalidadesModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="AnormalidadesModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="AnormalidadesModalLabel">Adaptar o tratamento às condições do paciente</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>
+                        Pacientes com limitações físicas ou cognitivas, como idosos ou aqueles com doenças neurológicas, podem ter dificuldades com tratamentos complicados.
+                        A avaliação ajuda a adaptar o tratamento às necessidades individuais, como ajustar a via de administração ou o intervalo entre doses.
+                    </p>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Imunidade -->
+    <div class="modal fade" id="ImunidadeModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="ImunidadeModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="ImunidadeModalLabel">Otimizar resultados clínicos</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>
+                        A simplificação e personalização do tratamento aumentam a eficácia terapêutica e a qualidade de vida do paciente.
+                        Tratamentos menos complexos são mais fáceis de monitorar e ajustar conforme necessário.
+                    </p>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Prematuridade -->
+    <div class="modal fade" id="PrematuridadeModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="PrematuridadeModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="PrematuridadeModalLabel">
+                        Reduzir custos de saúde
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>
+                        Tratamentos complexos podem levar a complicações, hospitalizações e uso inadequado de recursos de saúde.
+                        Avaliar e otimizar a complexidade evita custos desnecessários.
+                    </p>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Gravidez -->
+    <div class="modal fade" id="GravidezModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="GravidezModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="GravidezModalLabel">Artigos sobre gravidez</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <ul>
+                        <li><a href="https://bmcinfectdis.biomedcentral.com/articles/10.1186/s12879-023-08555-8" target="_blank">COVID-19 vaccination in pregnancy: the impact of multimorbidity and smoking status on vaccine hesitancy, a cohort study of 25,111women in Wales, UK</a></li>
+                        <br />
+                        <li><a href="https://bmcwomenshealth.biomedcentral.com/articles/10.1186/s12905-023-02512-y" target="_blank">The impact of the COVID-19 pandemic on contraceptive methods, abortion, and unintended pregnancy: a cross-sectional study</a></li>
+                        <br />
+                        <li><a href="https://bmcpublichealth.biomedcentral.com/articles/10.1186/s12889-023-15357-9" target="_blank">Time of leaving work pregnancy results during COVID-19 pandemic. The MOACC-19 cohort from Spain</a></li>
+                        <br />
+                        <li><a href="https://bmcpregnancychildbirth.biomedcentral.com/articles/10.1186/s12884-023-05505-9" target="_blank">Acceptance of vaccination against pertussis, COVID-19 and influenza during pregnancy: a cross-sectional study</a></li>
+                        <br />
+                        <li><a href="https://bmcpublichealth.biomedcentral.com/articles/10.1186/s12889-023-15258-x" target="_blank">Intimate partner violence during pregnancy in COVID-19 pandemic: a cross-sectional study from South-west of Iran</a></li>
+                        <br />
+                        <li><a href="https://bmcpregnancychildbirth.biomedcentral.com/articles/10.1186/s12884-023-05349-3" target="_blank">Pregnancy in the time of COVID-19: towards Fetal monitoring 4.0</a></li>
+                        <br />
+                        <li><a href="https://www.sciencedirect.com/science/article/pii/S2666577823001053?via%3Dihub" target="_blank">Effectiveness of COVID-19 vaccination during pregnancy by circulating viral variant</a></li>
+                    </ul>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Variantes Covid -->
+    <div class="modal fade" id="VariantesModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="VariantesModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="VariantesModalLabel">Artigos sobre variantes da covid-19</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <ul>
+                        <li><a href="https://www.sciencedirect.com/science/article/pii/S2329050123001493?via%3Dihub" target="_blank">A T cell-targeted multi-antigen vaccine generates robust cellular and humoral immunity against SARS-CoV-2 infection</a></li>
+                        <br />
+                        <li><a href="https://virologyj.biomedcentral.com/articles/10.1186/s12985-023-02136-6" target="_blank">Cross protection to SARS-CoV-2 variants in hamsters with naturally-acquired immunity</a></li>
+                        <br />
+                        <li><a href="https://www.nature.com/articles/s41598-023-34188-7" target="_blank">SARS‑CoV‑2 viral variants can rapidly be identifed for clinical decision making and population surveillance using a high‑throughput digital droplet PCR assay</a></li>
+                        <br />
+                        <li><a href="https://virologyj.biomedcentral.com/articles/10.1186/s12985-023-02018-x" target="_blank">A comparison of transmissibility of SARS-CoV-2 variants of concern</a></li>
+                        <br />
+                        <li><a href="https://eurjmedres.biomedcentral.com/articles/10.1186/s40001-023-01047-0" target="_blank">The reproduction rate of severe acute respiratory syndrome coronavirus 2 diferent variants recently circulated in human:a narrative review</a></li>
+                        <br />
+                        <li><a href="https://www.sciencedirect.com/science/article/pii/S0264410X23010915?via%3Dihub" target="_blank">Preclinical evaluation of a SARS-CoV-2 variant B.1.351-based candidate DNA vaccine</a></li>
+                        <br />
+                        <li><a href="https://www.sciencedirect.com/science/article/pii/S0264410X23010654?via%3Dihub" target="_blank">Protocol for a living evidence synthesis on variants of concern and COVID-19 vaccine effectiveness</a></li>
+                        <br />
+                        <li><a href="https://www.mdpi.com/1999-4915/15/10/2130" target="_blank">Advances of Reverse Vaccinology for mRNA Vaccine Design against SARS-CoV-2: A Review of Methods and Tools</a></li>
+                    </ul>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <section id="contact" class="contact">
+        <div class="container" data-aos="fade-up">
+
+            <div class="section-header">
+                <h2>Contato</h2>
+                <p>Além do mais, se ficou alguma dúvida, surgiu alguma sugestão ou complicação, não hesite em fazer contato.</p>
+            </div>
+
+            <div class="row gx-lg-0 gy-4">
+
+                <div class="col-lg-4">
+
+                    <div class="info-container d-flex flex-column align-items-center justify-content-center">
+
+                        <div class="info-item d-flex">
+                            <i class="bi bi-envelope flex-shrink-0"></i>
+                            <div>
+                                <h4>Email:</h4>
+                                <p>contato@gmail.com</p>
+                            </div>
+                        </div><!-- End Info Item -->
+
+
+
+
+                    </div>
+
+                </div>
+
+                <div class="col-lg-8">
+                    <form action="forms/contact.php" method="post" role="form" class="php-email-form">
+                        <div class="row">
+                            <div class="col-md-6 form-group">
+                                <input type="text" name="name" class="form-control" id="name" placeholder="Seu Nome" required>
+                            </div>
+                            <div class="col-md-6 form-group mt-3 mt-md-0">
+                                <input type="email" class="form-control" name="email" id="email" placeholder="Seu Email" required>
+                            </div>
+                        </div>
+                        <div class="form-group mt-3">
+                            <input type="text" class="form-control" name="subject" id="subject" placeholder="Assunto" required>
+                        </div>
+                        <div class="form-group mt-3">
+                            <textarea class="form-control" name="message" rows="7" placeholder="Mensagem" required></textarea>
+                        </div>
+                        <div class="my-3">
+                            <div class="loading">Carregando</div>
+                            <div class="error-message"></div>
+                            <div class="sent-message">Sua mensagem foi enviada. Obrigado!</div>
+                        </div>
+                        <div class="text-center"><button type="submit">Enviar Mensagem</button></div>
+                    </form>
+                </div><!-- End Contact Form -->
+
+            </div>
+
+        </div>
+    </section><!-- End Contact Section -->
+    @* @await Html.PartialAsync("~/Views/Alertas/_Alertas.cshtml", new Formulario.Models.AlertaViewModel()); *@
+
+</div>
+
+
+<style>
+    .select2-selection {
+        border-radius: var(--bs-border-radius-pill) !important;
+        height: 47px;
+        width: 500px;
+        padding-left: 15px;
+        background-color: white;
+        border-color: gray;
+        line-height: 47px;
+        display: inline-block;
+        cursor: pointer;
+    }
+
+    .select2-results__options {
+        max-height: 200px;
+        overflow-y: auto;
+        background-color: white;
+        list-style: none;
+        width: 450px;
+        padding-left: 10px;
+        padding-right: 10px;
+        cursor: context-menu;
+    }
+
+    .icon-box:hover {
+        transform: translateY(-10px);
+    }
+
+</style>
+
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $('#Artigos').select2();
+        checkSelectValue(document.getElementById("Artigos"));
+    });
+
+    $('#Artigos').on('change', function () {
+        checkSelectValue(this);
+    });
+
+    function checkSelectValue(selectElement) {
+        var submitButton = document.getElementById("submitButton");
+        if (selectElement.value === "") {
+            submitButton.disabled = true;
+        } else {
+            submitButton.disabled = false;
+        }
+    }
+</script>

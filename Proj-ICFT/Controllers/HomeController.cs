@@ -51,6 +51,11 @@ namespace Proj_ICFT.Controllers
             return View();
         }
 
+        public IActionResult Home()
+        {
+            return View();
+        }
+
         [SessionFilter]
         public async Task<IActionResult> Form()
         {
