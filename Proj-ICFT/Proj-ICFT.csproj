@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
@@ -9,12 +9,42 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Data\Blocos_CID_DbContext.cs" />
+    <Compile Remove="Data\Capitulos_CID_DbContext.cs" />
+    <Compile Remove="Data\CategoriaDbContext.cs" />
+    <Compile Remove="Data\Categorias_CID_DbContext.cs" />
+    <Compile Remove="Data\FrequenciaDbContext.cs" />
+    <Compile Remove="Data\InstrucoesAdicionaisDbContext.cs" />
+    <Compile Remove="Data\InstrucoesAdicionaisPacienteDbContext.cs" />
+    <Compile Remove="Data\MedicamentosDbContext.cs" />
+    <Compile Remove="Data\PacienteICTDbContext.cs" />
+    <Compile Remove="Data\TipoDbContext.cs" />
+    <Compile Remove="Data\UsuariosDbContext.cs" />
+    <Compile Remove="Models\Blocos_CID.cs" />
+    <Compile Remove="Models\Capitulos_CID.cs" />
+    <Compile Remove="Models\Categoria.cs" />
+    <Compile Remove="Models\Categorias_CID.cs" />
+    <Compile Remove="Models\Frequencia.cs" />
+    <Compile Remove="Models\ICTPaciente.cs" />
+    <Compile Remove="Models\InstrucoesAdicionais.cs" />
+    <Compile Remove="Models\InstrucoesAdicionais_Paciente.cs" />
+    <Compile Remove="Models\Medicamentos.cs" />
+    <Compile Remove="Models\Remedio_Paciente.cs" />
+    <Compile Remove="Models\Tipo.cs" />
+    <Compile Remove="Models\Usuarios.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Firebase.Auth" Version="1.0.0" />
     <PackageReference Include="FirebaseAdmin" Version="3.1.0" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.11" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.0">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.0" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.0">
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
@@ -23,6 +53,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Data\" />
     <Folder Include="JsonFire\" />
     <Folder Include="Utils\" />
     <Folder Include="Views\NovaPasta\" />

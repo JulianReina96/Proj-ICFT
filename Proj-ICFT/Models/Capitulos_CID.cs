@@ -11,7 +11,7 @@ namespace Proj_ICFT.Models
         public string ChapterNo { get; set; }
         public string Title { get; set; }
         public string TitleEn { get; set; }
-        public string FountationURI { get; set; }
+        public string FoundationURI { get; set; }
         public string LinearizationURI { get; set; }
 
 

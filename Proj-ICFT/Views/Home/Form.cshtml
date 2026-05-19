@@ -1,496 +1,627 @@
-﻿@*
+@model FormularioViewModel
 
-*@
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" />
+<link rel="stylesheet" href="~/css/prescription-form.css" />
+
 @{
+    var tiposJson = System.Text.Json.JsonSerializer.Serialize(
+        Model.Categorias.ToDictionary(
+            c => c.Id.ToString(),
+            c => c.Tipos.Select(t => new { id = t.id, name = t.Name })
+        )
+    );
 }
 
-@model FormularioViewModel;
+<div class="page-wrapper">
+
+    @* ===== FAIXA DO PACIENTE ===== *@
+    <div class="patient-row">
+        <div class="patient-row-label">
+            <i class="fas fa-user"></i> Paciente
+        </div>
+        <div class="patient-row-controls">
+            <div class="patient-select-wrapper">
+                <select id="pacienteId" class="form-select">
+                    <option value="">Carregando pacientes...</option>
+                </select>
+            </div>
+            <div class="patient-checkboxes">
+                <div class="checkbox-wrapper">
+                    <input type="checkbox" id="pacienteAnonimo" class="checkbox-input" />
+                    <label for="pacienteAnonimo" class="checkbox-label">Utilizar paciente anônimo</label>
+                </div>
+                <div class="checkbox-wrapper">
+                    <input type="checkbox" id="adesao" class="checkbox-input" checked />
+                    <label for="adesao" class="checkbox-label">Adere ao tratamento</label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @* ===== GRADE PRINCIPAL (3 COLUNAS) ===== *@
+    <div class="main-grid">
+
+        @* ── Coluna 1: Enfermidades ── *@
+        <div class="main-col">
+            <div class="col-header">
+                <i class="fas fa-heartbeat"></i> Enfermidades
+            </div>
+            <div class="col-body">
+
+                <div class="form-group">
+                    <label for="blocoCid" class="form-label">Grupo de Enfermidades</label>
+                    <select id="blocoCid" class="form-select">
+                        <option value="">Selecione um grupo</option>
+                        @foreach (var bloco in Model.Blocos)
+                        {
+                            <option value="@bloco.BlockId">@bloco.Title?.TrimStart('-', ' ')</option>
+                        }
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="enfermidadeId" class="form-label">Enfermidade (CID)</label>
+                    <select id="enfermidadeId" class="form-select" disabled>
+                        <option value="">Primeiro selecione um grupo</option>
+                    </select>
+                </div>
+
+                <button id="adicionarEnfermidade" class="btn btn-outline-primary" type="button" style="margin-bottom:16px">
+                    <i class="fas fa-plus"></i> Adicionar Enfermidade
+                </button>
+
+                <div id="empty-state-enfermidades" class="empty-state">
+                    <p>Nenhuma enfermidade adicionada.</p>
+                </div>
+                <div id="cards-enfermidades"></div>
+
+            </div>
+        </div>
+
+        @* ── Coluna 2: Medicamento ── *@
+        <div class="main-col">
+            <div class="col-header">
+                <i class="fas fa-pills"></i> Medicamento
+            </div>
+            <div class="col-body">
+                <form id="prescription-form" method="POST">
+
+                    <div class="form-group">
+                        <label for="remedio" class="form-label">Nome do Medicamento</label>
+                        <select id="remedio" class="form-select"></select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="categorias" class="form-label">Forma de Dosagem</label>
+                        <select id="categorias" name="categorias" class="form-select">
+                            <option value="" disabled selected>Selecione a forma de dosagem</option>
+                            @foreach (var option in Model.Categorias)
+                            {
+                                <option value="@option.Id">@option.Name</option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="subcategorias" class="form-label">Tipo</label>
+                        <select id="subcategorias" name="Subcategorias" class="form-select">
+                            <option value="">Selecione o tipo</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="frequencia" class="form-label">Frequência</label>
+                        <select id="frequencia" name="Frequencia" class="form-select">
+                            <option value="" disabled selected>Selecione a frequência</option>
+                            @foreach (var option in Model.Frequencias)
+                            {
+                                <option value="@option.id">@option.Name</option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="instructions-section">
+                        <button type="button" id="instructionsToggle" class="instructions-toggle">
+                            <i class="fas fa-chevron-right toggle-icon"></i>
+                            Instruções Adicionais
+                            <span class="optional-text">(opcional)</span>
+                        </button>
+                        <div id="instructionsBody" class="instructions-body">
+                            <div class="checkbox-container">
+                                @foreach (var option in Model.Instrucoes)
+                                {
+                                    <div class="checkbox-wrapper">
+                                        <input type="checkbox"
+                                               class="checkbox-input"
+                                               id="instrucao_@option.id"
+                                               name="InstrucoesAdicionais"
+                                               value="@option.id" />
+                                        <label for="instrucao_@option.id" class="checkbox-label">@option.Name</label>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+
+                    <button id="salvar" class="btn btn-primary" type="button">
+                        <i class="fas fa-plus"></i> Adicionar Medicamento
+                    </button>
+
+                </form>
+            </div>
+        </div>
+
+        @* ── Coluna 3: Pré-visualização ── *@
+        <div class="main-col col-preview">
+            <div class="col-header" style="justify-content:center">
+                Pré-visualização da Receita
+            </div>
+            <div class="col-body" id="cards-wrapper">
+                <div id="empty-state-remedios" class="empty-state">
+                    <p>Nenhum medicamento adicionado.</p>
+                </div>
+                <div id="cards-remedios"></div>
+            </div>
+            <div class="preview-actions">
+                <button type="button" disabled class="btn btn-success" id="btnObterICT">
+                    <i class="fas fa-calculator"></i> Obter ICT
+                </button>
+                <button type="button" hidden class="btn btn-secondary" id="btnGerarPDF">
+                    <i class="fas fa-file-pdf"></i> Gerar PDF
+                </button>
+            </div>
+        </div>
+
+    </div>
+</div>
 
 
-<script type="text/javascript">
+@* ===== SCRIPTS ===== *@
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+<script>
+    const tiposPorCategoria = @Html.Raw(tiposJson);
+
     $(document).ready(function () {
-        let dadosMapeados = [];
-        document.getElementById('btnObterICT').setAttribute('disabled', 'disabled');
-        $('#categorias').change(function () {
-            var categoriaId = $(this).val();
 
-            $.ajax({
-                url: '@Url.Action("ObterSubcategorias", "Home")', // Substitua por sua action
-                data: { categoriaId: categoriaId },
-                success: function (data) {
-                    $('#subcategorias').empty().append('<option value="">Selecione uma subcategoria</option>');
-                    $.each(data, function (i, subcategoria) {
-                        $('#subcategorias').append($('<option>').val(subcategoria.id).text(subcategoria.name));
-                    });
-                    $('#subcategorias').show();
-                }
-            });
-        });
+    /* ---------- Select2: blocoCid e enfermidadeId (filtro local) ---------- */
+    $('#blocoCid').select2({ placeholder: 'Selecione um grupo', allowClear: true, width: '100%' });
+    $('#enfermidadeId').select2({ placeholder: 'Primeiro selecione um grupo', allowClear: true, width: '100%' });
 
-        const salvarBtn = document.getElementById('salvar');
-        const exportarBtn = document.getElementById('btnObterICT');
-        const gerarPdfBtn = document.getElementById('btnGerarPDF');
-        const cardsDiv = document.getElementById('cards');
-
-        salvarBtn.addEventListener('click', () => {
-            if (!validarCampos()) {
-                return;
-            }
-            // Obtém os valores dos campos
-            const remedio = document.getElementById('remedio').value;
-            const categorias = document.getElementById('categorias').options[document.getElementById('categorias').selectedIndex].text;
-            const frequencia = document.getElementById('frequencia').options[document.getElementById('frequencia').selectedIndex].text;
-            const subcategoria = document.getElementById('subcategorias').options[document.getElementById('subcategorias').selectedIndex].text;
-            const instrucoesAdicionais = Array.from(document.querySelectorAll('input[name="InstrucoesAdicionais"]:checked')).map(checkbox => checkbox.previousElementSibling.textContent);
-
-
-            // Cria um novo card
-            const newCard = document.createElement('div');
-            id = dadosMapeados.length + 1;
-            newCard.id = 'card' + (dadosMapeados.length + 1);
-            newCard.classList.add('card'); // Adiciona uma classe para estilizar
-            newCard.innerHTML = `
-                                        <h2>Informações do Medicamento</h2>
-                            <h4> <b>Medicamento:</b> <strong>${remedio}</strong></h4>
-                                        <p><b>Categoria:</b> ${categorias}</p>
-                                       <p> <b>Tipo:</b> ${subcategoria}</p>
-                                <p><b>Frequencia:</b> ${frequencia}</p>
-                                   <p><b>Instruções Adicionais:</b> ${instrucoesAdicionais.join(', ')}</p>
-
-                                `;
-
-
-
-
-            const quebraLinha = document.createElement('br');
-            // Adiciona o card à div de cards
-            cardsDiv.appendChild(newCard);
-            cardsDiv.appendChild(quebraLinha);
-            const cards = document.querySelectorAll('.card');
-
-            // Mapeia os cards (pode ser feito a cada clique ou em outro momento)
-
-
-            const dadosCard = {
-                categoria: document.getElementById('categorias').options[document.getElementById('categorias').selectedIndex].value,
-                subcategoria: document.getElementById('subcategorias').options[document.getElementById('subcategorias').selectedIndex].value,
-                frequencia: document.getElementById('frequencia').options[document.getElementById('frequencia').selectedIndex].value,
-                instrucoesAdicionais: Array.from(document.querySelectorAll('input[name="InstrucoesAdicionais"]:checked')).map(checkbox => checkbox.value)
-
-
-            };
-            dadosMapeados.push(dadosCard);
-
-
-            // Reseta os elementos HTML para seus valores padrão
-            document.getElementById('categorias').selectedIndex = 0;
-            document.getElementById('subcategorias').innerHTML = '<option value="">Selecione uma subcategoria</option>';
-            document.getElementById('frequencia').selectedIndex = 0;
-            document.querySelectorAll('input[name="InstrucoesAdicionais"]').forEach(checkbox => checkbox.checked = false);
-
-
-            document.getElementById('remedio').value = '';
-            console.log(dadosMapeados);
-
-            document.getElementById('btnObterICT').removeAttribute("disabled");
-            document.getElementById('btnGerarPDF').removeAttribute("hidden");
-
-        });
-
-        exportarBtn.addEventListener('click', () => {
-
-            if (document.getElementById("nomePaciente").value === '') {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Nome do paciente não informado',
-                    text: 'Informe o nome do paciente para prosseguir'
-                });
-                return;
-            }
-
-            exportExcel(dadosMapeados);
-
-
-        });
-
-        gerarPdfBtn.addEventListener('click', () => {
-            gerarPDF();
-        });
-
-        // Exibe os dados mapeados no console
+    /* ---------- Select2: medicamentos (AJAX) ---------- */
+    $('#remedio').select2({
+        placeholder: 'Buscar medicamento...',
+        allowClear: true,
+        width: '100%',
+        minimumInputLength: 2,
+        language: { inputTooShort: function () { return 'Digite ao menos 2 caracteres'; } },
+        ajax: {
+            url: '/Medicamentos/BuscarMedicamentos',
+            dataType: 'json',
+            delay: 300,
+            cache: false,
+            data: function (params) { return { q: params.term || '', page: params.page || 1, pageSize: 20 }; },
+            processResults: function (data) {
+                if (!data || !data.results) return { results: [] };
+                return { results: data.results, pagination: { more: data.pagination && data.pagination.more } };
+            },
+            error: function () { return { results: [] }; }
+        }
     });
 
+    /* ---------- Pacientes via AJAX ---------- */
+    $.get('/Paciente/ListarPacientes', function (data) {
+        const $p = $('#pacienteId');
+        $p.empty().append('<option value="">Selecione um paciente</option>');
+        data.forEach(function (p) { $p.append($('<option>', { value: p.id, text: p.nome })); });
 
-    function validarCampos() {
+        const preselect = new URLSearchParams(window.location.search).get('pacienteId');
+        if (preselect) $p.val(preselect);
+    }).fail(function () {
+        $('#pacienteId').empty().append('<option value="">Erro ao carregar pacientes</option>');
+    });
 
+    /* ---------- Bloco CID → Enfermidades ---------- */
+    $('#blocoCid').on('change', function () {
+        const blocoId      = $(this).val();
+        const $enfermidade = $('#enfermidadeId');
 
-        const remedio = document.getElementById('remedio').value;
-        const categorias = document.getElementById('categorias').value;
-        const subcategorias = document.getElementById('subcategorias').value;
-        const frequencia = document.getElementById('frequencia').value;
+        $enfermidade.select2('destroy');
+        $enfermidade.prop('disabled', true).empty()
+            .append('<option value="">Primeiro selecione um grupo</option>');
+        $enfermidade.select2({ placeholder: 'Primeiro selecione um grupo', allowClear: true, width: '100%' });
 
+        if (!blocoId) return;
 
+        $.get('/CID/ListarCategoriasPorBloco', { blocoId: blocoId }, function (data) {
+            $enfermidade.select2('destroy');
+            $enfermidade.empty();
 
-        let mensagemErro = '';
+            if (!data || data.length === 0) {
+                $enfermidade.append('<option value="">Nenhuma enfermidade encontrada</option>');
+                $enfermidade.select2({ placeholder: 'Nenhuma enfermidade encontrada', allowClear: true, width: '100%' });
+                return;
+            }
 
-
-        if (remedio === '') {
-            mensagemErro += '<p>O campo <b>"Nome do Remédio"</b> precisa ser preenchido.</p>';
-        }
-        if (categorias === '') {
-            mensagemErro += '<p>O campo <b>"Categoria"</b> precisa ser preenchido.</p>';
-        }
-        if (subcategorias === '') {
-            mensagemErro += '<p>O campo <b>"Subcategoria"</b> precisa ser preenchido.</p>';
-        }
-        if (frequencia === '') {
-            mensagemErro += '<p>O campo <b>"Frequência"</b> precisa ser preenchido.</p>';
-        }
-
-        if (mensagemErro !== '') {
-            Swal.fire({
-                icon: 'error',
-                title: 'Campos obrigatórios',
-                html: mensagemErro
+            $enfermidade.append('<option value="">Selecione uma enfermidade</option>');
+            data.forEach(function (item) {
+                $enfermidade.append($('<option>', { value: item.id, text: item.title, 'data-code': item.code || '' }));
             });
-            return false;
+            $enfermidade.prop('disabled', false);
+            $enfermidade.select2({ placeholder: 'Selecione uma enfermidade', allowClear: true, width: '100%' });
+        });
+    });
+
+    /* ---------- Categoria → Tipos (local) ---------- */
+    $('#categorias').on('change', function () {
+        const categoriaId   = $(this).val();
+        const $subcategoria = $('#subcategorias');
+        $subcategoria.empty();
+        if (!categoriaId || !tiposPorCategoria[categoriaId]) {
+            $subcategoria.append('<option value="">Selecione uma subcategoria</option>');
+            return;
         }
+        $subcategoria.append('<option value="">Selecione o tipo</option>');
+        tiposPorCategoria[categoriaId].forEach(function (item) {
+            $subcategoria.append($('<option>', { value: item.id, text: item.name }));
+        });
+    });
+
+    /* ---------- Instruções colapsáveis ---------- */
+    $('#instructionsToggle').on('click', function () {
+        $(this).toggleClass('open');
+        $('#instructionsBody').toggleClass('open');
+    });
+
+    /* ---------- Paciente anônimo ---------- */
+    $('#pacienteAnonimo').on('change', function () {
+        const anonimo = $(this).is(':checked');
+        $('#pacienteId').prop('disabled', anonimo);
+        if (anonimo) $('#pacienteId').val('');
+    });
+
+    /* ---------- estado ---------- */
+    let enfermidadesAdicionadas = [];
+    let medicamentosAdicionados  = [];
+    let idCounter = 0;
+
+    const $exportarBtn = $('#btnObterICT');
+    const $gerarPdfBtn = $('#btnGerarPDF');
+
+    /* ======================================================
+       ENFERMIDADES
+    ====================================================== */
+    $('#adicionarEnfermidade').on('click', function () {
+        const id    = $('#enfermidadeId').val();
+        const texto = $('#enfermidadeId option:selected').text().trim();
+        const code  = $('#enfermidadeId option:selected').data('code') || '';
+        const bloco = $('#blocoCid option:selected').text().trim();
+
+        if (!id) {
+            Swal.fire({ icon: 'warning', title: 'Atenção', text: 'Selecione uma enfermidade.' });
+            return;
+        }
+        if (enfermidadesAdicionadas.some(e => e.id === id)) {
+            Swal.fire({ icon: 'info', title: 'Já adicionada', text: 'Esta enfermidade já está na lista.' });
+            return;
+        }
+
+        idCounter++;
+        const clientId = idCounter;
+        enfermidadesAdicionadas.push({ clientId, id, code, texto, bloco });
+
+        $('#cards-enfermidades').append(
+            '<div class="cid-item" data-id="' + clientId + '">' +
+            '<button class="remove-btn" onclick="removerEnfermidade(' + clientId + ')" title="Remover">' +
+            '<i class="fas fa-trash-alt"></i></button>' +
+            '<p class="cid-item-title">' + texto + '</p>' +
+            (code ? '<span class="cid-item-code">' + code + '</span>' : '') +
+            '</div>'
+        );
+
+        $('#blocoCid').val(null).trigger('change');
+        updateEmptyStates();
+        updateButtonStates();
+    });
+
+    window.removerEnfermidade = function (clientId) {
+        enfermidadesAdicionadas = enfermidadesAdicionadas.filter(e => e.clientId !== clientId);
+        $('[data-id="' + clientId + '"]').remove();
+        updateEmptyStates();
+        updateButtonStates();
+    };
+
+    /* ======================================================
+       MEDICAMENTOS
+    ====================================================== */
+    $('#salvar').on('click', function () {
+        if (!validarCampos()) return;
+
+        idCounter++;
+        const clientId = idCounter;
+
+        const remedioId        = $('#remedio').val();
+        const remedioNome      = $('#remedio option:selected').text().trim();
+        const categoriaText    = $('#categorias option:selected').text().trim();
+        const subcategoriaText = $('#subcategorias option:selected').text().trim();
+        const frequenciaText   = $('#frequencia option:selected').text().trim();
+
+        const instrucoesTexto = Array.from(
+            document.querySelectorAll('input[name="InstrucoesAdicionais"]:checked')
+        ).map(cb => cb.nextElementSibling.textContent.trim());
+
+        const instrHtml = instrucoesTexto.length > 0
+            ? '<div class="preview-med-instructions">' +
+              '<span class="detail-label">Instruções</span>' +
+              instrucoesTexto.map(t => '<div class="detail-value">' + t + '</div>').join('') +
+              '</div>'
+            : '';
+
+        $('#cards-remedios').append(
+            '<div class="preview-med-card" data-id="' + clientId + '">' +
+            '<button class="remove-btn" onclick="removerMedicamento(' + clientId + ')" title="Remover">' +
+            '<i class="fas fa-trash-alt"></i></button>' +
+            '<div class="preview-med-name">' + remedioNome + '</div>' +
+            '<div class="preview-med-grid">' +
+                '<div><span class="detail-label">Forma</span><span class="detail-value">' + categoriaText + '</span></div>' +
+                '<div><span class="detail-label">Tipo</span><span class="detail-value">' + subcategoriaText + '</span></div>' +
+            '</div>' +
+            '<div class="preview-med-grid">' +
+                '<div><span class="detail-label">Frequência</span><span class="detail-value">' + frequenciaText + '</span></div>' +
+            '</div>' +
+            instrHtml +
+            '</div>'
+        );
+
+        medicamentosAdicionados.push({
+            clientId,
+            remedioId,
+            remedioNome,
+            categoria:         $('#categorias').val(),
+            categoriaText,
+            subcategoria:      $('#subcategorias').val(),
+            subcategoriaText,
+            frequencia:        $('#frequencia').val(),
+            frequenciaText,
+            instrucoesAdicionais: Array.from(
+                document.querySelectorAll('input[name="InstrucoesAdicionais"]:checked')
+            ).map(cb => cb.value),
+            instrucoesTexto
+        });
+
+        resetMedicamentoForm();
+        updateEmptyStates();
+        updateButtonStates();
+    });
+
+    window.removerMedicamento = function (clientId) {
+        medicamentosAdicionados = medicamentosAdicionados.filter(m => m.clientId !== clientId);
+        $('[data-id="' + clientId + '"]').remove();
+        updateEmptyStates();
+        updateButtonStates();
+    };
+
+    /* ---------- validação ---------- */
+    function validarCampos() {
+        let erros = '';
+        if (!$('#remedio').val())       erros += '<p>Selecione um medicamento.</p>';
+        if (!$('#categorias').val())    erros += '<p>O campo "Forma de Dosagem" é obrigatório.</p>';
+        if (!$('#subcategorias').val()) erros += '<p>O campo "Tipo" é obrigatório.</p>';
+        if (!$('#frequencia').val())    erros += '<p>O campo "Frequência" é obrigatório.</p>';
+        if (erros) { Swal.fire({ icon: 'error', title: 'Campos Obrigatórios', html: erros }); return false; }
         return true;
     }
 
-
-    function exportExcel(dadosMapeados) {
-        const dadosExportacao = { nome: document.getElementById('nomePaciente').value, medicamentos: dadosMapeados };
-        console.log(JSON.stringify(dadosExportacao));
-
-
-        $.ajax({
-            url: '@Url.Action("ExportarDados", "Home")', // Substitua por sua action
-            type: 'POST',
-            contentType: 'application/json',
-            data: JSON.stringify(dadosExportacao),
-            success: function (response) {
-
-                // downloadExcel(response);
-                console.log(response);
-
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Dados calculados com sucesso!',
-                    text: "Valor Calculado: " + response,
-                    allowOutsideClick: false,
-                    allowEscapeKey: false,
-
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        location.reload(); // Substitua pela URL desejada
-                    }
-                });
-
-            },
-            error: function (xhr, status, error) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Erro ao exportar dados',
-                    text: xhr.responseText
-                });
-            }
-        });
+    /* ---------- reset campos de medicamento ---------- */
+    function resetMedicamentoForm() {
+        $('#remedio').val(null).trigger('change');
+        $('#categorias').prop('selectedIndex', 0);
+        $('#subcategorias').empty().append('<option value="">Selecione uma subcategoria</option>');
+        $('#frequencia').prop('selectedIndex', 0);
+        $('input[name="InstrucoesAdicionais"]').prop('checked', false);
+        $('#instructionsToggle').removeClass('open');
+        $('#instructionsBody').removeClass('open');
     }
 
-    function downloadExcel(data) {
-
-
-
-        var nome = document.getElementById('nomePaciente').value;
-
-        nome = nome.replace(/ /g, '_');
-        var row = [];
-        row.push(data);
-
-
-        const wb = XLSX.utils.json_to_sheet(row);
-        const ws = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(ws, wb, 'Dados');
-        XLSX.writeFile(ws, 'IC-' + nome + '.xlsx');
+    /* ---------- empty states ---------- */
+    function updateEmptyStates() {
+        $('#empty-state-enfermidades').toggle(enfermidadesAdicionadas.length === 0);
+        $('#empty-state-remedios').toggle(medicamentosAdicionados.length === 0);
     }
 
-    function gerarPDF() {
-        const nomePaciente = document.getElementById('nomePaciente').value;
-        const cards = document.querySelectorAll('.card');
-        let conteudo = `<h1>Paciente: ${nomePaciente}</h1><br>`;
+    /* ---------- botões de ação ---------- */
+    function updateButtonStates() {
+        const temDados = medicamentosAdicionados.length > 0;
+        $exportarBtn.prop('disabled', !temDados);
+        $gerarPdfBtn.prop('hidden', !temDados);
+    }
 
-        cards.forEach(card => {
-            conteudo += card.outerHTML;
-        });
+    /* ======================================================
+       SALVAR RECEITA
+    ====================================================== */
+    $exportarBtn.on('click', function () {
+        const pacienteId      = $('#pacienteId').val() || null;
+        const pacienteAnonimo = $('#pacienteAnonimo').is(':checked');
+        const adesao          = $('#adesao').is(':checked');
 
-        const opt = {
-            margin: 1,
-            filename: 'Receita-' + nomePaciente.replace(/ /g, '_') + '.pdf',
-            html2canvas: { scale: 2 },
-            jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+        if (!pacienteAnonimo && !pacienteId) {
+            Swal.fire({ icon: 'warning', title: 'Atenção', text: 'Selecione um paciente ou marque como anônimo.' });
+            return;
+        }
+
+        const payload = {
+            pacienteId:     pacienteId ? parseInt(pacienteId) : null,
+            pacienteAnonimo,
+            adesao,
+            medicamentos: medicamentosAdicionados.map(m => ({
+                medicamentoId:        parseInt(m.remedioId),
+                categoriaId:          parseInt(m.categoria),
+                subcategoriaId:       parseInt(m.subcategoria),
+                frequenciaId:         parseInt(m.frequencia),
+                instrucoesAdicionais: (m.instrucoesAdicionais || []).map(Number)
+            })),
+            cidCategorias: enfermidadesAdicionadas.map(e => parseInt(e.id))
         };
 
-        html2pdf().from(conteudo).set(opt).save();
+        const btn = this;
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Salvando...';
+
+        fetch('/Home/SalvarReceita', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Receita salva!',
+                    html: '<p style="font-size:1.1rem">ICT calculado: <strong>' + data.ict.toFixed(2) + '</strong></p>',
+                    confirmButtonText: 'Nova receita',
+                    showDenyButton: true,
+                    denyButtonText: 'Ver pacientes',
+                    denyButtonColor: '#6c757d'
+                }).then(result => {
+                    if (result.isDenied) {
+                        window.location.href = '/Paciente/PacientesAnalisados';
+                    } else {
+                        resetFormularioCompleto();
+                    }
+                });
+            } else {
+                Swal.fire({ icon: 'error', title: 'Erro', text: data.message || 'Erro ao salvar.' });
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-calculator"></i> Obter ICT';
+            }
+        })
+        .catch(() => {
+            Swal.fire({ icon: 'error', title: 'Erro de comunicação', text: 'Tente novamente.' });
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-calculator"></i> Obter ICT';
+        });
+    });
+
+    function resetFormularioCompleto() {
+        $('#pacienteAnonimo').prop('checked', false);
+        $('#pacienteId').prop('disabled', false);
+        $.get('/Paciente/ListarPacientes', function (data) {
+            const $p = $('#pacienteId');
+            $p.empty().append('<option value="">Selecione um paciente</option>');
+            data.forEach(p => $p.append($('<option>', { value: p.id, text: p.nome })));
+        }).fail(function () {
+            $('#pacienteId').empty().append('<option value="">Erro ao carregar</option>');
+        });
+
+        enfermidadesAdicionadas = [];
+        $('#cards-enfermidades').empty();
+        medicamentosAdicionados = [];
+        $('#cards-remedios').empty();
+
+        $('#blocoCid').val(null).trigger('change');
+        resetMedicamentoForm();
+        updateEmptyStates();
+        updateButtonStates();
+        $exportarBtn.prop('disabled', true);
+        $exportarBtn.html('<i class="fas fa-calculator"></i> Obter ICT');
     }
 
-    function remover(id) {
-        const card = document.getElementById('card' + id);
-        card.remove();
+    /* ======================================================
+       GERAR PDF
+    ====================================================== */
+    $('#btnGerarPDF').on('click', function () {
+        const selectVal    = $('#pacienteId').val();
+        const pacienteNome = $('#pacienteAnonimo').is(':checked')
+            ? 'Paciente Anônimo'
+            : (selectVal ? $('#pacienteId option:selected').text().trim() : 'Não identificado');
+        const dataAtual = new Date().toLocaleDateString('pt-BR');
 
-        if (document.querySelectorAll('.card').length === 0) {
-            document.getElementById('btnObterICT').setAttribute('disabled', 'disabled');
-            document.getElementById('btnGerarPDF').setAttribute('hidden', 'hidden');
-        }
+        let medsHtml = '';
+        medicamentosAdicionados.forEach(function (m, i) {
+            const bg    = i % 2 === 0 ? '#fff' : '#f8f9fa';
+            const instr = (m.instrucoesTexto && m.instrucoesTexto.length > 0)
+                ? m.instrucoesTexto.join(', ') : '—';
+            medsHtml +=
+                '<tr style="background:' + bg + '">' +
+                '<td style="padding:6px 8px;text-align:center;border:1px solid #dee2e6">' + (i + 1) + '</td>' +
+                '<td style="padding:6px 8px;border:1px solid #dee2e6"><strong>' + m.remedioNome + '</strong></td>' +
+                '<td style="padding:6px 8px;border:1px solid #dee2e6">' + (m.categoriaText || '—') + '</td>' +
+                '<td style="padding:6px 8px;border:1px solid #dee2e6">' + (m.subcategoriaText || '—') + '</td>' +
+                '<td style="padding:6px 8px;border:1px solid #dee2e6">' + (m.frequenciaText || '—') + '</td>' +
+                '<td style="padding:6px 8px;border:1px solid #dee2e6">' + instr + '</td>' +
+                '</tr>';
+        });
 
-        dadosMapeados[id - 1].remove();
-    }
+        let cidHtml = '';
+        enfermidadesAdicionadas.forEach(function (e, i) {
+            const bg = i % 2 === 0 ? '#fff' : '#f8f9fa';
+            cidHtml +=
+                '<tr style="background:' + bg + '">' +
+                '<td style="padding:6px 8px;text-align:center;border:1px solid #dee2e6">' + (i + 1) + '</td>' +
+                '<td style="padding:6px 8px;border:1px solid #dee2e6">' + e.texto + '</td>' +
+                '<td style="padding:6px 8px;border:1px solid #dee2e6">' + (e.code || e.bloco) + '</td>' +
+                '</tr>';
+        });
 
+        const cidSection = enfermidadesAdicionadas.length > 0
+            ? '<h3 style="color:#007bff;font-size:13px;margin:20px 0 6px;text-transform:uppercase;letter-spacing:.05em">Diagnósticos (CID-11)</h3>' +
+              '<table style="width:100%;border-collapse:collapse;font-size:11px">' +
+              '<thead><tr style="background:#007bff;color:#fff">' +
+              '<th style="padding:6px 8px;width:36px">#</th>' +
+              '<th style="padding:6px 8px;text-align:left">Enfermidade</th>' +
+              '<th style="padding:6px 8px;text-align:left">Código</th>' +
+              '</tr></thead><tbody>' + cidHtml + '</tbody></table>'
+            : '';
 
+        const html =
+            '<div style="font-family:Arial,sans-serif;font-size:12px;padding:24px;color:#333">' +
+                '<div style="text-align:center;border-bottom:2px solid #007bff;padding-bottom:12px;margin-bottom:16px">' +
+                    '<h2 style="margin:0;color:#007bff;font-size:20px">Receita</h2>' +
+                    '<p style="margin:4px 0 0;font-size:10px;color:#888">Sistema ICFT — Índice de Complexidade Terapêutica</p>' +
+                '</div>' +
+                '<table style="width:100%;margin-bottom:16px;font-size:12px"><tr>' +
+                    '<td><strong>Paciente:</strong> ' + pacienteNome + '</td>' +
+                    '<td style="text-align:right"><strong>Data:</strong> ' + dataAtual + '</td>' +
+                '</tr></table>' +
+                '<h3 style="color:#007bff;font-size:13px;margin:0 0 6px;text-transform:uppercase;letter-spacing:.05em">Medicamentos</h3>' +
+                '<table style="width:100%;border-collapse:collapse;font-size:11px">' +
+                    '<thead><tr style="background:#007bff;color:#fff">' +
+                        '<th style="padding:6px 8px;width:36px">#</th>' +
+                        '<th style="padding:6px 8px;text-align:left">Medicamento</th>' +
+                        '<th style="padding:6px 8px;text-align:left">Forma</th>' +
+                        '<th style="padding:6px 8px;text-align:left">Tipo</th>' +
+                        '<th style="padding:6px 8px;text-align:left">Frequência</th>' +
+                        '<th style="padding:6px 8px;text-align:left">Instruções</th>' +
+                    '</tr></thead>' +
+                    '<tbody>' + medsHtml + '</tbody>' +
+                '</table>' +
+                cidSection +
+                '<div style="margin-top:40px;border-top:1px solid #ddd;padding-top:10px;font-size:10px;color:#999;text-align:center">' +
+                    'Gerado em ' + dataAtual + ' — Sistema ICFT' +
+                '</div>' +
+            '</div>';
+
+        const btn = this;
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Gerando...';
+
+        html2pdf().set({
+            margin: 10,
+            filename: 'receita_' + dataAtual.replace(/\//g, '-') + '.pdf',
+            html2canvas: { scale: 2, useCORS: true, logging: false },
+            jsPDF:       { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        }).from(html).save().then(function () {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-file-pdf"></i> Gerar PDF';
+        });
+    });
+
+    updateEmptyStates();
+    updateButtonStates();
+    });
 </script>
-
-
-
-
-
-
-
-
-<div class="formbold-main-wrapper">
-    <!-- Author: FormBold Team -->
-    <!-- Learn More: https://formbold.com -->
-    <div class="formbold-form-wrapper">
-
-        <form action="https://formbold.com/s/FORM_ID" method="POST">
-            <div class="formbold-mb-6">
-                <h3>Informe a receita e o nome do paciente</h3>
-                <br />
-
-                <label id="paciente" placeholder="Nome do Paciente" class="formbold-form-label">Nome do Paciente</label>
-                <input id="nomePaciente" class="formbold-form-input">
-
-
-
-                <label for="remedioLbl" class="formbold-form-label">Nome do Remedio</label>
-                <input id="remedio" type="text" class="formbold-form-input">
-                <div class="formbold-radio-flex">
-                    <div class="formbold-radio-group">
-                        <select class="form-select" name="categorias" id="categorias">
-                            <option value="" disabled selected>Informe a forma de dosagem:</option>
-                            @foreach (var option in Model.categorias)
-
-
-
-                            {
-                                <option value="@option.Id">@option.Name</option>
-                            }
-                        </select>
-
-                        <select class="form-select" name="Subcategorias" id="subcategorias">
-                            <option value="">Selecione uma subcategoria</option>
-                        </select>
-                    </div>
-                    <br />
-                    <div class="formbold-radio-group">
-
-                        <select class="form-select" required name="Frequencia" id="frequencia">
-                            <option value="" disabled selected>Informe a frequencia de dosagem:</option>
-                            @foreach (var option in Model.frequencias)
-
-
-
-                            {
-                                <option value="@option.Id">@option.Name</option>
-                            }
-                        </select>
-                        <span class="formbold-radio-checkmark"></span>
-
-                    </div>
-                    <br />
-
-
-                    <div>
-                        <strong><label>Informe as instruções adicionais:</label></strong>
-                        <h6 style="color:red; font-size:0.7rem !important;">Não obrigatorio*</h6>
-                        <br /> <br />
-                        @foreach (var option in Model.instrucoes)
-                        {
-                            <div>
-                                <label for="instrucoesAdicionais_@option.id">@option.name</label>
-                                <input type="checkbox" class="checkboxPage" id="instrucoesAdicionais_@option.id" name="InstrucoesAdicionais" value="@option.id">
-                               
-                            </div>
-                        }
-                    </div>
-
-
-
-                    <button id="salvar" class="btn btn-primary" type="button">Adicionar medicamento</button>
-                    <div id="cards"></div>
-
-
-                </div>
-            </div>
-            <button type="button" disabled class="btn btn-success" id="btnObterICT">Obter ICT</button>
-            <button type="button" hidden class="btn btn-secondary" id="btnGerarPDF">Gerar PDF</button>
-        </form>
-    </div>
-    @await Html.PartialAsync("~/Views/Alertas/_Alertas.cshtml", Model.Alerta)
-</div>
-<style>
-
-    * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-    }
-
-    body {
-        font-family: 'Inter', sans-serif;
-    }
-
-    .formbold-main-wrapper {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 48px;
-    }
-
-    .formbold-form-wrapper {
-        margin: 0 auto;
-        max-width: 570px;
-        width: 100%;
-        background: white;
-        padding: 40px;
-    }
-
-    .formbold-img {
-        display: block;
-        margin: 0 auto 40px;
-    }
-
-    .formbold-form-input {
-        width: 100%;
-        padding: 13px 22px;
-        border-radius: 5px;
-        border: 1px solid #dde3ec;
-        background: #ffffff;
-        font-weight: 500;
-        font-size: 16px;
-        color: #536387;
-        outline: none;
-        resize: none;
-    }
-
-        .formbold-form-input:focus {
-            border-color: #6a64f1;
-            box-shadow: 0px 3px 8px rgba(0, 0, 0, 0.05);
-        }
-
-    .formbold-form-label {
-        color: #07074d;
-        font-weight: 500;
-        font-size: 14px;
-        line-height: 24px;
-        display: block;
-        margin-bottom: 20px;
-    }
-
-        .formbold-form-label span {
-            color: #536387;
-            font-size: 12px;
-            line-height: 18px;
-            display: inline-block;
-        }
-
-    .formbold-mb-3 {
-        margin-bottom: 15px;
-    }
-
-    .formbold-mb-6 {
-        margin-bottom: 30px;
-    }
-
-    .formbold-radio-flex {
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-    }
-
-    .checkboxPage{
-        width:25px !important;
-    }
-
-    .formbold-radio-label {
-        font-size: 14px;
-        line-height: 24px;
-        color: #07074d;
-        position: relative;
-        padding-left: 25px;
-        cursor: pointer;
-        -webkit-user-select: none;
-        -moz-user-select: none;
-        -ms-user-select: none;
-        user-select: none;
-    }
-
-    .formbold-input-radio {
-        position: absolute;
-        opacity: 0;
-        cursor: pointer;
-    }
-
-    .formbold-radio-checkmark {
-        position: absolute;
-        top: -1px;
-        left: 0;
-        height: 18px;
-        width: 18px;
-        background-color: #ffffff;
-        border: 1px solid #dde3ec;
-        border-radius: 50%;
-    }
-
-    .formbold-radio-label
-    .formbold-input-radio:checked ~ .formbold-radio-checkmark {
-        background-color: #6a64f1;
-    }
-
-    .formbold-radio-checkmark:after {
-        content: '';
-        position: absolute;
-        display: none;
-    }
-
-    .formbold-radio-label
-    .formbold-input-radio:checked ~ .formbold-radio-checkmark:after {
-        display: block;
-    }
-
-    .formbold-radio-label .formbold-radio-checkmark:after {
-        top: 50%;
-        left: 50%;
-        width: 10px;
-        height: 10px;
-        border-radius: 50%;
-        background: #ffffff;
-        transform: translate(-50%, -50%);
-    }
-
-    .formbold-btn {
-        text-align: center;
-        width: 100%;
-        font-size: 16px;
-        border-radius: 5px;
-        padding: 14px 25px;
-        border: none;
-        font-weight: 500;
-        color: white;
-        cursor: pointer;
-        margin-top: 25px;
-    }
-
-        .formbold-btn:hover {
-            box-shadow: 0px 3px 8px rgba(0, 0, 0, 0.05);
-        }
-</style>

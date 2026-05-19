@@ -55,6 +55,7 @@ namespace Proj_ICFT.Controllers
                 if (firebaseAuthLink.FirebaseToken != null)
                 {
                     HttpContext.Session.SetString("_UserToken", firebaseAuthLink.FirebaseToken);
+                    HttpContext.Session.SetString("_UserEmail", Adm.Email);
                     var usertoken = HttpContext.Session.GetString("_UserToken");
                     HttpClient httpClient = new HttpClient();
                     httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {firebaseAuthLink.FirebaseToken}");

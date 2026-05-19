@@ -17,6 +17,5 @@ namespace Proj_ICFT.Models
         public string SITUACAO_REGISTRO { get; set; }
        
 
-
     }
 }

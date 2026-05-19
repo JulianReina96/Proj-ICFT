@@ -1,0 +1,350 @@
+@model Proj_ICFT.ModelsNew.PacienteICT
+
+@{
+    ViewData["Title"] = "Detalhes do Paciente";
+    var nomePacienteAnonimo = (string?)ViewBag.NomePacienteAnonimo ?? "Paciente Anônimo";
+    var isAnonimo   = Model.NomePaciente == nomePacienteAnonimo;
+    var isFemale    = Model.Sexo == "F";
+    var sexoLabel   = isFemale ? "Feminino" : "Masculino";
+    var generoIcon  = isFemale ? "bi-gender-female" : "bi-gender-male";
+
+    var words = Model.NomePaciente.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+    var iniciais = isAnonimo ? "?" : (words.Length >= 2
+        ? $"{words[0][0]}{words[^1][0]}"
+        : words[0].Substring(0, Math.Min(2, words[0].Length))).ToUpper();
+
+    var receitas      = Model.Receita.OrderByDescending(r => r.DataCriacao).ToList();
+    var totalReceitas = receitas.Count;
+    var avgIct        = totalReceitas > 0 ? receitas.Average(r => r.ICT) : 0;
+    var pctAdesao     = totalReceitas > 0
+        ? (int)Math.Round(receitas.Count(r => r.Adesao) * 100.0 / totalReceitas)
+        : 0;
+}
+
+<link rel="stylesheet" href="~/css/pacientes.css" asp-append-version="true" />
+<link rel="stylesheet" href="~/css/ver-paciente.css" asp-append-version="true" />
+
+<div class="vp-page">
+    <div class="vp-inner">
+
+        @* ── Voltar ── *@
+        <a href="/Paciente/PacientesAnalisados" class="vp-back">
+            <i class="bi bi-arrow-left"></i> Voltar para pacientes
+        </a>
+
+        @* ── Cabeçalho do paciente ── *@
+        <div class="vp-header-card">
+            <div class="vp-avatar @(isAnonimo ? "anonimo" : (isFemale ? "female" : ""))">@iniciais</div>
+
+            <div class="vp-header-info">
+                <div class="vp-name-row">
+                    <h2 class="vp-name">@Model.NomePaciente</h2>
+                    @if (isAnonimo)
+                    {
+                        <span class="badge-sistema"><i class="bi bi-shield-lock-fill"></i> Sistema</span>
+                    }
+                </div>
+
+                @if (!isAnonimo)
+                {
+                    <div class="vp-meta">
+                        <span><i class="bi bi-calendar3"></i> Cadastrado em @Model.DataCriacao.ToString("dd/MM/yyyy")</span>
+                        <span><i class="bi @generoIcon"></i> @sexoLabel</span>
+                        <span><i class="bi bi-person-badge"></i> @Model.Idade @(Model.Idade == 1 ? "ano" : "anos")</span>
+                    </div>
+                }
+                else
+                {
+                    <p class="vp-meta-anonimo">Registro gerenciado pelo sistema — receitas sem identificação de paciente.</p>
+                }
+            </div>
+
+            <div class="d-flex gap-2 ms-auto flex-wrap">
+                @if (!isAnonimo)
+                {
+                    <a href="/Home/Form?pacienteId=@Model.ID" class="btn-novo-paciente">
+                        <i class="bi bi-plus-lg"></i> Nova receita
+                    </a>
+                }
+                @if (totalReceitas > 0)
+                {
+                    <button class="btn-exportar-excel" onclick="exportarExcel(@Model.ID, '@Html.Raw(Model.NomePaciente.Replace("'", "\\'"))')">
+                        <i class="bi bi-file-earmark-spreadsheet"></i> Exportar Excel
+                    </button>
+                }
+            </div>
+        </div>
+
+        @* ── Estatísticas ── *@
+        <div class="vp-stats-row">
+            <div class="vp-stat-card">
+                <div class="stat-icon stat-icon-blue"><i class="bi bi-file-earmark-medical-fill"></i></div>
+                <div class="stat-content">
+                    <span class="stat-label">Receitas cadastradas</span>
+                    <span class="stat-value">@totalReceitas</span>
+                </div>
+            </div>
+            <div class="vp-stat-card">
+                <div class="stat-icon stat-icon-purple"><i class="bi bi-calculator-fill"></i></div>
+                <div class="stat-content">
+                    <span class="stat-label">ICT médio</span>
+                    <span class="stat-value">@avgIct.ToString("F1")</span>
+                </div>
+            </div>
+            <div class="vp-stat-card">
+                <div class="stat-icon @(pctAdesao >= 70 ? "stat-icon-green" : "stat-icon-orange")">
+                    <i class="bi bi-heart-pulse-fill"></i>
+                </div>
+                <div class="stat-content">
+                    <span class="stat-label">Taxa de adesão</span>
+                    <span class="stat-value">@pctAdesao%</span>
+                </div>
+            </div>
+        </div>
+
+        @* ── Lista de receitas ── *@
+        <div class="vp-section-title">
+            <i class="bi bi-file-earmark-medical me-2 text-primary"></i>Receitas
+        </div>
+
+        @if (!receitas.Any())
+        {
+            <div class="vp-empty">
+                <i class="bi bi-file-earmark-x"></i>
+                <p>Nenhuma receita cadastrada para este paciente.</p>
+                @if (!isAnonimo)
+                {
+                    <a href="/Home/Form?pacienteId=@Model.ID" class="btn-novo-paciente">
+                        <i class="bi bi-plus-lg"></i> Criar primeira receita
+                    </a>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="vp-receitas-list">
+                @foreach (var (r, idx) in receitas.Select((r, i) => (r, i + 1)))
+                {
+                    <div class="vp-receita-card">
+
+                        <div class="vp-receita-num">#@(receitas.Count - idx + 1)</div>
+
+                        <div class="vp-receita-info">
+                            <span class="vp-receita-data">
+                                <i class="bi bi-calendar3"></i> @r.DataCriacao.ToString("dd/MM/yyyy")
+                            </span>
+                            <span class="vp-receita-meds-count">
+                                <i class="bi bi-capsule"></i> @r.ReceitaMeds.Count @(r.ReceitaMeds.Count == 1 ? "medicamento" : "medicamentos")
+                            </span>
+                        </div>
+
+                        <div class="vp-receita-ict">
+                            <span class="vp-ict-label">ICT</span>
+                            <span class="vp-ict-value">@r.ICT.ToString("F2")</span>
+                        </div>
+
+                        <div class="vp-receita-adesao @(r.Adesao ? "aderiu" : "nao-aderiu")">
+                            @if (r.Adesao)
+                            {
+                                <i class="bi bi-check-circle-fill"></i> <span>Aderiu</span>
+                            }
+                            else
+                            {
+                                <i class="bi bi-x-circle-fill"></i> <span>Aderiu</span>
+                            }
+                        </div>
+
+                        <button class="btn-ver-receita" onclick="abrirReceita(@r.Id)">
+                            <i class="bi bi-eye"></i> Ver receita
+                        </button>
+
+                    </div>
+                }
+            </div>
+        }
+
+    </div>
+</div>
+
+
+@* ══════════════════════════════════════════
+   MODAL — Detalhamento da Receita
+══════════════════════════════════════════ *@
+<div class="modal fade" id="modalReceita" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="bi bi-file-earmark-medical me-2 text-primary"></i>Detalhes da Receita
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+            </div>
+
+            <div class="modal-body" id="receitaModalBody">
+                <div class="text-center py-4">
+                    <div class="spinner-border text-primary"></div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+<script>
+const modalReceita = new bootstrap.Modal(document.getElementById('modalReceita'));
+
+function abrirReceita(id) {
+    const body = document.getElementById('receitaModalBody');
+    body.innerHTML = `
+        <div class="text-center py-4">
+            <div class="spinner-border text-primary"></div>
+            <p class="mt-2 text-muted small">Carregando receita...</p>
+        </div>`;
+    modalReceita.show();
+
+    fetch('/Paciente/DetalharReceita?receitaId=' + id)
+        .then(r => r.json())
+        .then(data => {
+            if (!data.success) {
+                body.innerHTML = '<p class="text-danger text-center py-3">' + (data.message || 'Erro ao carregar receita.') + '</p>';
+                return;
+            }
+
+            const adesaoHtml = data.adesao
+                ? '<span class="rm-badge rm-badge-success"><i class="bi bi-check-circle-fill me-1"></i>Aderiu ao tratamento</span>'
+                : '<span class="rm-badge rm-badge-danger"><i class="bi bi-x-circle-fill me-1"></i>Aderiu ao tratamento</span>';
+
+            const medsHtml = data.medicamentos.length === 0
+                ? '<p class="text-muted small text-center py-2">Nenhum medicamento registrado.</p>'
+                : data.medicamentos.map((m, i) => `
+                    <div class="rm-med-card">
+                        <div class="rm-med-num">${i + 1}</div>
+                        <div class="rm-med-body">
+                            <p class="rm-med-name">${m.medicamento}</p>
+                            <div class="rm-med-grid">
+                                <div>
+                                    <span class="rm-detail-label">Forma de dosagem</span>
+                                    <span class="rm-detail-value">${m.categoria}</span>
+                                </div>
+                                <div>
+                                    <span class="rm-detail-label">Tipo</span>
+                                    <span class="rm-detail-value">${m.tipo}</span>
+                                </div>
+                                <div>
+                                    <span class="rm-detail-label">Frequência</span>
+                                    <span class="rm-detail-value">${m.frequencia}</span>
+                                </div>
+                                ${m.instrucoes.length > 0 ? `
+                                <div class="rm-full-col">
+                                    <span class="rm-detail-label">Instruções adicionais</span>
+                                    <div class="rm-instrucoes">
+                                        ${m.instrucoes.map(i => `<span class="rm-instrucao-chip">${i}</span>`).join('')}
+                                    </div>
+                                </div>` : ''}
+                            </div>
+                        </div>
+                    </div>`).join('');
+
+            const cidsHtml = data.cids.length === 0
+                ? ''
+                : `<div class="rm-section-title"><i class="bi bi-heart-pulse me-2 text-primary"></i>Diagnósticos (CID-11)</div>
+                   <div class="rm-cid-list">
+                       ${data.cids.map(c => `
+                           <div class="rm-cid-item">
+                               <span class="rm-cid-code">${c.code || '—'}</span>
+                               <span class="rm-cid-title">${c.title || '—'}</span>
+                           </div>`).join('')}
+                   </div>`;
+
+            body.innerHTML = `
+                <div class="rm-header">
+                    <div class="rm-header-left">
+                        <span class="rm-data"><i class="bi bi-calendar3 me-1"></i>${data.data}</span>
+                        ${adesaoHtml}
+                    </div>
+                    <div class="rm-ict-block">
+                        <span class="rm-ict-label">ICT</span>
+                        <span class="rm-ict-value">${data.ict.toFixed(2)}</span>
+                    </div>
+                </div>
+
+                <div class="rm-section-title">
+                    <i class="bi bi-capsule me-2 text-primary"></i>Medicamentos (${data.medicamentos.length})
+                </div>
+                ${medsHtml}
+
+                ${cidsHtml}
+            `;
+        })
+        .catch(() => {
+            body.innerHTML = '<p class="text-danger text-center py-3">Erro de comunicação com o servidor.</p>';
+        });
+}
+
+function exportarExcel(pacienteId, nomePaciente) {
+    fetch('/Paciente/ExportarDadosPaciente?id=' + pacienteId)
+        .then(r => r.json())
+        .then(data => {
+            if (!data.success) {
+                Swal.fire('Erro', data.message || 'Falha ao carregar dados.', 'error');
+                return;
+            }
+
+            const cabecalho = [
+                '#', 'Data', 'ICT', 'Adesão',
+                'Medicamento', 'Forma de Dosagem', 'Tipo', 'Frequência',
+                'Instruções Adicionais', 'Diagnósticos (CID-11)'
+            ];
+
+            const linhas = [cabecalho];
+
+            data.receitas.forEach((r, ri) => {
+                const meds = r.medicamentos;
+                if (meds.length === 0) {
+                    linhas.push([ri + 1, r.data, r.ict, r.adesao ? 'Sim' : 'Não',
+                        '—', '—', '—', '—', '—', r.cids || '—']);
+                } else {
+                    meds.forEach((m, mi) => {
+                        linhas.push([
+                            mi === 0 ? ri + 1 : '',
+                            mi === 0 ? r.data  : '',
+                            mi === 0 ? r.ict   : '',
+                            mi === 0 ? (r.adesao ? 'Sim' : 'Não') : '',
+                            m.medicamento,
+                            m.categoria,
+                            m.tipo,
+                            m.frequencia,
+                            m.instrucoes || '—',
+                            mi === 0 ? (r.cids || '—') : ''
+                        ]);
+                    });
+                }
+            });
+
+            const ws = XLSX.utils.aoa_to_sheet(linhas);
+
+            // Larguras aproximadas por coluna
+            ws['!cols'] = [
+                { wch: 4 }, { wch: 12 }, { wch: 7 }, { wch: 8 },
+                { wch: 40 }, { wch: 20 }, { wch: 25 }, { wch: 20 },
+                { wch: 35 }, { wch: 45 }
+            ];
+
+            const wb = XLSX.utils.book_new();
+            const sheetName = nomePaciente.substring(0, 31);
+            XLSX.utils.book_append_sheet(wb, ws, sheetName);
+
+            const nomeArquivo = 'Receitas_' + nomePaciente.replace(/\s+/g, '_') + '.xlsx';
+            XLSX.writeFile(wb, nomeArquivo);
+        })
+        .catch(() => Swal.fire('Erro', 'Falha ao exportar dados.', 'error'));
+}
+</script>
+}

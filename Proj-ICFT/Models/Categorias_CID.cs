@@ -13,7 +13,7 @@ namespace Proj_ICFT.Models
         public string TitleEN { get; set; }
         public string BlockID { get; set; }
         public string ChapterNo { get; set; }
-        public bool IsLef { get; set; }
+        public bool IsLeaf { get; set; }
                 
 
 

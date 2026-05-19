@@ -1,20 +1,23 @@
-﻿namespace Proj_ICFT.Models
+﻿using Proj_ICFT.Models.ViewModels;
+using Proj_ICFT.ModelsNew;
+
+namespace Proj_ICFT.Models
 {
     public class FormularioViewModel
     {
-        public List<Categoria> categorias {  get; set; }
-        public List<Frequencia> frequencias { get; set; }
-
-        public List<InstrucoesAdicionais> instrucoes { get; set; }
-
+        public List<Blocos_CID> Blocos { get; set; }
+        public List<Categorium> Categorias { get; set; }
+        public List<Frequencium> Frequencias { get; set; }
+        public List<InstrucoesAdicionai> Instrucoes { get; set; }
         public Alerta? Alerta { get; set; }
 
-        public FormularioViewModel(List<Categoria> categorias, List<Frequencia> frequencias, List<InstrucoesAdicionais> instrucoes)
+        public FormularioViewModel(List<Categorium> categorias, List<Frequencium> frequencias,
+            List<InstrucoesAdicionai> instrucoes, List<Blocos_CID> blocos)
         {
-            this.categorias = categorias;
-            this.frequencias = frequencias;
-            this.instrucoes = instrucoes;
+            Categorias = categorias;
+            Frequencias = frequencias;
+            Instrucoes = instrucoes;
+            Blocos = blocos;
         }
-                
     }
 }
