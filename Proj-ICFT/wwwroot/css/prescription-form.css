@@ -442,6 +442,71 @@
         cursor: pointer;
     }
 
+/* ── chips de peso por medicamento ──────────────────────────── */
+.preview-med-pesos {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px dashed var(--medium-border);
+}
+
+.peso-chip {
+    font-size: 0.71rem;
+    font-weight: 700;
+    background: #e8f4fd;
+    color: var(--primary);
+    border-radius: 12px;
+    padding: 2px 9px;
+    white-space: nowrap;
+}
+
+/* ── painel de breakdown do ICT (MRCI) ───────────────────────── */
+.ict-breakdown {
+    background: #fff;
+    border-top: 1px solid var(--medium-border);
+    padding: 12px 14px;
+    flex-shrink: 0;
+}
+
+.ict-breakdown-title {
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: var(--secondary);
+    margin-bottom: 8px;
+}
+
+.ict-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    font-size: 0.81rem;
+    color: var(--body-text);
+    padding: 3px 0;
+}
+
+.ict-row-label-note {
+    font-size: 0.7rem;
+    color: var(--secondary);
+}
+
+.ict-total-row {
+    border-top: 1px solid var(--medium-border);
+    margin-top: 6px;
+    padding-top: 7px;
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: var(--dark-text);
+}
+
+.ict-total-row strong {
+    color: var(--primary);
+    font-size: 1.05rem;
+}
+
 /* ── responsivo ─────────────────────────────────────────────── */
 @media (max-width: 960px) {
     .main-grid              { grid-template-columns: 1fr; }

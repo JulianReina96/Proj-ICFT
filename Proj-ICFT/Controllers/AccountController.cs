@@ -107,10 +107,14 @@ namespace Proj_ICFT.Controllers
                 }
             }
 
-            catch (Exception ex)
+            catch (Firebase.Auth.FirebaseAuthException)
             {
-                TempData["ErrorMessage"] = "Não foi possivel realizar o login. Tente novamente em alguns instantes" + ex.Message;
-
+                TempData["ErrorMessage"] = "E-mail ou senha incorretos.";
+                return View("Login");
+            }
+            catch
+            {
+                TempData["ErrorMessage"] = "Não foi possível realizar o login. Tente novamente em alguns instantes.";
                 return View("Login");
             }
         }

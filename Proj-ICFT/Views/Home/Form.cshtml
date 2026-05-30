@@ -11,7 +11,7 @@
     var tiposJson = System.Text.Json.JsonSerializer.Serialize(
         Model.Categorias.ToDictionary(
             c => c.Id.ToString(),
-            c => c.Tipos.Select(t => new { id = t.id, name = t.Name })
+            c => c.Tipos.Select(t => new { id = t.id, name = t.Name, peso = t.Peso })
         )
     );
 }
@@ -119,7 +119,7 @@
                             <option value="" disabled selected>Selecione a frequência</option>
                             @foreach (var option in Model.Frequencias)
                             {
-                                <option value="@option.id">@option.Name</option>
+                                <option value="@option.id" data-peso="@option.Peso">@option.Name</option>
                             }
                         </select>
                     </div>
@@ -139,7 +139,8 @@
                                                class="checkbox-input"
                                                id="instrucao_@option.id"
                                                name="InstrucoesAdicionais"
-                                               value="@option.id" />
+                                               value="@option.id"
+                                               data-peso="@option.Peso" />
                                         <label for="instrucao_@option.id" class="checkbox-label">@option.Name</label>
                                     </div>
                                 }
@@ -166,6 +167,26 @@
                 </div>
                 <div id="cards-remedios"></div>
             </div>
+            <div id="ict-breakdown" class="ict-breakdown" hidden>
+                <div class="ict-breakdown-title">Estimativa do ICT (MRCI)</div>
+                <div class="ict-row">
+                    <span>Formas de dosagem <span class="ict-row-label-note">(1× por tipo distinto)</span></span>
+                    <span id="ict-formas">0.0</span>
+                </div>
+                <div class="ict-row">
+                    <span>Frequências</span>
+                    <span id="ict-frequencias">0.0</span>
+                </div>
+                <div class="ict-row">
+                    <span>Instruções adicionais</span>
+                    <span id="ict-instrucoes">0.0</span>
+                </div>
+                <div class="ict-row ict-total-row">
+                    <span>ICT estimado</span>
+                    <strong id="ict-total">0.00</strong>
+                </div>
+            </div>
+
             <div class="preview-actions">
                 <button type="button" disabled class="btn btn-success" id="btnObterICT">
                     <i class="fas fa-calculator"></i> Obter ICT
@@ -267,7 +288,7 @@
         }
         $subcategoria.append('<option value="">Selecione o tipo</option>');
         tiposPorCategoria[categoriaId].forEach(function (item) {
-            $subcategoria.append($('<option>', { value: item.id, text: item.name }));
+            $subcategoria.append($('<option>', { value: item.id, text: item.name + ' — Peso(' + item.peso + ')', 'data-peso': item.peso }));
         });
     });
 
@@ -354,6 +375,18 @@
             document.querySelectorAll('input[name="InstrucoesAdicionais"]:checked')
         ).map(cb => cb.nextElementSibling.textContent.trim());
 
+        // Leitura dos pesos para exibição e cálculo estimado
+        const pesoTipo   = parseFloat($('#subcategorias option:selected').data('peso')) || 0;
+        const pesoFreq   = parseFloat($('#frequencia option:selected').data('peso')) || 0;
+        const pesoInstrs = Array.from(
+            document.querySelectorAll('input[name="InstrucoesAdicionais"]:checked')
+        ).reduce((acc, cb) => acc + (parseFloat($(cb).data('peso')) || 0), 0);
+
+        const chipTipo  = '<span class="peso-chip">Forma +' + pesoTipo.toFixed(1) + '</span>';
+        const chipFreq  = '<span class="peso-chip">Freq +'  + pesoFreq.toFixed(1) + '</span>';
+        const chipInstr = pesoInstrs > 0 ? '<span class="peso-chip">Instr +' + pesoInstrs.toFixed(1) + '</span>' : '';
+        const pesosHtml = '<div class="preview-med-pesos">' + chipTipo + chipFreq + chipInstr + '</div>';
+
         const instrHtml = instrucoesTexto.length > 0
             ? '<div class="preview-med-instructions">' +
               '<span class="detail-label">Instruções</span>' +
@@ -374,6 +407,7 @@
                 '<div><span class="detail-label">Frequência</span><span class="detail-value">' + frequenciaText + '</span></div>' +
             '</div>' +
             instrHtml +
+            pesosHtml +
             '</div>'
         );
 
@@ -390,12 +424,16 @@
             instrucoesAdicionais: Array.from(
                 document.querySelectorAll('input[name="InstrucoesAdicionais"]:checked')
             ).map(cb => cb.value),
-            instrucoesTexto
+            instrucoesTexto,
+            pesoTipo,
+            pesoFreq,
+            pesoInstrs
         });
 
         resetMedicamentoForm();
         updateEmptyStates();
         updateButtonStates();
+        atualizarICT();
     });
 
     window.removerMedicamento = function (clientId) {
@@ -403,6 +441,7 @@
         $('[data-id="' + clientId + '"]').remove();
         updateEmptyStates();
         updateButtonStates();
+        atualizarICT();
     };
 
     /* ---------- validação ---------- */
@@ -438,6 +477,32 @@
         const temDados = medicamentosAdicionados.length > 0;
         $exportarBtn.prop('disabled', !temDados);
         $gerarPdfBtn.prop('hidden', !temDados);
+    }
+
+    /* ---------- estimativa de ICT (MRCI) ---------- */
+    function atualizarICT() {
+        if (medicamentosAdicionados.length === 0) {
+            $('#ict-breakdown').attr('hidden', true);
+            return;
+        }
+
+        // Tipo/Forma: somado UMA vez por SubcategoriaId distinto (regra MRCI)
+        const subcatsDistintas = [...new Set(medicamentosAdicionados.map(m => m.subcategoria))];
+        const somaFormas = subcatsDistintas.reduce(function (acc, id) {
+            const m = medicamentosAdicionados.find(function (x) { return x.subcategoria == id; });
+            return acc + (m ? m.pesoTipo : 0);
+        }, 0);
+
+        // Frequência e Instruções: somados por medicamento
+        const somaFreqs  = medicamentosAdicionados.reduce(function (acc, m) { return acc + m.pesoFreq; }, 0);
+        const somaInstrs = medicamentosAdicionados.reduce(function (acc, m) { return acc + m.pesoInstrs; }, 0);
+        const total      = somaFormas + somaFreqs + somaInstrs;
+
+        $('#ict-formas').text(somaFormas.toFixed(1));
+        $('#ict-frequencias').text(somaFreqs.toFixed(1));
+        $('#ict-instrucoes').text(somaInstrs.toFixed(1));
+        $('#ict-total').text(total.toFixed(2));
+        $('#ict-breakdown').removeAttr('hidden');
     }
 
     /* ======================================================
@@ -529,6 +594,7 @@
         updateButtonStates();
         $exportarBtn.prop('disabled', true);
         $exportarBtn.html('<i class="fas fa-calculator"></i> Obter ICT');
+        atualizarICT();
     }
 
     /* ======================================================
