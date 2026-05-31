@@ -508,7 +508,7 @@
     /* ======================================================
        SALVAR RECEITA
     ====================================================== */
-    $exportarBtn.on('click', function () {
+    $exportarBtn.on('click', async function () {
         const pacienteId      = $('#pacienteId').val() || null;
         const pacienteAnonimo = $('#pacienteAnonimo').is(':checked');
         const adesao          = $('#adesao').is(':checked');
@@ -517,6 +517,24 @@
             Swal.fire({ icon: 'warning', title: 'Atenção', text: 'Selecione um paciente ou marque como anônimo.' });
             return;
         }
+
+        const pacienteNome = pacienteAnonimo
+            ? 'Paciente Anônimo'
+            : ($('#pacienteId option:selected').text().trim() || 'não identificado');
+        const ictEstimado = document.getElementById('ict-total').textContent.trim();
+
+        const confirmResult = await Swal.fire({
+            icon: 'question',
+            title: 'Confirmar salvamento?',
+            html: `<p>Paciente: <strong>${pacienteNome}</strong></p>
+                   <p>${medicamentosAdicionados.length} medicamento(s) serão salvos.</p>
+                   <p>ICT estimado: <strong>${ictEstimado}</strong></p>`,
+            showCancelButton: true,
+            confirmButtonText: 'Salvar receita',
+            cancelButtonText: 'Revisar',
+            confirmButtonColor: '#198754'
+        });
+        if (!confirmResult.isConfirmed) return;
 
         const payload = {
             pacienteId:     pacienteId ? parseInt(pacienteId) : null,
