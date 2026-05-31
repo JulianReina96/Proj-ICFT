@@ -64,7 +64,7 @@ namespace Proj_ICFT.Services.FormularioServices.Implementacao
         // Usar a mesma string no PacientesServices ao filtrar a listagem.
         public const string NomePacienteAnonimo = "Paciente Anônimo";
 
-        public async Task<double> SalvarReceita(string email, SalvarReceitaRequest request)
+        public async Task<(double ict, int receitaId)> SalvarReceita(string email, SalvarReceitaRequest request)
         {
             var usuario = await _appDbContextNew.Usuarios
                 .FirstOrDefaultAsync(u => u.Usuario1 == email)
@@ -167,7 +167,7 @@ namespace Proj_ICFT.Services.FormularioServices.Implementacao
             _appDbContextNew.Receita.Add(receita);
             await _appDbContextNew.SaveChangesAsync();
 
-            return ict;
+            return (ict, receita.Id);
         }
     }
 }

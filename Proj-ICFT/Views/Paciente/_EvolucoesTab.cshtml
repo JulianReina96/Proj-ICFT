@@ -1,0 +1,57 @@
+@model Proj_ICFT.ModelsNew.PacienteICT
+
+<div class="evol-toolbar d-flex justify-content-between align-items-center mb-3">
+    <button class="btn btn-primary" id="btnNovaEvolucao" data-paciente-id="@Model.ID">
+        <i class="bi bi-plus-circle"></i> Nova Evolução
+    </button>
+    <button class="btn btn-outline-secondary btn-sm" id="btnRecarregarEvol">
+        <i class="bi bi-arrow-clockwise"></i> Atualizar
+    </button>
+</div>
+
+<div id="evolEmptyState" class="vp-empty" style="display:none">
+    <i class="bi bi-graph-up-arrow"></i>
+    <p>Nenhuma evolução clínica registrada para este paciente.</p>
+    <button class="btn btn-primary" onclick="document.getElementById('btnNovaEvolucao').click()">
+        <i class="bi bi-plus-lg"></i> Registrar primeira evolução
+    </button>
+</div>
+
+<div id="evolConteudo" style="display:none">
+    <div class="card mb-3">
+        <div class="card-body">
+            <h6 class="mb-3"><i class="bi bi-activity me-1"></i> ICT × Status de Evolução</h6>
+            <canvas id="chartIctStatus" height="120"></canvas>
+        </div>
+    </div>
+
+    <button class="btn btn-link btn-sm mb-2" type="button"
+            data-bs-toggle="collapse" data-bs-target="#graficosDetalhados"
+            id="btnToggleDetalhes">
+        <i class="bi bi-chevron-down"></i> Ver gráficos detalhados de indicadores
+    </button>
+
+    <div class="collapse mb-3" id="graficosDetalhados">
+        <div class="row g-2">
+            <div class="col-md-6"><div class="card"><div class="card-body"><h6>Pressão Arterial + FC</h6><canvas id="chartPA" height="180"></canvas></div></div></div>
+            <div class="col-md-6"><div class="card"><div class="card-body"><h6>Glicemia + HbA1c</h6><canvas id="chartGlicemia" height="180"></canvas></div></div></div>
+            <div class="col-md-6"><div class="card"><div class="card-body"><h6>Peso</h6><canvas id="chartPeso" height="180"></canvas></div></div></div>
+            <div class="col-md-6"><div class="card"><div class="card-body"><h6>Eventos / Internações</h6><canvas id="chartContadores" height="180"></canvas></div></div></div>
+        </div>
+    </div>
+
+    <table class="table table-hover" id="tabelaEvolucoes">
+        <thead>
+            <tr>
+                <th>Data Consulta</th>
+                <th>Status</th>
+                <th>CID</th>
+                <th>Receita / ICT</th>
+                <th class="text-end">Ações</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+</div>
+
+<partial name="_ModalEvolucao" model="Model" />

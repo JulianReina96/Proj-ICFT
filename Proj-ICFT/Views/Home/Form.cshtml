@@ -544,21 +544,50 @@
         .then(r => r.json())
         .then(data => {
             if (data.success) {
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Receita salva!',
-                    html: '<p style="font-size:1.1rem">ICT calculado: <strong>' + data.ict.toFixed(2) + '</strong></p>',
-                    confirmButtonText: 'Nova receita',
-                    showDenyButton: true,
-                    denyButtonText: 'Ver pacientes',
-                    denyButtonColor: '#6c757d'
-                }).then(result => {
-                    if (result.isDenied) {
-                        window.location.href = '/Paciente/PacientesAnalisados';
-                    } else {
-                        resetFormularioCompleto();
-                    }
-                });
+                const pacienteIdRedirect = parseInt(payload.pacienteId, 10) || null;
+                const novaReceitaId = data.receitaId;
+
+                if (payload.pacienteAnonimo) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Receita salva!',
+                        html: '<p style="font-size:1.1rem">ICT calculado: <strong>' + data.ict.toFixed(2) + '</strong></p>',
+                        confirmButtonText: 'Nova receita',
+                        confirmButtonColor: '#198754',
+                        showCancelButton: true,
+                        cancelButtonText: 'Ver pacientes',
+                        cancelButtonColor: '#6c757d'
+                    }).then(result => {
+                        if (result.dismiss === Swal.DismissReason.cancel) {
+                            window.location.href = '/Paciente/PacientesAnalisados';
+                        } else {
+                            resetFormularioCompleto();
+                        }
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Receita salva!',
+                        html: '<p style="font-size:1.1rem">ICT calculado: <strong>' + data.ict.toFixed(2) + '</strong></p>' +
+                              '<p style="font-size:0.95rem;color:#6c757d">Deseja registrar evolução clínica desta consulta?</p>',
+                        confirmButtonText: 'Registrar evolução',
+                        confirmButtonColor: '#0d6efd',
+                        showDenyButton: true,
+                        denyButtonText: 'Nova receita',
+                        denyButtonColor: '#198754',
+                        showCancelButton: true,
+                        cancelButtonText: 'Ver pacientes',
+                        cancelButtonColor: '#6c757d'
+                    }).then(result => {
+                        if (result.isConfirmed && pacienteIdRedirect && novaReceitaId) {
+                            window.location.href = `/Paciente/VerPaciente?id=${pacienteIdRedirect}&abrirEvolucao=1&receitaId=${novaReceitaId}`;
+                        } else if (result.dismiss === Swal.DismissReason.cancel) {
+                            window.location.href = '/Paciente/PacientesAnalisados';
+                        } else {
+                            resetFormularioCompleto();
+                        }
+                    });
+                }
             } else {
                 Swal.fire({ icon: 'error', title: 'Erro', text: data.message || 'Erro ao salvar.' });
                 btn.disabled = false;

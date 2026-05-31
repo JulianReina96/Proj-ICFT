@@ -1,0 +1,58 @@
+.evol-toolbar {
+    border-bottom: 1px solid #e9ecef;
+    padding-bottom: 0.75rem;
+}
+
+#tabelaEvolucoes td,
+#tabelaEvolucoes th {
+    vertical-align: middle;
+}
+
+#tabelaEvolucoes .badge {
+    color: #fff;
+    font-weight: 500;
+    padding: 0.4em 0.7em;
+}
+
+#modalEvolucao .modal-body {
+    overflow-y: auto;
+    max-height: calc(100vh - 220px);
+}
+
+#modalEvolucao .form-label.small {
+    margin-bottom: 0.15rem;
+    color: #6c757d;
+}
+
+#modalEvolucao .card {
+    border-color: #e9ecef;
+    background-color: #f8f9fa;
+}
+
+#modalEvolucao h6.text-primary {
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+}
+
+.evol-cid-titulo {
+    font-size: 0.85rem;
+    color: #212529;
+    font-weight: 500;
+    line-height: 1.3;
+}
+
+.evol-cid-code {
+    font-size: 0.75rem;
+    color: #6c757d;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+}
+
+#btnToggleDetalhes {
+    text-decoration: none;
+}
+
+#graficosDetalhados .card {
+    border: 1px solid #e9ecef;
+}

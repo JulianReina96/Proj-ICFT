@@ -29,6 +29,9 @@ public partial class PacienteICT
     [InverseProperty("Paciente")]
     public virtual ICollection<Receitum> Receita { get; set; } = new List<Receitum>();
 
+    [InverseProperty("Paciente")]
+    public virtual ICollection<EvolucaoClinica> EvolucaoClinicas { get; set; } = new List<EvolucaoClinica>();
+
     [ForeignKey("UsuarioCriacaoID")]
     [InverseProperty("PacienteICTs")]
     public virtual Usuario UsuarioCriacao { get; set; } = null!;

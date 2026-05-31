@@ -24,4 +24,7 @@ public partial class Usuario
 
     [InverseProperty("UsuarioCriacao")]
     public virtual ICollection<Receitum> Receita { get; set; } = new List<Receitum>();
+
+    [InverseProperty("UsuarioCriacao")]
+    public virtual ICollection<EvolucaoClinica> EvolucaoClinicas { get; set; } = new List<EvolucaoClinica>();
 }

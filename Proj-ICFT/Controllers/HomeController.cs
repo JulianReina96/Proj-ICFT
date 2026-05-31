@@ -54,8 +54,8 @@ namespace Proj_ICFT.Controllers
                 if (string.IsNullOrEmpty(email))
                     return Json(new { success = false, message = "Sessão expirada. Faça login novamente." });
 
-                var ict = await _formularioServices.SalvarReceita(email, request);
-                return Json(new { success = true, ict });
+                var result = await _formularioServices.SalvarReceita(email, request);
+                return Json(new { success = true, ict = result.ict, receitaId = result.receitaId });
             }
             catch (InvalidOperationException ex)
             {

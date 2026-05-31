@@ -32,6 +32,9 @@ public partial class Receitum
     [InverseProperty("Receita")]
     public virtual ICollection<ReceitaMed> ReceitaMeds { get; set; } = new List<ReceitaMed>();
 
+    [InverseProperty("Receita")]
+    public virtual ICollection<EvolucaoClinica> EvolucaoClinicas { get; set; } = new List<EvolucaoClinica>();
+
     [ForeignKey("UsuarioCriacaoID")]
     [InverseProperty("Receita")]
     public virtual Usuario UsuarioCriacao { get; set; } = null!;

@@ -102,66 +102,85 @@
             </div>
         </div>
 
-        @* ── Lista de receitas ── *@
-        <div class="vp-section-title">
-            <i class="bi bi-file-earmark-medical me-2 text-primary"></i>Receitas
-        </div>
+        @* ── Tabs: Receitas / Evoluções ── *@
+        <ul class="nav nav-tabs mb-3" id="pacienteTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="tab-receitas-btn" data-bs-toggle="tab"
+                        data-bs-target="#tab-receitas" type="button" role="tab">
+                    <i class="bi bi-file-earmark-medical me-1"></i> Receitas
+                </button>
+            </li>
+            @if (!isAnonimo)
+            {
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="tab-evolucoes-btn" data-bs-toggle="tab"
+                        data-bs-target="#tab-evolucoes" type="button" role="tab">
+                    <i class="bi bi-graph-up-arrow me-1"></i> Evoluções Clínicas
+                </button>
+            </li>
+            }
+        </ul>
 
-        @if (!receitas.Any())
-        {
-            <div class="vp-empty">
-                <i class="bi bi-file-earmark-x"></i>
-                <p>Nenhuma receita cadastrada para este paciente.</p>
-                @if (!isAnonimo)
+        <div class="tab-content">
+            <div class="tab-pane fade show active" id="tab-receitas" role="tabpanel">
+                @if (!receitas.Any())
                 {
-                    <a href="/Home/Form?pacienteId=@Model.ID" class="btn-novo-paciente">
-                        <i class="bi bi-plus-lg"></i> Criar primeira receita
-                    </a>
+                    <div class="vp-empty">
+                        <i class="bi bi-file-earmark-x"></i>
+                        <p>Nenhuma receita cadastrada para este paciente.</p>
+                        @if (!isAnonimo)
+                        {
+                            <a href="/Home/Form?pacienteId=@Model.ID" class="btn-novo-paciente">
+                                <i class="bi bi-plus-lg"></i> Criar primeira receita
+                            </a>
+                        }
+                    </div>
                 }
-            </div>
-        }
-        else
-        {
-            <div class="vp-receitas-list">
-                @foreach (var (r, idx) in receitas.Select((r, i) => (r, i + 1)))
+                else
                 {
-                    <div class="vp-receita-card">
-
-                        <div class="vp-receita-num">#@(receitas.Count - idx + 1)</div>
-
-                        <div class="vp-receita-info">
-                            <span class="vp-receita-data">
-                                <i class="bi bi-calendar3"></i> @r.DataCriacao.ToString("dd/MM/yyyy")
-                            </span>
-                            <span class="vp-receita-meds-count">
-                                <i class="bi bi-capsule"></i> @r.ReceitaMeds.Count @(r.ReceitaMeds.Count == 1 ? "medicamento" : "medicamentos")
-                            </span>
-                        </div>
-
-                        <div class="vp-receita-ict">
-                            <span class="vp-ict-label">ICT</span>
-                            <span class="vp-ict-value">@r.ICT.ToString("F2")</span>
-                        </div>
-
-                        <div class="vp-receita-adesao @(r.Adesao ? "aderiu" : "nao-aderiu")">
-                            @if (r.Adesao)
-                            {
-                                <i class="bi bi-check-circle-fill"></i> <span>Aderiu</span>
-                            }
-                            else
-                            {
-                                <i class="bi bi-x-circle-fill"></i> <span>Aderiu</span>
-                            }
-                        </div>
-
-                        <button class="btn-ver-receita" onclick="abrirReceita(@r.Id)">
-                            <i class="bi bi-eye"></i> Ver receita
-                        </button>
-
+                    <div class="vp-receitas-list">
+                        @foreach (var (r, idx) in receitas.Select((r, i) => (r, i + 1)))
+                        {
+                            <div class="vp-receita-card">
+                                <div class="vp-receita-num">#@(receitas.Count - idx + 1)</div>
+                                <div class="vp-receita-info">
+                                    <span class="vp-receita-data">
+                                        <i class="bi bi-calendar3"></i> @r.DataCriacao.ToString("dd/MM/yyyy")
+                                    </span>
+                                    <span class="vp-receita-meds-count">
+                                        <i class="bi bi-capsule"></i> @r.ReceitaMeds.Count @(r.ReceitaMeds.Count == 1 ? "medicamento" : "medicamentos")
+                                    </span>
+                                </div>
+                                <div class="vp-receita-ict">
+                                    <span class="vp-ict-label">ICT</span>
+                                    <span class="vp-ict-value">@r.ICT.ToString("F2")</span>
+                                </div>
+                                <div class="vp-receita-adesao @(r.Adesao ? "aderiu" : "nao-aderiu")">
+                                    @if (r.Adesao)
+                                    {
+                                        <i class="bi bi-check-circle-fill"></i> <span>Aderiu</span>
+                                    }
+                                    else
+                                    {
+                                        <i class="bi bi-x-circle-fill"></i> <span>Aderiu</span>
+                                    }
+                                </div>
+                                <button class="btn-ver-receita" onclick="abrirReceita(@r.Id)">
+                                    <i class="bi bi-eye"></i> Ver receita
+                                </button>
+                            </div>
+                        }
                     </div>
                 }
             </div>
-        }
+
+            @if (!isAnonimo)
+            {
+            <div class="tab-pane fade" id="tab-evolucoes" role="tabpanel">
+                <partial name="_EvolucoesTab" model="Model" />
+            </div>
+            }
+        </div>
 
     </div>
 </div>
@@ -347,4 +366,9 @@ function exportarExcel(pacienteId, nomePaciente) {
         .catch(() => Swal.fire('Erro', 'Falha ao exportar dados.', 'error'));
 }
 </script>
+@if (!isAnonimo)
+{
+<link rel="stylesheet" href="~/css/evolucao-clinica.css" asp-append-version="true" />
+<script src="~/js/evolucao-clinica.js" asp-append-version="true"></script>
+}
 }

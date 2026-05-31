@@ -3,6 +3,8 @@ using Microsoft.IdentityModel.Tokens;
 using Proj_ICFT.DataNew;
 using Proj_ICFT.MedicamentosServices.Implementacao;
 using Proj_ICFT.Services.CIDServices.Interface;
+using Proj_ICFT.Services.EvolucaoClinicaServices.Implementacao;
+using Proj_ICFT.Services.EvolucaoClinicaServices.Interface;
 using Proj_ICFT.Services.FormularioServices.Implementacao;
 using Proj_ICFT.Services.FormularioServices.Interface;
 using Proj_ICFT.Services.MedicamentosServices.Interface;
@@ -30,6 +32,7 @@ builder.Services.AddScoped<IPacienteServices, PacienteServices>();
 builder.Services.AddScoped<IUsuarioService, UsuarioService>();
 builder.Services.AddScoped<ICIDServices, CIDServices>();
 builder.Services.AddScoped<IMedicamentoService, MedicamentosServices>();
+builder.Services.AddScoped<IEvolucaoClinicaServices, EvolucaoClinicaServices>();
 
 
 builder.Services

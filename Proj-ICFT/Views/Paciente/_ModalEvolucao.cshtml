@@ -1,0 +1,124 @@
+@model Proj_ICFT.ModelsNew.PacienteICT
+
+<div class="modal fade" id="modalEvolucao" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl modal-dialog-scrollable">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalEvolucaoTitulo">
+                    <i class="bi bi-clipboard2-pulse me-2 text-primary"></i>
+                    <span id="modalEvolucaoTituloTxt">Nova Evolução Clínica</span>
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+            </div>
+
+            <form id="formEvolucao" autocomplete="off">
+                <input type="hidden" id="evolucaoId" />
+                <input type="hidden" id="evolPacienteId" value="@Model.ID" />
+
+                <div class="modal-body">
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-4">
+                            <label class="form-label">Data da consulta</label>
+                            <input type="date" class="form-control" id="evolDataConsulta" required />
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Receita vinculada (opcional)</label>
+                            <select class="form-select" id="evolReceitaId">
+                                <option value="">Nenhuma</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">CID monitorado (opcional)</label>
+                            <select class="form-select" id="evolCidId">
+                                <option value="">Nenhum</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label d-block">Status da evolução</label>
+                        <div class="btn-group" role="group" id="evolStatusGroup">
+                            <input type="radio" class="btn-check" name="evolStatus" id="statusInconclusivo" value="0" checked />
+                            <label class="btn btn-outline-secondary" for="statusInconclusivo">Inconclusivo</label>
+
+                            <input type="radio" class="btn-check" name="evolStatus" id="statusMelhorou" value="1" />
+                            <label class="btn btn-outline-success" for="statusMelhorou">Melhorou</label>
+
+                            <input type="radio" class="btn-check" name="evolStatus" id="statusEstavel" value="2" />
+                            <label class="btn btn-outline-warning" for="statusEstavel">Estável</label>
+
+                            <input type="radio" class="btn-check" name="evolStatus" id="statusPiorou" value="3" />
+                            <label class="btn btn-outline-danger" for="statusPiorou">Piorou</label>
+                        </div>
+                    </div>
+
+                    <hr/>
+
+                    <h6 class="text-primary"><i class="bi bi-chat-left-text me-1"></i> Subjetivo</h6>
+                    <textarea class="form-control mb-3" id="evolSubjetivo" rows="2" maxlength="2000"
+                              placeholder="Queixa do paciente, percepção, sintomas relatados..."></textarea>
+
+                    <h6 class="text-primary"><i class="bi bi-clipboard-data me-1"></i> Objetivo</h6>
+
+                    <div class="card mb-2">
+                        <div class="card-body py-2">
+                            <small class="text-muted">Sinais Vitais</small>
+                            <div class="row g-2 mt-1">
+                                <div class="col-md-2"><label class="form-label small">PA Sist. (mmHg)</label><input type="number" class="form-control" id="evolPaSist" min="50" max="300" /></div>
+                                <div class="col-md-2"><label class="form-label small">PA Diast. (mmHg)</label><input type="number" class="form-control" id="evolPaDiast" min="30" max="200" /></div>
+                                <div class="col-md-2"><label class="form-label small">FC (bpm)</label><input type="number" class="form-control" id="evolFc" min="30" max="220" /></div>
+                                <div class="col-md-3"><label class="form-label small">Peso (kg)</label><input type="number" class="form-control" id="evolPeso" min="1" max="400" step="0.1" /></div>
+                                <div class="col-md-3"><label class="form-label small">SpO2 (%)</label><input type="number" class="form-control" id="evolSpo2" min="50" max="100" /></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card mb-2">
+                        <div class="card-body py-2">
+                            <small class="text-muted">Laboratoriais</small>
+                            <div class="row g-2 mt-1">
+                                <div class="col-md-4"><label class="form-label small">Glicemia (mg/dL)</label><input type="number" class="form-control" id="evolGlicemia" min="20" max="800" step="0.1" /></div>
+                                <div class="col-md-4"><label class="form-label small">HbA1c (%)</label><input type="number" class="form-control" id="evolHba1c" min="3" max="20" step="0.1" /></div>
+                                <div class="col-md-4"><label class="form-label small">Creatinina (mg/dL)</label><input type="number" class="form-control" id="evolCreatinina" min="0.1" max="20" step="0.01" /></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card mb-3">
+                        <div class="card-body py-2">
+                            <small class="text-muted">Desde a última consulta</small>
+                            <div class="row g-2 mt-1">
+                                <div class="col-md-4"><label class="form-label small">Eventos adversos</label><input type="number" class="form-control" id="evolEventos" min="0" value="0" /></div>
+                                <div class="col-md-4"><label class="form-label small">Hospitalizações</label><input type="number" class="form-control" id="evolHosp" min="0" value="0" /></div>
+                                <div class="col-md-4"><label class="form-label small">Idas a emergência</label><input type="number" class="form-control" id="evolEmerg" min="0" value="0" /></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <label class="form-label small">Observação livre do Objetivo</label>
+                    <textarea class="form-control mb-3" id="evolObsObj" rows="2" maxlength="2000"
+                              placeholder="Outras observações objetivas (exame físico, escalas, etc.)"></textarea>
+
+                    <h6 class="text-primary"><i class="bi bi-bullseye me-1"></i> Avaliação</h6>
+                    <textarea class="form-control mb-3" id="evolAvaliacao" rows="2" maxlength="2000"
+                              placeholder="Análise clínica do profissional..."></textarea>
+
+                    <h6 class="text-primary"><i class="bi bi-list-check me-1"></i> Plano</h6>
+                    <textarea class="form-control" id="evolPlano" rows="2" maxlength="2000"
+                              placeholder="Conduta a seguir, ajustes, próximos passos..."></textarea>
+
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary" id="btnSalvarEvolucao">
+                        <i class="bi bi-check2-circle"></i> Salvar Evolução
+                    </button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
