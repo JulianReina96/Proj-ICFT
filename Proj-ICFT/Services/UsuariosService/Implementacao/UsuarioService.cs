@@ -17,9 +17,9 @@ namespace Proj_ICFT.Services.UsuariosService.Implementacao
         }
 
 
-        public Usuario GetUsuarioByEmail(string email) 
+        public Usuario GetUsuarioByEmail(string email)
         {
-            return _appDbContextNew.Usuarios.Include(r => r.Usuario1 == email).FirstOrDefault();
+            return _appDbContextNew.Usuarios.FirstOrDefault(u => u.Usuario1 == email);
         }
 
         public void CadastrarUsuario(UsuarioViewModel usuario) 

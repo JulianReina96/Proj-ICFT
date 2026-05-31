@@ -45,7 +45,7 @@ a {
 }
 
     a:hover {
-        color: #00b6a1;
+        color: #3a56a0;
         text-decoration: none;
     }
 
@@ -673,7 +673,7 @@ section {
 .about .play-btn {
     width: 94px;
     height: 94px;
-    background: radial-gradient(var(--color-primary) 50%, rgba(0, 131, 116, 0.4) 52%);
+    background: radial-gradient(var(--color-primary) 50%, rgba(73, 102, 177, 0.4) 52%);
     border-radius: 50%;
     display: block;
     position: absolute;
@@ -867,7 +867,7 @@ section {
     width: 94px;
     height: 94px;
     margin-bottom: 20px;
-    background: radial-gradient(var(--color-primary) 50%, rgba(0, 131, 116, 0.4) 52%);
+    background: radial-gradient(var(--color-primary) 50%, rgba(73, 102, 177, 0.4) 52%);
     border-radius: 50%;
     display: inline-block;
     position: relative;
@@ -2616,7 +2616,7 @@ section {
 .footer {
     font-size: 14px;
     background-color: var(--color-primary);
-    padding: 50px 0;
+    padding: 10px 0;
     color: white;
 }
 
@@ -3388,12 +3388,12 @@ tr#filhos {
 
 .control:hover input ~ .control__indicator,
 .control input:focus ~ .control__indicator {
-    border: 2px solid #007bff;
+    border: 2px solid #4966b1;
 }
 
 .control input:checked ~ .control__indicator {
-    border: 2px solid #007bff;
-    background: #007bff;
+    border: 2px solid #4966b1;
+    background: #4966b1;
 }
 
 .control input:disabled ~ .control__indicator {
@@ -3428,9 +3428,9 @@ tr#filhos {
 }
 
 .control--checkbox input:disabled:checked ~ .control__indicator {
-    background-color: #007bff;
+    background-color: #4966b1;
     opacity: .2;
-    border: 2px solid #007bff;
+    border: 2px solid #4966b1;
 }
 
 .ui-spinner-button {

@@ -9,6 +9,8 @@ using Proj_ICFT.Services.FormularioServices.Implementacao;
 using Proj_ICFT.Services.FormularioServices.Interface;
 using Proj_ICFT.Services.MedicamentosServices.Interface;
 using Proj_ICFT.Services.PacienteServices.Interface;
+using Proj_ICFT.Services.RelatorioService.Interface;
+using Proj_ICFT.Services.RelatorioService.Implementacao;
 using Proj_ICFT.Services.UsuariosService.Implementacao;
 using Proj_ICFT.Services.UsuariosService.Interface;
 
@@ -33,6 +35,7 @@ builder.Services.AddScoped<IUsuarioService, UsuarioService>();
 builder.Services.AddScoped<ICIDServices, CIDServices>();
 builder.Services.AddScoped<IMedicamentoService, MedicamentosServices>();
 builder.Services.AddScoped<IEvolucaoClinicaServices, EvolucaoClinicaServices>();
+builder.Services.AddScoped<IRelatorioService, RelatorioService>();
 
 
 builder.Services

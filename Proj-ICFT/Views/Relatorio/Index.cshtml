@@ -1,0 +1,624 @@
+@{
+    ViewData["Title"] = "Relatórios Analíticos";
+    Layout = "_Layout";
+}
+
+<style>
+    .relatorio-page { padding: 24px 0 40px; }
+    .filtro-bar {
+        background: #fff;
+        border: 1px solid #dee2e6;
+        border-radius: 10px;
+        padding: 16px 20px;
+        margin-bottom: 24px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+    .filtro-bar label { font-size: 0.85rem; color: #6c757d; margin-bottom: 0; white-space: nowrap; }
+    .filtro-bar input[type=date] {
+        border: 1px solid #dee2e6;
+        border-radius: 6px;
+        padding: 6px 10px;
+        font-size: 0.85rem;
+        color: #495057;
+    }
+    .filtro-bar input[type=date]:focus { outline: none; border-color: #4966b1; }
+    .btn-aplicar {
+        background: #4966b1; color: #fff; border: none;
+        border-radius: 6px; padding: 7px 18px; font-size: 0.85rem; cursor: pointer;
+        transition: background 0.2s;
+    }
+    .btn-aplicar:hover { background: #3a56a0; }
+    .btn-exportar-tudo {
+        margin-left: auto; background: #198754; color: #fff; border: none;
+        border-radius: 6px; padding: 7px 18px; font-size: 0.85rem; cursor: pointer;
+        transition: background 0.2s;
+    }
+    .btn-exportar-tudo:hover { background: #157347; }
+
+    /* KPIs */
+    .kpi-card {
+        background: #fff; border: 1px solid #dee2e6; border-radius: 10px;
+        padding: 18px 16px; text-align: center;
+    }
+    .kpi-valor { font-size: 1.8rem; font-weight: 700; color: #4966b1; line-height: 1; }
+    .kpi-label { font-size: 0.75rem; color: #6c757d; margin-top: 6px; }
+
+    /* Cards de relatório */
+    .card-relatorio {
+        background: #fff; border: 1px solid #dee2e6; border-radius: 10px;
+        overflow: hidden; display: flex; flex-direction: column;
+    }
+    .card-relatorio-header {
+        background: #4966b1; color: #fff;
+        padding: 10px 16px; font-weight: 600; font-size: 0.88rem;
+        display: flex; align-items: center; justify-content: space-between;
+    }
+    .card-relatorio-body { padding: 12px 16px; flex: 1; overflow: auto; max-height: 340px; }
+    .card-relatorio-footer {
+        padding: 8px 16px; border-top: 1px solid #f0f0f0;
+        display: flex; justify-content: flex-end;
+    }
+    .btn-excel-card {
+        background: transparent; border: 1px solid #198754; color: #198754;
+        border-radius: 5px; padding: 4px 12px; font-size: 0.78rem; cursor: pointer;
+        transition: all 0.2s;
+    }
+    .btn-excel-card:hover { background: #198754; color: #fff; }
+
+    /* Tabelas internas */
+    .tabela-relatorio { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+    .tabela-relatorio thead tr { background: #eef1fa; }
+    .tabela-relatorio th { padding: 6px 10px; text-align: left; font-weight: 600; color: #495057; white-space: nowrap; }
+    .tabela-relatorio td { padding: 6px 10px; border-bottom: 1px solid #f0f2f5; }
+    .tabela-relatorio tbody tr:last-child td { border-bottom: none; }
+    .tabela-relatorio tbody tr:hover { background: #f8f9ff; }
+
+    /* Badge CID */
+    .badge-cid {
+        background: #eef1fa; color: #4966b1;
+        border-radius: 4px; padding: 2px 7px; font-size: 0.75rem; font-weight: 600;
+        margin-right: 6px; white-space: nowrap;
+    }
+
+    /* Barra de adesão colorida */
+    .adesao-bar-bg { background: #f0f2f5; border-radius: 6px; height: 8px; overflow: hidden; }
+    .adesao-bar-fill { height: 100%; border-radius: 6px; transition: width 0.5s; }
+
+    /* Estado vazio */
+    .sem-dados {
+        text-align: center; padding: 24px 0; color: #adb5bd; font-size: 0.82rem;
+    }
+
+    /* Loading skeleton */
+    .loading-skeleton {
+        text-align: center; padding: 24px 0; color: #adb5bd; font-size: 0.82rem;
+    }
+</style>
+
+<section class="relatorio-page">
+    <div class="container">
+        <div class="section-header" style="margin-bottom:20px">
+            <h2>Relatórios Analíticos</h2>
+        </div>
+
+        <!-- Filtro de período -->
+        <div class="filtro-bar">
+            <label for="inputDe">De:</label>
+            <input type="date" id="inputDe">
+            <label for="inputAte">Até:</label>
+            <input type="date" id="inputAte">
+            <button class="btn-aplicar" onclick="aplicarFiltro()">Aplicar</button>
+            <button class="btn-exportar-tudo" onclick="exportarTudo()">⬇ Exportar Excel (8 abas)</button>
+        </div>
+
+        <!-- KPIs -->
+        <div class="row g-3 mb-4" id="kpiRow">
+            <div class="col-6 col-md-3"><div class="kpi-card"><div class="kpi-valor" id="kpiAdesao">—</div><div class="kpi-label">Adesão Geral</div></div></div>
+            <div class="col-6 col-md-3"><div class="kpi-card"><div class="kpi-valor" id="kpiIct">—</div><div class="kpi-label">ICT Médio</div></div></div>
+            <div class="col-6 col-md-3"><div class="kpi-card"><div class="kpi-valor" id="kpiHosp">—</div><div class="kpi-label">Hospitalizações</div></div></div>
+            <div class="col-6 col-md-3"><div class="kpi-card"><div class="kpi-valor" id="kpiPacientes">—</div><div class="kpi-label">Total Pacientes</div></div></div>
+        </div>
+
+        <!-- Grid de relatórios: 2 colunas -->
+        <div class="row g-3">
+
+            <!-- R1: Adesão por Paciente -->
+            <div class="col-12 col-md-6">
+                <div class="card-relatorio">
+                    <div class="card-relatorio-header">R1 — Adesão por Paciente</div>
+                    <div class="card-relatorio-body" id="bodyR1"><div class="loading-skeleton">Carregando...</div></div>
+                    <div class="card-relatorio-footer">
+                        <button class="btn-excel-card" onclick="exportarCardR1()">⬇ Excel</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- R2: Complexidade por Paciente -->
+            <div class="col-12 col-md-6">
+                <div class="card-relatorio">
+                    <div class="card-relatorio-header">R2 — Complexidade por Paciente</div>
+                    <div class="card-relatorio-body" id="bodyR2"><div class="loading-skeleton">Carregando...</div></div>
+                    <div class="card-relatorio-footer">
+                        <button class="btn-excel-card" onclick="exportarCardR2()">⬇ Excel</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- R3: Distribuição por Categoria -->
+            <div class="col-12 col-md-6">
+                <div class="card-relatorio">
+                    <div class="card-relatorio-header">R3 — Distribuição por Categoria</div>
+                    <div class="card-relatorio-body" id="bodyR3"><canvas id="chartCanvasR3" style="max-height:280px"></canvas></div>
+                    <div class="card-relatorio-footer">
+                        <button class="btn-excel-card" onclick="exportarCardR3()">⬇ Excel</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- R4: Receitas por Período -->
+            <div class="col-12 col-md-6">
+                <div class="card-relatorio">
+                    <div class="card-relatorio-header">R4 — Receitas por Período</div>
+                    <div class="card-relatorio-body" id="bodyR4"><canvas id="chartCanvasR4" style="max-height:280px"></canvas></div>
+                    <div class="card-relatorio-footer">
+                        <button class="btn-excel-card" onclick="exportarCardR4()">⬇ Excel</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- R5: Diagnósticos Frequentes -->
+            <div class="col-12 col-md-6">
+                <div class="card-relatorio">
+                    <div class="card-relatorio-header">R5 — Diagnósticos Frequentes (Top 10)</div>
+                    <div class="card-relatorio-body" id="bodyR5"><div class="loading-skeleton">Carregando...</div></div>
+                    <div class="card-relatorio-footer">
+                        <button class="btn-excel-card" onclick="exportarCardR5()">⬇ Excel</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- R6: Correlação ICT × Status -->
+            <div class="col-12 col-md-6">
+                <div class="card-relatorio">
+                    <div class="card-relatorio-header">R6 — Correlação ICT × Status de Evolução</div>
+                    <div class="card-relatorio-body" id="bodyR6"><canvas id="chartCanvasR6" style="max-height:280px"></canvas></div>
+                    <div class="card-relatorio-footer">
+                        <button class="btn-excel-card" onclick="exportarCardR6()">⬇ Excel</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- R7: Hospitalizações por Paciente -->
+            <div class="col-12 col-md-6">
+                <div class="card-relatorio">
+                    <div class="card-relatorio-header">R7 — Hospitalizações por Paciente</div>
+                    <div class="card-relatorio-body" id="bodyR7"><div class="loading-skeleton">Carregando...</div></div>
+                    <div class="card-relatorio-footer">
+                        <button class="btn-excel-card" onclick="exportarCardR7()">⬇ Excel</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- R8: Eventos Adversos por Faixa ICT -->
+            <div class="col-12 col-md-6">
+                <div class="card-relatorio">
+                    <div class="card-relatorio-header">R8 — Eventos Adversos por Faixa ICT</div>
+                    <div class="card-relatorio-body" id="bodyR8"><canvas id="chartCanvasR8" style="max-height:280px"></canvas></div>
+                    <div class="card-relatorio-footer">
+                        <button class="btn-excel-card" onclick="exportarCardR8()">⬇ Excel</button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<script>
+    let ultimosDados = null;
+    let chartR3 = null, chartR4 = null, chartR6 = null, chartR8 = null;
+
+    // ── Carregamento de dados ─────────────────────────────────────────────────
+
+    async function carregarDados(de, ate) {
+        let url = '/Relatorio/Dados';
+        const params = [];
+        if (de)  params.push('de='  + encodeURIComponent(de));
+        if (ate) params.push('ate=' + encodeURIComponent(ate));
+        if (params.length) url += '?' + params.join('&');
+
+        try {
+            const res = await fetch(url);
+            const json = await res.json();
+            if (!json.success) {
+                mostrarErroGeral(json.message || 'Erro ao carregar dados.');
+                return;
+            }
+            ultimosDados = json.data;
+            renderTudo(ultimosDados);
+        } catch (e) {
+            mostrarErroGeral('Falha na requisição: ' + e.message);
+        }
+    }
+
+    function aplicarFiltro() {
+        const de  = document.getElementById('inputDe').value;
+        const ate = document.getElementById('inputAte').value;
+        carregarDados(de || null, ate || null);
+    }
+
+    function mostrarErroGeral(msg) {
+        ['bodyR1','bodyR2','bodyR5','bodyR7'].forEach(id => {
+            document.getElementById(id).innerHTML =
+                `<div class="sem-dados">${msg}</div>`;
+        });
+    }
+
+    // ── Render geral ──────────────────────────────────────────────────────────
+
+    function renderTudo(d) {
+        // KPIs
+        document.getElementById('kpiAdesao').textContent    = d.adesaoGeralPct + '%';
+        document.getElementById('kpiIct').textContent       = d.ictMedio;
+        document.getElementById('kpiHosp').textContent      = d.totalHospitalizacoes;
+        document.getElementById('kpiPacientes').textContent = d.totalPacientes;
+
+        renderTabelaR1(d.adesaoPorPaciente);
+        renderTabelaR2(d.complexidadePorPaciente);
+        renderGraficoR3(d.distribuicaoPorCategoria);
+        renderGraficoR4(d.receitasPorPeriodo);
+        renderTabelaR5(d.diagnosticosFrequentes);
+        renderGraficoR6(d.correlacaoICTStatus);
+        renderTabelaR7(d.hospitalizacoesPorPaciente);
+        renderGraficoR8(d.eventosAdversosPorFaixa);
+    }
+
+    // ── R1 — Adesão por Paciente ──────────────────────────────────────────────
+
+    function renderTabelaR1(rows) {
+        const el = document.getElementById('bodyR1');
+        if (!rows || rows.length === 0) {
+            el.innerHTML = '<div class="sem-dados">Nenhuma receita no período.</div>';
+            return;
+        }
+        let html = `<table class="tabela-relatorio">
+            <thead><tr>
+                <th>Paciente</th><th>Total</th><th>Aderiu</th><th>%</th><th style="min-width:80px">Adesão</th>
+            </tr></thead><tbody>`;
+        rows.forEach(r => {
+            const cor = r.percentual >= 80 ? '#198754' : r.percentual >= 50 ? '#fd7e14' : '#dc3545';
+            html += `<tr>
+                <td>${r.nome}</td>
+                <td>${r.total}</td>
+                <td>${r.aderiu}</td>
+                <td><strong style="color:${cor}">${r.percentual}%</strong></td>
+                <td>
+                    <div class="adesao-bar-bg">
+                        <div class="adesao-bar-fill" style="width:${r.percentual}%;background:${cor}"></div>
+                    </div>
+                </td>
+            </tr>`;
+        });
+        html += '</tbody></table>';
+        el.innerHTML = html;
+    }
+
+    // ── R2 — Complexidade por Paciente ────────────────────────────────────────
+
+    function renderTabelaR2(rows) {
+        const el = document.getElementById('bodyR2');
+        if (!rows || rows.length === 0) {
+            el.innerHTML = '<div class="sem-dados">Nenhuma receita no período.</div>';
+            return;
+        }
+        let html = `<table class="tabela-relatorio">
+            <thead><tr>
+                <th>Paciente</th><th>ICT Médio</th><th>ICT Máximo</th><th>Receitas</th>
+            </tr></thead><tbody>`;
+        rows.forEach(r => {
+            html += `<tr>
+                <td>${r.nome}</td>
+                <td><strong>${r.ictMedio}</strong></td>
+                <td>${r.ictMaximo}</td>
+                <td>${r.totalReceitas}</td>
+            </tr>`;
+        });
+        html += '</tbody></table>';
+        el.innerHTML = html;
+    }
+
+    // ── R3 — Distribuição por Categoria (gráfico de barras) ───────────────────
+
+    function renderGraficoR3(rows) {
+        if (chartR3) { chartR3.destroy(); chartR3 = null; }
+        const body3 = document.getElementById('bodyR3');
+        if (!rows || rows.length === 0) {
+            body3.innerHTML = '<div class="sem-dados">Nenhum dado de medicamentos no período.</div>';
+            return;
+        }
+        body3.innerHTML = '<canvas id="chartCanvasR3" style="max-height:280px"></canvas>';
+        chartR3 = new Chart(document.getElementById('chartCanvasR3').getContext('2d'), {
+            type: 'bar',
+            data: {
+                labels: rows.map(r => r.categoria),
+                datasets: [{
+                    label: 'Quantidade',
+                    data: rows.map(r => r.quantidade),
+                    backgroundColor: '#4966b1',
+                    borderRadius: 5
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: { legend: { display: false } },
+                scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }
+            }
+        });
+    }
+
+    // ── R4 — Receitas por Período (gráfico de linha) ──────────────────────────
+
+    function renderGraficoR4(rows) {
+        if (chartR4) { chartR4.destroy(); chartR4 = null; }
+        const body4 = document.getElementById('bodyR4');
+        if (!rows || rows.length === 0) {
+            body4.innerHTML = '<div class="sem-dados">Nenhuma receita no período.</div>';
+            return;
+        }
+        body4.innerHTML = '<canvas id="chartCanvasR4" style="max-height:280px"></canvas>';
+        chartR4 = new Chart(document.getElementById('chartCanvasR4').getContext('2d'), {
+            type: 'line',
+            data: {
+                labels: rows.map(r => r.periodo),
+                datasets: [
+                    {
+                        label: 'Receitas',
+                        data: rows.map(r => r.totalReceitas),
+                        borderColor: '#4966b1',
+                        backgroundColor: 'rgba(73,102,177,0.08)',
+                        tension: 0.3,
+                        yAxisID: 'y'
+                    },
+                    {
+                        label: 'ICT Médio',
+                        data: rows.map(r => r.ictMedio),
+                        borderColor: '#fd7e14',
+                        backgroundColor: 'transparent',
+                        tension: 0.3,
+                        borderDash: [4, 3],
+                        yAxisID: 'y2'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y:  { beginAtZero: true, ticks: { precision: 0 } },
+                    y2: { position: 'right', beginAtZero: true, grid: { drawOnChartArea: false } }
+                }
+            }
+        });
+    }
+
+    // ── R5 — Diagnósticos Frequentes ──────────────────────────────────────────
+
+    function renderTabelaR5(rows) {
+        const el = document.getElementById('bodyR5');
+        if (!rows || rows.length === 0) {
+            el.innerHTML = '<div class="sem-dados">Nenhum diagnóstico registrado no período.</div>';
+            return;
+        }
+        let html = `<table class="tabela-relatorio">
+            <thead><tr><th>CID</th><th>Diagnóstico</th><th>Ocorrências</th></tr></thead><tbody>`;
+        rows.forEach(r => {
+            html += `<tr>
+                <td><span class="badge-cid">${r.codigo}</span></td>
+                <td>${r.titulo}</td>
+                <td><strong>${r.ocorrencias}</strong></td>
+            </tr>`;
+        });
+        html += '</tbody></table>';
+        el.innerHTML = html;
+    }
+
+    // ── R6 — Correlação ICT × Status (gráfico de barras horizontal) ──────────
+
+    function renderGraficoR6(rows) {
+        if (chartR6) { chartR6.destroy(); chartR6 = null; }
+        const body6 = document.getElementById('bodyR6');
+        if (!rows || rows.length === 0) {
+            body6.innerHTML = '<div class="sem-dados">Nenhum dado de evolução clínica registrado.</div>';
+            return;
+        }
+        body6.innerHTML = '<canvas id="chartCanvasR6" style="max-height:280px"></canvas>';
+        const coresPorStatus = {
+            'Melhorou':    '#198754',
+            'Estável':     '#0dcaf0',
+            'Piorou':      '#dc3545',
+            'Inconclusivo':'#adb5bd'
+        };
+        chartR6 = new Chart(document.getElementById('chartCanvasR6').getContext('2d'), {
+            type: 'bar',
+            data: {
+                labels: rows.map(r => r.status),
+                datasets: [{
+                    label: 'ICT Médio',
+                    data: rows.map(r => r.ictMedio),
+                    backgroundColor: rows.map(r => coresPorStatus[r.status] || '#4966b1'),
+                    borderRadius: 5
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                plugins: { legend: { display: false } },
+                scales: { x: { beginAtZero: true } }
+            }
+        });
+    }
+
+    // ── R7 — Hospitalizações por Paciente ─────────────────────────────────────
+
+    function renderTabelaR7(rows) {
+        const el = document.getElementById('bodyR7');
+        if (!rows || rows.length === 0) {
+            el.innerHTML = '<div class="sem-dados">Nenhuma hospitalização registrada no período.</div>';
+            return;
+        }
+        let html = `<table class="tabela-relatorio">
+            <thead><tr><th>Paciente</th><th>Hospitalizações</th><th>Consultas</th></tr></thead><tbody>`;
+        rows.forEach(r => {
+            html += `<tr>
+                <td>${r.nome}</td>
+                <td><strong style="color:#dc3545">${r.totalHospitalizacoes}</strong></td>
+                <td>${r.totalConsultas}</td>
+            </tr>`;
+        });
+        html += '</tbody></table>';
+        el.innerHTML = html;
+    }
+
+    // ── R8 — Eventos Adversos por Faixa ICT (gráfico de barras) ──────────────
+
+    function renderGraficoR8(rows) {
+        if (chartR8) { chartR8.destroy(); chartR8 = null; }
+        const body8 = document.getElementById('bodyR8');
+        if (!rows || rows.length === 0) {
+            body8.innerHTML = '<div class="sem-dados">Nenhum evento adverso registrado no período.</div>';
+            return;
+        }
+        body8.innerHTML = '<canvas id="chartCanvasR8" style="max-height:280px"></canvas>';
+        chartR8 = new Chart(document.getElementById('chartCanvasR8').getContext('2d'), {
+            type: 'bar',
+            data: {
+                labels: rows.map(r => 'ICT ' + r.faixa),
+                datasets: [{
+                    label: 'Eventos Adversos',
+                    data: rows.map(r => r.totalEventos),
+                    backgroundColor: ['#4966b1','#fd7e14','#dc3545','#6f42c1'],
+                    borderRadius: 5
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: { legend: { display: false } },
+                scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }
+            }
+        });
+    }
+
+    // ── Export Excel individual ───────────────────────────────────────────────
+
+    function exportarExcelCard(nomeAba, aoa) {
+        const ws = XLSX.utils.aoa_to_sheet(aoa);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, nomeAba);
+        XLSX.writeFile(wb, nomeAba + '.xlsx');
+    }
+
+    function exportarCardR1() {
+        if (!ultimosDados) return;
+        const aoa = [['Paciente','Total','Aderiu','% Adesão']];
+        ultimosDados.adesaoPorPaciente.forEach(r => aoa.push([r.nome, r.total, r.aderiu, r.percentual]));
+        exportarExcelCard('Adesao_Paciente', aoa);
+    }
+
+    function exportarCardR2() {
+        if (!ultimosDados) return;
+        const aoa = [['Paciente','ICT Médio','ICT Máximo','Total Receitas']];
+        ultimosDados.complexidadePorPaciente.forEach(r => aoa.push([r.nome, r.ictMedio, r.ictMaximo, r.totalReceitas]));
+        exportarExcelCard('Complexidade_Paciente', aoa);
+    }
+
+    function exportarCardR3() {
+        if (!ultimosDados) return;
+        const aoa = [['Categoria','Quantidade']];
+        ultimosDados.distribuicaoPorCategoria.forEach(r => aoa.push([r.categoria, r.quantidade]));
+        exportarExcelCard('Distribuicao_Categoria', aoa);
+    }
+
+    function exportarCardR4() {
+        if (!ultimosDados) return;
+        const aoa = [['Período','Total Receitas','ICT Médio']];
+        ultimosDados.receitasPorPeriodo.forEach(r => aoa.push([r.periodo, r.totalReceitas, r.ictMedio]));
+        exportarExcelCard('Receitas_Periodo', aoa);
+    }
+
+    function exportarCardR5() {
+        if (!ultimosDados) return;
+        const aoa = [['Código CID','Diagnóstico','Ocorrências']];
+        ultimosDados.diagnosticosFrequentes.forEach(r => aoa.push([r.codigo, r.titulo, r.ocorrencias]));
+        exportarExcelCard('Diagnosticos_Frequentes', aoa);
+    }
+
+    function exportarCardR6() {
+        if (!ultimosDados) return;
+        const aoa = [['Status','ICT Médio','Total Evoluções']];
+        ultimosDados.correlacaoICTStatus.forEach(r => aoa.push([r.status, r.ictMedio, r.totalEvolucoes]));
+        exportarExcelCard('Correlacao_ICT_Status', aoa);
+    }
+
+    function exportarCardR7() {
+        if (!ultimosDados) return;
+        const aoa = [['Paciente','Hospitalizações','Consultas']];
+        ultimosDados.hospitalizacoesPorPaciente.forEach(r => aoa.push([r.nome, r.totalHospitalizacoes, r.totalConsultas]));
+        exportarExcelCard('Hospitalizacoes_Paciente', aoa);
+    }
+
+    function exportarCardR8() {
+        if (!ultimosDados) return;
+        const aoa = [['Faixa ICT','Eventos Adversos','Total Receitas']];
+        ultimosDados.eventosAdversosPorFaixa.forEach(r => aoa.push([r.faixa, r.totalEventos, r.totalReceitas]));
+        exportarExcelCard('Eventos_Adversos_Faixa', aoa);
+    }
+
+    // ── Export geral (8 abas) ─────────────────────────────────────────────────
+
+    function exportarTudo() {
+        if (!ultimosDados) {
+            alert('Carregue os dados antes de exportar.');
+            return;
+        }
+        const wb = XLSX.utils.book_new();
+
+        const addSheet = (nome, cabecalho, rows) => {
+            const ws = XLSX.utils.aoa_to_sheet([cabecalho, ...rows]);
+            XLSX.utils.book_append_sheet(wb, ws, nome);
+        };
+
+        const d = ultimosDados;
+        addSheet('Adesao_Paciente',       ['Paciente','Total','Aderiu','% Adesão'],
+            d.adesaoPorPaciente.map(r => [r.nome, r.total, r.aderiu, r.percentual]));
+
+        addSheet('Complexidade_Paciente', ['Paciente','ICT Médio','ICT Máximo','Total Receitas'],
+            d.complexidadePorPaciente.map(r => [r.nome, r.ictMedio, r.ictMaximo, r.totalReceitas]));
+
+        addSheet('Distribuicao_Categoria',['Categoria','Quantidade'],
+            d.distribuicaoPorCategoria.map(r => [r.categoria, r.quantidade]));
+
+        addSheet('Receitas_Periodo',      ['Período','Total Receitas','ICT Médio'],
+            d.receitasPorPeriodo.map(r => [r.periodo, r.totalReceitas, r.ictMedio]));
+
+        addSheet('Diagnosticos_Frequentes',['Código CID','Diagnóstico','Ocorrências'],
+            d.diagnosticosFrequentes.map(r => [r.codigo, r.titulo, r.ocorrencias]));
+
+        addSheet('Correlacao_ICT_Status', ['Status','ICT Médio','Total Evoluções'],
+            d.correlacaoICTStatus.map(r => [r.status, r.ictMedio, r.totalEvolucoes]));
+
+        addSheet('Hospitalizacoes_Paciente',['Paciente','Hospitalizações','Consultas'],
+            d.hospitalizacoesPorPaciente.map(r => [r.nome, r.totalHospitalizacoes, r.totalConsultas]));
+
+        addSheet('Eventos_Adversos_Faixa',['Faixa ICT','Eventos Adversos','Total Receitas'],
+            d.eventosAdversosPorFaixa.map(r => [r.faixa, r.totalEventos, r.totalReceitas]));
+
+        const data = new Date().toISOString().slice(0,10);
+        XLSX.writeFile(wb, `relatorios_${data}.xlsx`);
+    }
+
+    // ── Init ──────────────────────────────────────────────────────────────────
+
+    document.addEventListener('DOMContentLoaded', () => carregarDados(null, null));
+</script>
