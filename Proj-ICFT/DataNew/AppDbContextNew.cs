@@ -40,6 +40,8 @@ public partial class AppDbContextNew : DbContext
 
     public virtual DbSet<Usuario> Usuarios { get; set; }
 
+    public virtual DbSet<EvolucaoClinica> EvolucaoClinicas { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Blocos_CID>(entity =>
@@ -149,6 +151,37 @@ public partial class AppDbContextNew : DbContext
             entity.HasOne(d => d.Categoria).WithMany(p => p.Tipos)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Tipo_Categoria");
+        });
+
+        modelBuilder.Entity<EvolucaoClinica>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+
+            entity.HasOne(e => e.Paciente).WithMany(p => p.EvolucaoClinicas)
+                .HasForeignKey(e => e.PacienteID)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("FK_EvolucaoClinica_PacienteICT");
+
+            entity.HasOne(e => e.Receita).WithMany(r => r.EvolucaoClinicas)
+                .HasForeignKey(e => e.ReceitaID)
+                .OnDelete(DeleteBehavior.SetNull)
+                .HasConstraintName("FK_EvolucaoClinica_Receita");
+
+            entity.HasOne(e => e.CategoriaCID).WithMany(c => c.EvolucaoClinicas)
+                .HasForeignKey(e => e.CategoriaCID_ID)
+                .OnDelete(DeleteBehavior.SetNull)
+                .HasConstraintName("FK_EvolucaoClinica_Categorias_CID");
+
+            entity.HasOne(e => e.UsuarioCriacao).WithMany(u => u.EvolucaoClinicas)
+                .HasForeignKey(e => e.UsuarioCriacaoID)
+                .OnDelete(DeleteBehavior.Restrict)
+                .HasConstraintName("FK_EvolucaoClinica_Usuario");
+
+            entity.HasIndex(e => e.PacienteID).HasDatabaseName("IX_EvolucaoClinica_PacienteID");
+            entity.HasIndex(e => new { e.PacienteID, e.DataConsulta })
+                  .HasDatabaseName("IX_EvolucaoClinica_Paciente_Data");
+
+            entity.Property(e => e.Status).HasConversion<int>();
         });
 
         OnModelCreatingPartial(modelBuilder);
