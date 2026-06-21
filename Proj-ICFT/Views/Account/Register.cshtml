@@ -12,8 +12,8 @@
         <div class="login-left">
             <div class="login-left-content">
                 <div class="login-left-top">
-                    <h2 class="login-welcome">Crie sua conta!</h2>
-                    <p class="login-subtitle">Cadastre-se para acessar o portal e<br>começar a gerir prescrições e pacientes.</p>
+                    <h2 class="login-welcome">Cadastrar novo usuário</h2>
+                    <p class="login-subtitle">Conceda a um novo profissional acesso ao portal<br>para gerir prescrições e pacientes.</p>
                 </div>
 
                 <div class="login-illustration">
@@ -23,8 +23,8 @@
                 <div class="login-security-badge">
                     <i class="bi bi-shield-check-fill"></i>
                     <div>
-                        <strong>Seus dados protegidos</strong>
-                        <span>Segurança e privacidade são nossa prioridade.</span>
+                        <strong>Acesso restrito</strong>
+                        <span>Somente administradores cadastram novos usuários.</span>
                     </div>
                 </div>
             </div>
@@ -33,22 +33,22 @@
         <!-- Painel direito -->
         <div class="login-right">
             <div class="login-form-wrap">
-                <h1 class="login-title">Novo cadastro</h1>
-                <p class="login-hint">Preencha os dados abaixo para criar sua conta.</p>
+                <h1 class="login-title">Cadastrar novo usuário</h1>
+                <p class="login-hint">Preencha os dados abaixo para conceder acesso a um novo usuário.</p>
 
                 @using (Html.BeginForm("NewRegister", "Account", FormMethod.Post))
                 {
                     <div class="lf-group">
-                        <label class="lf-label" asp-for="Email">Email</label>
+                        <label class="lf-label" asp-for="Email">Email do usuário</label>
                         <div class="lf-input-wrap">
                             <i class="bi bi-envelope lf-icon"></i>
-                            <input asp-for="Email" type="email" class="lf-input" placeholder="seu@email.com" required />
+                            <input asp-for="Email" type="email" class="lf-input" placeholder="email.do.usuario@exemplo.com" required />
                         </div>
                         <span asp-validation-for="Email" class="lf-error"></span>
                     </div>
 
                     <div class="lf-group">
-                        <label class="lf-label" asp-for="Senha">Senha</label>
+                        <label class="lf-label" asp-for="Senha">Senha de acesso</label>
                         <div class="lf-input-wrap">
                             <i class="bi bi-lock lf-icon"></i>
                             <input asp-for="Senha" type="password" class="lf-input" id="senhaInput" placeholder="••••••••" minlength="6" required />
@@ -60,11 +60,11 @@
                     </div>
 
                     <button type="submit" class="lf-btn-submit" style="margin-top: 8px;">
-                        <i class="bi bi-person-plus"></i> Criar conta
+                        <i class="bi bi-person-plus"></i> Cadastrar usuário
                     </button>
                 }
 
-                <p class="lf-login-link">Já tem uma conta? <a href="/Account/Login">Entrar</a></p>
+                <p class="lf-login-link">Concluiu os cadastros? <a href="/Account/Login">Voltar ao portal</a></p>
 
                 @await Html.PartialAsync(Alerta.ALERTAS)
             </div>

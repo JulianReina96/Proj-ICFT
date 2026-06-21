@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using Proj_ICFT.Models;
 using Proj_ICFT.Models.Filter;
 using Proj_ICFT.Services.CIDServices.Interface;
@@ -14,19 +15,32 @@ namespace Proj_ICFT.Controllers
         private readonly ICIDServices _cidServices;
         private readonly IUsuarioService _usuarioService;
         private readonly ILogger<HomeController> _logger;
+        private readonly FeatureFlags _features;
 
         public HomeController(IFormularioServices formularioServices, IUsuarioService usuarioService,
-            ILogger<HomeController> logger, ICIDServices cidServices)
+            ILogger<HomeController> logger, ICIDServices cidServices, IOptions<FeatureFlags> features)
         {
             _formularioServices = formularioServices;
             _logger = logger;
             _usuarioService = usuarioService;
             _cidServices = cidServices;
+            _features = features.Value;
         }
 
         public IActionResult Index() => View();
 
-        public IActionResult Home() => View();
+        public IActionResult Home()
+        {
+            if (_features.HomeComoLogin)
+            {
+                var logado = !string.IsNullOrEmpty(HttpContext.Session.GetString("_UserToken"));
+                return logado
+                    ? RedirectToAction("Form", "Home")
+                    : RedirectToAction("Login", "Account");
+            }
+
+            return View();
+        }
 
         [SessionFilter]
         public async Task<IActionResult> Form()

@@ -1,9 +1,10 @@
-﻿<!DOCTYPE html>
+﻿@inject Microsoft.Extensions.Options.IOptions<Proj_ICFT.Models.FeatureFlags> Features
+<!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - Calculadora IC</title>
+    <title>@ViewData["Title"] - @(Features.Value.UsarWordmark ? "Simply Pharm" : "Calculadora IC")</title>
     <link rel="stylesheet" href="~/css/main.css" asp-append-version="true" />
 
 
@@ -87,13 +88,26 @@
     <header id="header" class="header d-flex align-items-center" style="overflow:hidden">
 
         <div class="container-fluid container-xl d-flex align-items-center justify-content-between">
-            <a asp-action="Form" asp-controller="Home" class="d-flex align-items-center" style="height:90px;overflow:hidden;flex-shrink:0">
-                <img src="~/img/LogoSemFundo.png" style="height:180px;width:auto;max-width:260px;display:block" alt="PharmaSim">
-            </a>
+            @if (Features.Value.UsarWordmark)
+            {
+                <a asp-action="Form" asp-controller="Home" class="brand-wordmark" aria-label="Simply Pharm">
+                    <i class="bi bi-capsule brand-icon"></i>
+                    <span class="brand-text"><span class="brand-simply">Simply</span> <span class="brand-pharm">Pharm</span></span>
+                </a>
+            }
+            else
+            {
+                <a asp-action="Form" asp-controller="Home" class="d-flex align-items-center" style="height:90px;overflow:hidden;flex-shrink:0">
+                    <img src="~/img/LogoSemFundo.png" style="height:180px;width:auto;max-width:260px;display:block" alt="PharmaSim">
+                </a>
+            }
 
             <nav id="navbar" class="navbar">
                 <ul>
-                    <li><a asp-action="Home" asp-controller="Home">Home</a></li>
+                    @if (!Features.Value.HomeComoLogin)
+                    {
+                        <li><a asp-action="Home" asp-controller="Home">Home</a></li>
+                    }
                     <li><a asp-action="Form" asp-controller="Home">Prescrição</a></li>
                     <li><a asp-action="PacientesAnalisados" asp-controller="Paciente">Pacientes</a></li>
                     <li><a asp-action="Index" asp-controller="Relatorio">Relatórios</a></li>
@@ -127,9 +141,19 @@
     <footer id="footer" class="footer">
         <div class="container">
             <div class="copyright" style="display:flex;align-items:center;justify-content:center;gap:16px;">
-                <div style="height:50px;overflow:hidden;flex-shrink:0;display:flex;align-items:center">
-                    <img src="~/img/LogoSemFundo.png" style="height:100px;width:auto;display:block" alt="ICFT">
-                </div>
+                @if (Features.Value.UsarWordmark)
+                {
+                    <span class="brand-wordmark brand-wordmark-footer" aria-label="Simply Pharm">
+                        <i class="bi bi-capsule brand-icon"></i>
+                        <span class="brand-text"><span class="brand-simply">Simply</span> <span class="brand-pharm">Pharm</span></span>
+                    </span>
+                }
+                else
+                {
+                    <div style="height:50px;overflow:hidden;flex-shrink:0;display:flex;align-items:center">
+                        <img src="~/img/LogoSemFundo.png" style="height:100px;width:auto;display:block" alt="ICFT">
+                    </div>
+                }
                 <p style="margin:0;font-size:0.82rem;color:rgba(255,255,255,0.75)">
                     Sistema desenvolvido por <a href="https://www.linkedin.com/in/julianreina/" style="color:#a8f5ae;font-weight:600">Julian Reina</a>
                 </p>

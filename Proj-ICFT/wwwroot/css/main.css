@@ -334,6 +334,58 @@ section {
             color: #f96f59;
         }
 
+/* ── Wordmark "Simply Pharm" (cabeçalho e rodapé) ── */
+.brand-wordmark {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    flex-shrink: 0;
+    text-decoration: none;
+    line-height: 1;
+    white-space: nowrap;
+}
+
+    .brand-wordmark .brand-icon {
+        font-size: 1.85rem;
+        color: #fff;
+        transform: rotate(-45deg);
+        display: inline-block;
+    }
+
+    .brand-wordmark .brand-text {
+        font-family: var(--font-primary);
+        font-size: 1.6rem;
+        letter-spacing: 0.4px;
+    }
+
+    .brand-wordmark .brand-simply {
+        font-weight: 400;
+        color: rgba(255, 255, 255, 0.9);
+    }
+
+    .brand-wordmark .brand-pharm {
+        font-weight: 800;
+        color: #fff;
+    }
+
+.brand-wordmark-footer .brand-icon {
+    font-size: 1.35rem;
+}
+
+.brand-wordmark-footer .brand-text {
+    font-size: 1.2rem;
+}
+
+@media (max-width: 575.98px) {
+    .brand-wordmark .brand-icon {
+        font-size: 1.5rem;
+    }
+
+    .brand-wordmark .brand-text {
+        font-size: 1.3rem;
+    }
+}
+
 .sticked-header-offset {
     margin-top: 70px;
 }
@@ -2611,6 +2663,19 @@ section {
 
 
 /*--------------------------------------------------------------
+# Sticky footer — mantém o rodapé no fim da janela em páginas curtas
+--------------------------------------------------------------*/
+body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+    body > .container-fluid.p-0 {
+        flex: 1 0 auto;
+    }
+
+/*--------------------------------------------------------------
 # Footer
 --------------------------------------------------------------*/
 .footer {
@@ -2618,6 +2683,7 @@ section {
     background-color: var(--color-primary);
     padding: 10px 0;
     color: white;
+    flex-shrink: 0;
 }
 
     .footer .footer-info .logo {

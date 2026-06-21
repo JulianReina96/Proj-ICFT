@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Proj_ICFT.DataNew;
+using Proj_ICFT.Models;
 using Proj_ICFT.MedicamentosServices.Implementacao;
 using Proj_ICFT.Services.CIDServices.Interface;
 using Proj_ICFT.Services.EvolucaoClinicaServices.Implementacao;
@@ -20,6 +21,9 @@ var configuration = builder.Configuration;
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+
+builder.Services.Configure<FeatureFlags>(
+    builder.Configuration.GetSection(FeatureFlags.SectionName));
 
 
 
