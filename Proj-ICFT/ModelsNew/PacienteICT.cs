@@ -27,7 +27,7 @@ public partial class PacienteICT
     public int Idade { get; set; }
 
     [InverseProperty("Paciente")]
-    public virtual ICollection<Receitum> Receita { get; set; } = new List<Receitum>();
+    public virtual ICollection<Prescricao> Prescricoes { get; set; } = new List<Prescricao>();
 
     [InverseProperty("Paciente")]
     public virtual ICollection<EvolucaoClinica> EvolucaoClinicas { get; set; } = new List<EvolucaoClinica>();

@@ -32,5 +32,5 @@ public partial class Medicamento
     public string? SITUACAO_REGISTRO { get; set; }
 
     [InverseProperty("Medicamento")]
-    public virtual ICollection<ReceitaMed> ReceitaMeds { get; set; } = new List<ReceitaMed>();
+    public virtual ICollection<PrescricaoMed> PrescricaoMeds { get; set; } = new List<PrescricaoMed>();
 }

@@ -161,7 +161,7 @@
             <!-- R4: Receitas por Período -->
             <div class="col-12 col-md-6">
                 <div class="card-relatorio">
-                    <div class="card-relatorio-header">R4 — Receitas por Período</div>
+                    <div class="card-relatorio-header">R4 — Prescrições por Período</div>
                     <div class="card-relatorio-body" id="bodyR4"><canvas id="chartCanvasR4" style="max-height:280px"></canvas></div>
                     <div class="card-relatorio-footer">
                         <button class="btn-excel-card" onclick="exportarCardR4()">⬇ Excel</button>
@@ -269,7 +269,7 @@
         renderTabelaR1(d.adesaoPorPaciente);
         renderTabelaR2(d.complexidadePorPaciente);
         renderGraficoR3(d.distribuicaoPorCategoria);
-        renderGraficoR4(d.receitasPorPeriodo);
+        renderGraficoR4(d.prescricoesPorPeriodo);
         renderTabelaR5(d.diagnosticosFrequentes);
         renderGraficoR6(d.correlacaoICTStatus);
         renderTabelaR7(d.hospitalizacoesPorPaciente);
@@ -281,7 +281,7 @@
     function renderTabelaR1(rows) {
         const el = document.getElementById('bodyR1');
         if (!rows || rows.length === 0) {
-            el.innerHTML = '<div class="sem-dados">Nenhuma receita no período.</div>';
+            el.innerHTML = '<div class="sem-dados">Nenhuma prescrição no período.</div>';
             return;
         }
         let html = `<table class="tabela-relatorio">
@@ -311,19 +311,19 @@
     function renderTabelaR2(rows) {
         const el = document.getElementById('bodyR2');
         if (!rows || rows.length === 0) {
-            el.innerHTML = '<div class="sem-dados">Nenhuma receita no período.</div>';
+            el.innerHTML = '<div class="sem-dados">Nenhuma prescrição no período.</div>';
             return;
         }
         let html = `<table class="tabela-relatorio">
             <thead><tr>
-                <th>Paciente</th><th>ICT Médio</th><th>ICT Máximo</th><th>Receitas</th>
+                <th>Paciente</th><th>ICT Médio</th><th>ICT Máximo</th><th>Prescrições</th>
             </tr></thead><tbody>`;
         rows.forEach(r => {
             html += `<tr>
                 <td>${r.nome}</td>
                 <td><strong>${r.ictMedio}</strong></td>
                 <td>${r.ictMaximo}</td>
-                <td>${r.totalReceitas}</td>
+                <td>${r.totalPrescricoes}</td>
             </tr>`;
         });
         html += '</tbody></table>';
@@ -359,13 +359,13 @@
         });
     }
 
-    // ── R4 — Receitas por Período (gráfico de linha) ──────────────────────────
+    // ── R4 — Prescrições por Período (gráfico de linha) ───────────────────────
 
     function renderGraficoR4(rows) {
         if (chartR4) { chartR4.destroy(); chartR4 = null; }
         const body4 = document.getElementById('bodyR4');
         if (!rows || rows.length === 0) {
-            body4.innerHTML = '<div class="sem-dados">Nenhuma receita no período.</div>';
+            body4.innerHTML = '<div class="sem-dados">Nenhuma prescrição no período.</div>';
             return;
         }
         body4.innerHTML = '<canvas id="chartCanvasR4" style="max-height:280px"></canvas>';
@@ -375,8 +375,8 @@
                 labels: rows.map(r => r.periodo),
                 datasets: [
                     {
-                        label: 'Receitas',
-                        data: rows.map(r => r.totalReceitas),
+                        label: 'Prescrições',
+                        data: rows.map(r => r.totalPrescricoes),
                         borderColor: '#4966b1',
                         backgroundColor: 'rgba(73,102,177,0.08)',
                         tension: 0.3,
@@ -528,8 +528,8 @@
 
     function exportarCardR2() {
         if (!ultimosDados) return;
-        const aoa = [['Paciente','ICT Médio','ICT Máximo','Total Receitas']];
-        ultimosDados.complexidadePorPaciente.forEach(r => aoa.push([r.nome, r.ictMedio, r.ictMaximo, r.totalReceitas]));
+        const aoa = [['Paciente','ICT Médio','ICT Máximo','Total Prescrições']];
+        ultimosDados.complexidadePorPaciente.forEach(r => aoa.push([r.nome, r.ictMedio, r.ictMaximo, r.totalPrescricoes]));
         exportarExcelCard('Complexidade_Paciente', aoa);
     }
 
@@ -542,9 +542,9 @@
 
     function exportarCardR4() {
         if (!ultimosDados) return;
-        const aoa = [['Período','Total Receitas','ICT Médio']];
-        ultimosDados.receitasPorPeriodo.forEach(r => aoa.push([r.periodo, r.totalReceitas, r.ictMedio]));
-        exportarExcelCard('Receitas_Periodo', aoa);
+        const aoa = [['Período','Total Prescrições','ICT Médio']];
+        ultimosDados.prescricoesPorPeriodo.forEach(r => aoa.push([r.periodo, r.totalPrescricoes, r.ictMedio]));
+        exportarExcelCard('Prescricoes_Periodo', aoa);
     }
 
     function exportarCardR5() {
@@ -570,8 +570,8 @@
 
     function exportarCardR8() {
         if (!ultimosDados) return;
-        const aoa = [['Faixa ICT','Eventos Adversos','Total Receitas']];
-        ultimosDados.eventosAdversosPorFaixa.forEach(r => aoa.push([r.faixa, r.totalEventos, r.totalReceitas]));
+        const aoa = [['Faixa ICT','Eventos Adversos','Total Prescrições']];
+        ultimosDados.eventosAdversosPorFaixa.forEach(r => aoa.push([r.faixa, r.totalEventos, r.totalPrescricoes]));
         exportarExcelCard('Eventos_Adversos_Faixa', aoa);
     }
 
@@ -593,14 +593,14 @@
         addSheet('Adesao_Paciente',       ['Paciente','Total','Aderiu','% Adesão'],
             d.adesaoPorPaciente.map(r => [r.nome, r.total, r.aderiu, r.percentual]));
 
-        addSheet('Complexidade_Paciente', ['Paciente','ICT Médio','ICT Máximo','Total Receitas'],
-            d.complexidadePorPaciente.map(r => [r.nome, r.ictMedio, r.ictMaximo, r.totalReceitas]));
+        addSheet('Complexidade_Paciente', ['Paciente','ICT Médio','ICT Máximo','Total Prescrições'],
+            d.complexidadePorPaciente.map(r => [r.nome, r.ictMedio, r.ictMaximo, r.totalPrescricoes]));
 
         addSheet('Distribuicao_Categoria',['Categoria','Quantidade'],
             d.distribuicaoPorCategoria.map(r => [r.categoria, r.quantidade]));
 
-        addSheet('Receitas_Periodo',      ['Período','Total Receitas','ICT Médio'],
-            d.receitasPorPeriodo.map(r => [r.periodo, r.totalReceitas, r.ictMedio]));
+        addSheet('Prescricoes_Periodo',      ['Período','Total Prescrições','ICT Médio'],
+            d.prescricoesPorPeriodo.map(r => [r.periodo, r.totalPrescricoes, r.ictMedio]));
 
         addSheet('Diagnosticos_Frequentes',['Código CID','Diagnóstico','Ocorrências'],
             d.diagnosticosFrequentes.map(r => [r.codigo, r.titulo, r.ocorrencias]));
@@ -611,8 +611,8 @@
         addSheet('Hospitalizacoes_Paciente',['Paciente','Hospitalizações','Consultas'],
             d.hospitalizacoesPorPaciente.map(r => [r.nome, r.totalHospitalizacoes, r.totalConsultas]));
 
-        addSheet('Eventos_Adversos_Faixa',['Faixa ICT','Eventos Adversos','Total Receitas'],
-            d.eventosAdversosPorFaixa.map(r => [r.faixa, r.totalEventos, r.totalReceitas]));
+        addSheet('Eventos_Adversos_Faixa',['Faixa ICT','Eventos Adversos','Total Prescrições'],
+            d.eventosAdversosPorFaixa.map(r => [r.faixa, r.totalEventos, r.totalPrescricoes]));
 
         const data = new Date().toISOString().slice(0,10);
         XLSX.writeFile(wb, `relatorios_${data}.xlsx`);

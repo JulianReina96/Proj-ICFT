@@ -1,0 +1,32 @@
+@startuml diagrama-implantacao
+!pragma layout smetana
+skinparam shadowing false
+skinparam backgroundColor #FFFFFF
+skinparam nodeBackgroundColor #FFFFFF
+skinparam artifactBackgroundColor #F4F4F4
+skinparam DefaultFontName Helvetica
+
+node "Hardware do Usuário" as hw {
+    artifact "Navegador Web" as browser
+}
+
+node "Microsoft Azure" as azure {
+
+    node "Azure App Service" as appsvc {
+        artifact "Simply Farm\nASP.NET Core MVC (.NET 8)\n(Views + Controllers + Models)" as app
+    }
+
+    node "Azure SQL Database" as sqldb {
+        artifact "Banco de Dados\nSQL Server" as db
+    }
+}
+
+node "Google Cloud" as gcp {
+    artifact "Firebase Authentication" as fb
+}
+
+browser --> app : "HTTP / HTTPS"
+app --> db : "TCP/IP"
+app --> fb : "HTTPS / JWT"
+
+@enduml

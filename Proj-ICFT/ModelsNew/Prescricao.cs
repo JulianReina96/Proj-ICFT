@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -6,7 +6,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Proj_ICFT.ModelsNew;
 
-public partial class Receitum
+[Table("Prescricao")]
+public partial class Prescricao
 {
     [Key]
     public int Id { get; set; }
@@ -23,19 +24,19 @@ public partial class Receitum
     public double ICT { get; set; }
 
     [ForeignKey("PacienteID")]
-    [InverseProperty("Receita")]
+    [InverseProperty("Prescricoes")]
     public virtual PacienteICT Paciente { get; set; } = null!;
 
-    [InverseProperty("Receita")]
-    public virtual ICollection<ReceitaCID> ReceitaCIDs { get; set; } = new List<ReceitaCID>();
+    [InverseProperty("Prescricao")]
+    public virtual ICollection<PrescricaoCID> PrescricaoCIDs { get; set; } = new List<PrescricaoCID>();
 
-    [InverseProperty("Receita")]
-    public virtual ICollection<ReceitaMed> ReceitaMeds { get; set; } = new List<ReceitaMed>();
+    [InverseProperty("Prescricao")]
+    public virtual ICollection<PrescricaoMed> PrescricaoMeds { get; set; } = new List<PrescricaoMed>();
 
-    [InverseProperty("Receita")]
+    [InverseProperty("Prescricao")]
     public virtual ICollection<EvolucaoClinica> EvolucaoClinicas { get; set; } = new List<EvolucaoClinica>();
 
     [ForeignKey("UsuarioCriacaoID")]
-    [InverseProperty("Receita")]
+    [InverseProperty("Prescricoes")]
     public virtual Usuario UsuarioCriacao { get; set; } = null!;
 }

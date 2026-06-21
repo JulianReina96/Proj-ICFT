@@ -1,15 +1,15 @@
 namespace Proj_ICFT.Models
 {
-    public class SalvarReceitaRequest
+    public class SalvarPrescricaoRequest
     {
         public int? PacienteId { get; set; }
         public bool PacienteAnonimo { get; set; }
         public bool Adesao { get; set; }
-        public List<MedicamentoReceitaItem> Medicamentos { get; set; } = [];
+        public List<MedicamentoPrescricaoItem> Medicamentos { get; set; } = [];
         public List<int> CidCategorias { get; set; } = [];
     }
 
-    public class MedicamentoReceitaItem
+    public class MedicamentoPrescricaoItem
     {
         public int MedicamentoId { get; set; }
         public int CategoriaId { get; set; }

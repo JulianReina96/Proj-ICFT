@@ -64,7 +64,7 @@ namespace Proj_ICFT.Services.FormularioServices.Implementacao
         // Usar a mesma string no PacientesServices ao filtrar a listagem.
         public const string NomePacienteAnonimo = "Paciente Anônimo";
 
-        public async Task<(double ict, int receitaId)> SalvarReceita(string email, SalvarReceitaRequest request)
+        public async Task<(double ict, int prescricaoId)> SalvarPrescricao(string email, SalvarPrescricaoRequest request)
         {
             var usuario = await _appDbContextNew.Usuarios
                 .FirstOrDefaultAsync(u => u.Usuario1 == email)
@@ -75,7 +75,7 @@ namespace Proj_ICFT.Services.FormularioServices.Implementacao
 
             if (request.PacienteAnonimo)
             {
-                // Reutiliza o mesmo registro anônimo para o usuário em vez de criar um por receita.
+                // Reutiliza o mesmo registro anônimo para o usuário em vez de criar um por prescrição.
                 var anonimo = await _appDbContextNew.PacienteICTs
                     .FirstOrDefaultAsync(p => p.UsuarioCriacaoID == usuario.id
                                            && p.NomePaciente == NomePacienteAnonimo);
@@ -96,7 +96,57 @@ namespace Proj_ICFT.Services.FormularioServices.Implementacao
                 throw new InvalidOperationException("Selecione um paciente ou marque como anônimo.");
             }
 
-            // ── Carregar entidades de pesos em batch (evita N+1) ──────────────────
+            var prescricao = new Prescricao
+            {
+                PacienteID        = pacienteId,
+                UsuarioCriacaoID  = usuario.id,
+                DataCriacao       = DateTime.Now,
+                Adesao            = request.Adesao,
+                ICT               = 0
+            };
+
+            var ict = await MontarItensECalcularIct(prescricao, request);
+
+            _appDbContextNew.Prescricoes.Add(prescricao);
+            await _appDbContextNew.SaveChangesAsync();
+
+            return (ict, prescricao.Id);
+        }
+
+        public async Task<(double ict, int prescricaoId)> AtualizarPrescricao(string email, int prescricaoId, SalvarPrescricaoRequest request)
+        {
+            var usuario = await _appDbContextNew.Usuarios
+                .FirstOrDefaultAsync(u => u.Usuario1 == email)
+                ?? throw new InvalidOperationException("Usuário não encontrado.");
+
+            var prescricao = await _appDbContextNew.Prescricoes
+                .Include(p => p.PrescricaoMeds).ThenInclude(m => m.InstrucoesMeds)
+                .Include(p => p.PrescricaoCIDs)
+                .FirstOrDefaultAsync(p => p.Id == prescricaoId && p.UsuarioCriacaoID == usuario.id)
+                ?? throw new InvalidOperationException("Prescrição não encontrada.");
+
+            // Edição não altera o paciente vinculado — apenas medicamentos, CIDs e adesão.
+            // Substitui os filhos antigos pelos novos (remoção explícita: FKs são ClientSetNull).
+            foreach (var med in prescricao.PrescricaoMeds)
+                _appDbContextNew.InstrucoesMeds.RemoveRange(med.InstrucoesMeds);
+            _appDbContextNew.PrescricaoMeds.RemoveRange(prescricao.PrescricaoMeds);
+            _appDbContextNew.PrescricaoCIDs.RemoveRange(prescricao.PrescricaoCIDs);
+            prescricao.PrescricaoMeds.Clear();
+            prescricao.PrescricaoCIDs.Clear();
+
+            prescricao.Adesao = request.Adesao;
+            var ict = await MontarItensECalcularIct(prescricao, request);
+
+            await _appDbContextNew.SaveChangesAsync();
+
+            return (ict, prescricao.Id);
+        }
+
+        // Monta PrescricaoMeds/InstrucoesMeds/PrescricaoCIDs na prescrição e calcula o ICT (MRCI).
+        // Tipo/Forma: somado UMA VEZ por forma distinta na prescrição. Frequência e Instruções: por medicamento.
+        // Compartilhado por SalvarPrescricao e AtualizarPrescricao para garantir cálculo idêntico.
+        private async Task<double> MontarItensECalcularIct(Prescricao prescricao, SalvarPrescricaoRequest request)
+        {
             var tipoIds  = request.Medicamentos.Select(m => m.SubcategoriaId).Distinct().ToList();
             var freqIds  = request.Medicamentos.Select(m => m.FrequenciaId).Distinct().ToList();
             var instrIds = request.Medicamentos
@@ -116,23 +166,10 @@ namespace Proj_ICFT.Services.FormularioServices.Implementacao
                 .Where(i => instrIds.Contains(i.id))
                 .ToDictionaryAsync(i => i.id);
 
-            // ── Montar receita e calcular ICT (fórmula MRCI) ─────────────────────
-            // Tipo/Forma:  somado UMA VEZ por forma distinta em toda a receita.
-            // Frequência:  somada por medicamento.
-            // Instruções:  somadas por medicamento.
             double ict = request.Medicamentos
                 .Select(m => m.SubcategoriaId)
                 .Distinct()
                 .Sum(id => tipos.TryGetValue(id, out var t) ? (double)t.Peso : 0);
-
-            var receita = new Receitum
-            {
-                PacienteID        = pacienteId,
-                UsuarioCriacaoID  = usuario.id,
-                DataCriacao       = DateTime.Now,
-                Adesao            = request.Adesao,
-                ICT               = 0
-            };
 
             foreach (var med in request.Medicamentos)
             {
@@ -145,7 +182,7 @@ namespace Proj_ICFT.Services.FormularioServices.Implementacao
 
                 ict += (freq?.Peso ?? 0.0) + instrsDoMed.Sum(i => i.Peso);
 
-                var receitaMed = new ReceitaMed
+                var prescricaoMed = new PrescricaoMed
                 {
                     MedicamentoID = med.MedicamentoId,
                     CategoriaID   = med.CategoriaId,
@@ -154,20 +191,16 @@ namespace Proj_ICFT.Services.FormularioServices.Implementacao
                 };
 
                 foreach (var instr in instrsDoMed)
-                    receitaMed.InstrucoesMeds.Add(new InstrucoesMed { InstrucaoId = instr.id });
+                    prescricaoMed.InstrucoesMeds.Add(new InstrucoesMed { InstrucaoId = instr.id });
 
-                receita.ReceitaMeds.Add(receitaMed);
+                prescricao.PrescricaoMeds.Add(prescricaoMed);
             }
 
             foreach (var cidId in request.CidCategorias)
-                receita.ReceitaCIDs.Add(new ReceitaCID { CategoriaCID_ID = cidId });
+                prescricao.PrescricaoCIDs.Add(new PrescricaoCID { CategoriaCID_ID = cidId });
 
-            receita.ICT = ict;
-
-            _appDbContextNew.Receita.Add(receita);
-            await _appDbContextNew.SaveChangesAsync();
-
-            return (ict, receita.Id);
+            prescricao.ICT = ict;
+            return ict;
         }
     }
 }

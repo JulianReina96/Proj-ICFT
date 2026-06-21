@@ -21,7 +21,7 @@ public class RelatorioService : IRelatorioService
         var ate = filtro.Ate;
 
         // ── R1: Adesão por paciente ───────────────────────────────────────────
-        var r1 = _db.Receita
+        var r1 = _db.Prescricoes
             .Where(r => r.UsuarioCriacaoID == userId
                      && (de  == null || r.DataCriacao >= de)
                      && (ate == null || r.DataCriacao <= ate))
@@ -43,7 +43,7 @@ public class RelatorioService : IRelatorioService
             .ToList();
 
         // ── R2: Complexidade por paciente ─────────────────────────────────────
-        var r2 = _db.Receita
+        var r2 = _db.Prescricoes
             .Where(r => r.UsuarioCriacaoID == userId
                      && (de  == null || r.DataCriacao >= de)
                      && (ate == null || r.DataCriacao <= ate))
@@ -60,26 +60,26 @@ public class RelatorioService : IRelatorioService
             .ToList();
 
         // ── R3: Distribuição por categoria ────────────────────────────────────
-        var r3 = _db.ReceitaMeds
-            .Where(rm => rm.Receita.UsuarioCriacaoID == userId
-                      && (de  == null || rm.Receita.DataCriacao >= de)
-                      && (ate == null || rm.Receita.DataCriacao <= ate))
+        var r3 = _db.PrescricaoMeds
+            .Where(rm => rm.Prescricao.UsuarioCriacaoID == userId
+                      && (de  == null || rm.Prescricao.DataCriacao >= de)
+                      && (ate == null || rm.Prescricao.DataCriacao <= ate))
             .Include(rm => rm.Categoria)
-            .Include(rm => rm.Receita)
+            .Include(rm => rm.Prescricao)
             .AsEnumerable()
             .GroupBy(rm => rm.Categoria.Name)
             .Select(g => new DistribuicaoCategoriaRow(g.Key, g.Count()))
             .OrderByDescending(r => r.Quantidade)
             .ToList();
 
-        // ── R4: Receitas por período ──────────────────────────────────────────
-        var r4 = _db.Receita
+        // ── R4: Prescrições por período ───────────────────────────────────────
+        var r4 = _db.Prescricoes
             .Where(r => r.UsuarioCriacaoID == userId
                      && (de  == null || r.DataCriacao >= de)
                      && (ate == null || r.DataCriacao <= ate))
             .AsEnumerable()
             .GroupBy(r => new { r.DataCriacao.Year, r.DataCriacao.Month })
-            .Select(g => new ReceitasPorPeriodoRow(
+            .Select(g => new PrescricoesPorPeriodoRow(
                 $"{g.Key.Year}-{g.Key.Month:D2}",
                 g.Count(),
                 Math.Round(g.Average(r => r.ICT), 2)
@@ -88,12 +88,12 @@ public class RelatorioService : IRelatorioService
             .ToList();
 
         // ── R5: Diagnósticos frequentes ───────────────────────────────────────
-        var r5 = _db.ReceitaCIDs
-            .Where(rc => rc.Receita.UsuarioCriacaoID == userId
-                      && (de  == null || rc.Receita.DataCriacao >= de)
-                      && (ate == null || rc.Receita.DataCriacao <= ate))
+        var r5 = _db.PrescricaoCIDs
+            .Where(rc => rc.Prescricao.UsuarioCriacaoID == userId
+                      && (de  == null || rc.Prescricao.DataCriacao >= de)
+                      && (ate == null || rc.Prescricao.DataCriacao <= ate))
             .Include(rc => rc.CategoriaCID)
-            .Include(rc => rc.Receita)
+            .Include(rc => rc.Prescricao)
             .AsEnumerable()
             .GroupBy(rc => new { rc.CategoriaCID?.Code, rc.CategoriaCID?.Title })
             .Select(g => new DiagnosticoFrequenteRow(
@@ -108,10 +108,10 @@ public class RelatorioService : IRelatorioService
         // ── R6: Correlação ICT × Status ───────────────────────────────────────
         var r6 = _db.EvolucaoClinicas
             .Where(ec => ec.UsuarioCriacaoID == userId
-                      && ec.ReceitaID != null
+                      && ec.PrescricaoID != null
                       && (de  == null || ec.DataConsulta >= de)
                       && (ate == null || ec.DataConsulta <= ate))
-            .Include(ec => ec.Receita)
+            .Include(ec => ec.Prescricao)
             .AsEnumerable()
             .GroupBy(ec => ec.Status)
             .Select(g => new CorrelacaoICTStatusRow(
@@ -122,7 +122,7 @@ public class RelatorioService : IRelatorioService
                     StatusEvolucao.Piorou   => "Piorou",
                     _                       => "Inconclusivo"
                 },
-                Math.Round(g.Average(ec => ec.Receita!.ICT), 2),
+                Math.Round(g.Average(ec => ec.Prescricao!.ICT), 2),
                 g.Count()
             ))
             .ToList();
@@ -147,12 +147,12 @@ public class RelatorioService : IRelatorioService
         // ── R8: Eventos adversos por faixa ICT ───────────────────────────────
         var dadosR8 = _db.EvolucaoClinicas
             .Where(ec => ec.UsuarioCriacaoID == userId
-                      && ec.ReceitaID != null
+                      && ec.PrescricaoID != null
                       && (de  == null || ec.DataConsulta >= de)
                       && (ate == null || ec.DataConsulta <= ate))
-            .Include(ec => ec.Receita)
+            .Include(ec => ec.Prescricao)
             .AsEnumerable()
-            .Select(ec => new { Ict = ec.Receita!.ICT, ec.EventosAdversos })
+            .Select(ec => new { Ict = ec.Prescricao!.ICT, ec.EventosAdversos })
             .ToList();
 
         static string GetFaixa(double ict) =>
@@ -165,7 +165,7 @@ public class RelatorioService : IRelatorioService
             .ToList();
 
         // ── KPIs ──────────────────────────────────────────────────────────────
-        var receitasFiltradas = _db.Receita
+        var prescricoesFiltradas = _db.Prescricoes
             .Where(r => r.UsuarioCriacaoID == userId
                      && (de  == null || r.DataCriacao >= de)
                      && (ate == null || r.DataCriacao <= ate))
@@ -175,12 +175,12 @@ public class RelatorioService : IRelatorioService
         var totalPacientes = _db.PacienteICTs
             .Count(p => p.UsuarioCriacaoID == userId);
 
-        var adesaoGeralPct = receitasFiltradas.Count > 0
-            ? Math.Round((double)receitasFiltradas.Count(r => r.Adesao) / receitasFiltradas.Count * 100, 1)
+        var adesaoGeralPct = prescricoesFiltradas.Count > 0
+            ? Math.Round((double)prescricoesFiltradas.Count(r => r.Adesao) / prescricoesFiltradas.Count * 100, 1)
             : 0.0;
 
-        var ictMedio = receitasFiltradas.Count > 0
-            ? Math.Round(receitasFiltradas.Average(r => r.ICT), 2)
+        var ictMedio = prescricoesFiltradas.Count > 0
+            ? Math.Round(prescricoesFiltradas.Average(r => r.ICT), 2)
             : 0.0;
 
         var totalHosp = _db.EvolucaoClinicas
@@ -198,7 +198,7 @@ public class RelatorioService : IRelatorioService
             AdesaoPorPaciente       = r1,
             ComplexidadePorPaciente = r2,
             DistribuicaoPorCategoria = r3,
-            ReceitasPorPeriodo      = r4,
+            PrescricoesPorPeriodo   = r4,
             DiagnosticosFrequentes  = r5,
             CorrelacaoICTStatus     = r6,
             HospitalizacoesPorPaciente = r7,

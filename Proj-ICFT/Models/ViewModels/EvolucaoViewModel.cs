@@ -10,9 +10,9 @@ public class EvolucaoListagemViewModel
     public DateTime DataConsulta { get; set; }
     public StatusEvolucao Status { get; set; }
     public string StatusLabel { get; set; } = "";
-    public int? ReceitaID { get; set; }
-    public double? IctDaReceita { get; set; }
-    public bool? ReceitaAdesao { get; set; }
+    public int? PrescricaoID { get; set; }
+    public double? IctDaPrescricao { get; set; }
+    public bool? PrescricaoAdesao { get; set; }
     public string? CidCodigo { get; set; }
     public string? CidTitulo { get; set; }
 }
@@ -45,7 +45,7 @@ public class CIDOpcaoViewModel
     public string Titulo { get; set; } = "";
 }
 
-public class ReceitaOpcaoViewModel
+public class PrescricaoOpcaoViewModel
 {
     public int Id { get; set; }
     public DateTime DataCriacao { get; set; }

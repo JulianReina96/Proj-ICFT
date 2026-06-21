@@ -15,7 +15,7 @@ public partial class Categorium
     public string Name { get; set; } = null!;
 
     [InverseProperty("Categoria")]
-    public virtual ICollection<ReceitaMed> ReceitaMeds { get; set; } = new List<ReceitaMed>();
+    public virtual ICollection<PrescricaoMed> PrescricaoMeds { get; set; } = new List<PrescricaoMed>();
 
     [InverseProperty("Categoria")]
     public virtual ICollection<Tipo> Tipos { get; set; } = new List<Tipo>();

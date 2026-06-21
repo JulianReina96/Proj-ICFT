@@ -24,5 +24,5 @@ public partial class Tipo
     public virtual Categorium Categoria { get; set; } = null!;
 
     [InverseProperty("Tipo")]
-    public virtual ICollection<ReceitaMed> ReceitaMeds { get; set; } = new List<ReceitaMed>();
+    public virtual ICollection<PrescricaoMed> PrescricaoMeds { get; set; } = new List<PrescricaoMed>();
 }

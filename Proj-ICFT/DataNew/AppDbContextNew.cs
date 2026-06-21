@@ -30,11 +30,11 @@ public partial class AppDbContextNew : DbContext
 
     public virtual DbSet<PacienteICT> PacienteICTs { get; set; }
 
-    public virtual DbSet<ReceitaCID> ReceitaCIDs { get; set; }
+    public virtual DbSet<PrescricaoCID> PrescricaoCIDs { get; set; }
 
-    public virtual DbSet<ReceitaMed> ReceitaMeds { get; set; }
+    public virtual DbSet<PrescricaoMed> PrescricaoMeds { get; set; }
 
-    public virtual DbSet<Receitum> Receita { get; set; }
+    public virtual DbSet<Prescricao> Prescricoes { get; set; }
 
     public virtual DbSet<Tipo> Tipos { get; set; }
 
@@ -78,7 +78,7 @@ public partial class AppDbContextNew : DbContext
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Med_Instrucoes_InstrucoesAdicionais");
 
-            entity.HasOne(d => d.Med_Receita).WithMany(p => p.InstrucoesMeds)
+            entity.HasOne(d => d.Med_Prescricao).WithMany(p => p.InstrucoesMeds)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Med_Instrucoes_Med_Receita");
         });
@@ -97,51 +97,51 @@ public partial class AppDbContextNew : DbContext
                 .HasConstraintName("FK_PacienteICT_Usuarios");
         });
 
-        modelBuilder.Entity<ReceitaCID>(entity =>
+        modelBuilder.Entity<PrescricaoCID>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PK_Categoria_CID_Receita");
 
-            entity.HasOne(d => d.CategoriaCID).WithMany(p => p.ReceitaCIDs)
+            entity.HasOne(d => d.CategoriaCID).WithMany(p => p.PrescricaoCIDs)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_CID_Receita_Categorias_CID");
 
-            entity.HasOne(d => d.Receita).WithMany(p => p.ReceitaCIDs)
+            entity.HasOne(d => d.Prescricao).WithMany(p => p.PrescricaoCIDs)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_CID_Receita_Receita");
         });
 
-        modelBuilder.Entity<ReceitaMed>(entity =>
+        modelBuilder.Entity<PrescricaoMed>(entity =>
         {
             entity.HasKey(e => e.ID).HasName("PK_Remedio_Paciente");
 
-            entity.HasOne(d => d.Categoria).WithMany(p => p.ReceitaMeds)
+            entity.HasOne(d => d.Categoria).WithMany(p => p.PrescricaoMeds)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Med_Receita_Categoria");
 
-            entity.HasOne(d => d.Frequencia).WithMany(p => p.ReceitaMeds)
+            entity.HasOne(d => d.Frequencia).WithMany(p => p.PrescricaoMeds)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Med_Receita_Frequencia");
 
-            entity.HasOne(d => d.Medicamento).WithMany(p => p.ReceitaMeds)
+            entity.HasOne(d => d.Medicamento).WithMany(p => p.PrescricaoMeds)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Med_Receita_Medicamentos");
 
-            entity.HasOne(d => d.Receita).WithMany(p => p.ReceitaMeds)
+            entity.HasOne(d => d.Prescricao).WithMany(p => p.PrescricaoMeds)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Med_Receita_Receita");
 
-            entity.HasOne(d => d.Tipo).WithMany(p => p.ReceitaMeds)
+            entity.HasOne(d => d.Tipo).WithMany(p => p.PrescricaoMeds)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Med_Receita_Tipo");
         });
 
-        modelBuilder.Entity<Receitum>(entity =>
+        modelBuilder.Entity<Prescricao>(entity =>
         {
-            entity.HasOne(d => d.Paciente).WithMany(p => p.Receita)
+            entity.HasOne(d => d.Paciente).WithMany(p => p.Prescricoes)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Receita_PacienteICT");
 
-            entity.HasOne(d => d.UsuarioCriacao).WithMany(p => p.Receita)
+            entity.HasOne(d => d.UsuarioCriacao).WithMany(p => p.Prescricoes)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Receita_Usuarios");
         });
@@ -162,8 +162,8 @@ public partial class AppDbContextNew : DbContext
                 .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("FK_EvolucaoClinica_PacienteICT");
 
-            entity.HasOne(e => e.Receita).WithMany(r => r.EvolucaoClinicas)
-                .HasForeignKey(e => e.ReceitaID)
+            entity.HasOne(e => e.Prescricao).WithMany(r => r.EvolucaoClinicas)
+                .HasForeignKey(e => e.PrescricaoID)
                 .OnDelete(DeleteBehavior.SetNull)
                 .HasConstraintName("FK_EvolucaoClinica_Receita");
 

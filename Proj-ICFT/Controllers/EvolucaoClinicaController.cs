@@ -152,7 +152,7 @@ public class EvolucaoClinicaController : Controller
     }
 
     [HttpGet, SessionFilter]
-    public async Task<JsonResult> ListarReceitasDoPaciente(int pacienteId)
+    public async Task<JsonResult> ListarPrescricoesDoPaciente(int pacienteId)
     {
         try
         {
@@ -160,7 +160,7 @@ public class EvolucaoClinicaController : Controller
             if (string.IsNullOrEmpty(email))
                 return Json(new { success = false, message = "Sessão expirada." });
 
-            var data = await _ev.ListarReceitasDoPaciente(pacienteId, email);
+            var data = await _ev.ListarPrescricoesDoPaciente(pacienteId, email);
             return Json(new { success = true, data });
         }
         catch (InvalidOperationException ex)
@@ -169,7 +169,7 @@ public class EvolucaoClinicaController : Controller
         }
         catch
         {
-            return Json(new { success = false, message = "Erro ao listar receitas." });
+            return Json(new { success = false, message = "Erro ao listar prescrições." });
         }
     }
 

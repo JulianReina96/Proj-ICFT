@@ -17,5 +17,5 @@ public partial class Frequencium
     public double Peso { get; set; }
 
     [InverseProperty("Frequencia")]
-    public virtual ICollection<ReceitaMed> ReceitaMeds { get; set; } = new List<ReceitaMed>();
+    public virtual ICollection<PrescricaoMed> PrescricaoMeds { get; set; } = new List<PrescricaoMed>();
 }

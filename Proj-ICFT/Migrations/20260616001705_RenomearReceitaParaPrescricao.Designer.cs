@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Proj_ICFT.DataNew;
 
@@ -11,9 +12,11 @@ using Proj_ICFT.DataNew;
 namespace Proj_ICFT.Migrations
 {
     [DbContext(typeof(AppDbContextNew))]
-    partial class AppDbContextNewModelSnapshot : ModelSnapshot
+    [Migration("20260616001705_RenomearReceitaParaPrescricao")]
+    partial class RenomearReceitaParaPrescricao
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

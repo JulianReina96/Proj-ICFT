@@ -18,7 +18,7 @@ public class RelatorioDataViewModel
     public List<AdesaoPacienteRow> AdesaoPorPaciente { get; set; } = new();
     public List<ComplexidadePacienteRow> ComplexidadePorPaciente { get; set; } = new();
     public List<DistribuicaoCategoriaRow> DistribuicaoPorCategoria { get; set; } = new();
-    public List<ReceitasPorPeriodoRow> ReceitasPorPeriodo { get; set; } = new();
+    public List<PrescricoesPorPeriodoRow> PrescricoesPorPeriodo { get; set; } = new();
     public List<DiagnosticoFrequenteRow> DiagnosticosFrequentes { get; set; } = new();
     public List<CorrelacaoICTStatusRow> CorrelacaoICTStatus { get; set; } = new();
     public List<HospitalizacaoPacienteRow> HospitalizacoesPorPaciente { get; set; } = new();
@@ -26,10 +26,10 @@ public class RelatorioDataViewModel
 }
 
 public record AdesaoPacienteRow(string Nome, int Total, int Aderiu, double Percentual);
-public record ComplexidadePacienteRow(string Nome, double IctMedio, double IctMaximo, int TotalReceitas);
+public record ComplexidadePacienteRow(string Nome, double IctMedio, double IctMaximo, int TotalPrescricoes);
 public record DistribuicaoCategoriaRow(string Categoria, int Quantidade);
-public record ReceitasPorPeriodoRow(string Periodo, int TotalReceitas, double IctMedio);
+public record PrescricoesPorPeriodoRow(string Periodo, int TotalPrescricoes, double IctMedio);
 public record DiagnosticoFrequenteRow(string Codigo, string Titulo, int Ocorrencias);
 public record CorrelacaoICTStatusRow(string Status, double IctMedio, int TotalEvolucoes);
 public record HospitalizacaoPacienteRow(string Nome, int TotalHospitalizacoes, int TotalConsultas);
-public record EventoAdversoFaixaRow(string Faixa, int TotalEventos, int TotalReceitas);
+public record EventoAdversoFaixaRow(string Faixa, int TotalEventos, int TotalPrescricoes);

@@ -13,11 +13,11 @@
         ? $"{words[0][0]}{words[^1][0]}"
         : words[0].Substring(0, Math.Min(2, words[0].Length))).ToUpper();
 
-    var receitas      = Model.Receita.OrderByDescending(r => r.DataCriacao).ToList();
-    var totalReceitas = receitas.Count;
-    var avgIct        = totalReceitas > 0 ? receitas.Average(r => r.ICT) : 0;
-    var pctAdesao     = totalReceitas > 0
-        ? (int)Math.Round(receitas.Count(r => r.Adesao) * 100.0 / totalReceitas)
+    var prescricoes      = Model.Prescricoes.OrderByDescending(r => r.DataCriacao).ToList();
+    var totalPrescricoes = prescricoes.Count;
+    var avgIct           = totalPrescricoes > 0 ? prescricoes.Average(r => r.ICT) : 0;
+    var pctAdesao        = totalPrescricoes > 0
+        ? (int)Math.Round(prescricoes.Count(r => r.Adesao) * 100.0 / totalPrescricoes)
         : 0;
 }
 
@@ -55,7 +55,7 @@
                 }
                 else
                 {
-                    <p class="vp-meta-anonimo">Registro gerenciado pelo sistema — receitas sem identificação de paciente.</p>
+                    <p class="vp-meta-anonimo">Registro gerenciado pelo sistema — prescrições sem identificação de paciente.</p>
                 }
             </div>
 
@@ -63,10 +63,10 @@
                 @if (!isAnonimo)
                 {
                     <a href="/Home/Form?pacienteId=@Model.ID" class="btn-novo-paciente">
-                        <i class="bi bi-plus-lg"></i> Nova receita
+                        <i class="bi bi-plus-lg"></i> Nova prescrição
                     </a>
                 }
-                @if (totalReceitas > 0)
+                @if (totalPrescricoes > 0)
                 {
                     <button class="btn-exportar-excel" onclick="exportarExcel(@Model.ID, '@Html.Raw(Model.NomePaciente.Replace("'", "\\'"))')">
                         <i class="bi bi-file-earmark-spreadsheet"></i> Exportar Excel
@@ -80,8 +80,8 @@
             <div class="vp-stat-card">
                 <div class="stat-icon stat-icon-blue"><i class="bi bi-file-earmark-medical-fill"></i></div>
                 <div class="stat-content">
-                    <span class="stat-label">Receitas cadastradas</span>
-                    <span class="stat-value">@totalReceitas</span>
+                    <span class="stat-label">Prescrições cadastradas</span>
+                    <span class="stat-value">@totalPrescricoes</span>
                 </div>
             </div>
             <div class="vp-stat-card">
@@ -102,12 +102,12 @@
             </div>
         </div>
 
-        @* ── Tabs: Receitas / Evoluções ── *@
+        @* ── Tabs: Prescrições / Evoluções ── *@
         <ul class="nav nav-tabs mb-3" id="pacienteTabs" role="tablist">
             <li class="nav-item" role="presentation">
-                <button class="nav-link active" id="tab-receitas-btn" data-bs-toggle="tab"
-                        data-bs-target="#tab-receitas" type="button" role="tab">
-                    <i class="bi bi-file-earmark-medical me-1"></i> Receitas
+                <button class="nav-link active" id="tab-prescricoes-btn" data-bs-toggle="tab"
+                        data-bs-target="#tab-prescricoes" type="button" role="tab">
+                    <i class="bi bi-file-earmark-medical me-1"></i> Prescrições
                 </button>
             </li>
             @if (!isAnonimo)
@@ -122,16 +122,16 @@
         </ul>
 
         <div class="tab-content">
-            <div class="tab-pane fade show active" id="tab-receitas" role="tabpanel">
-                @if (!receitas.Any())
+            <div class="tab-pane fade show active" id="tab-prescricoes" role="tabpanel">
+                @if (!prescricoes.Any())
                 {
                     <div class="vp-empty">
                         <i class="bi bi-file-earmark-x"></i>
-                        <p>Nenhuma receita cadastrada para este paciente.</p>
+                        <p>Nenhuma prescrição cadastrada para este paciente.</p>
                         @if (!isAnonimo)
                         {
                             <a href="/Home/Form?pacienteId=@Model.ID" class="btn-novo-paciente">
-                                <i class="bi bi-plus-lg"></i> Criar primeira receita
+                                <i class="bi bi-plus-lg"></i> Criar primeira prescrição
                             </a>
                         }
                     </div>
@@ -139,16 +139,16 @@
                 else
                 {
                     <div class="vp-receitas-list">
-                        @foreach (var (r, idx) in receitas.Select((r, i) => (r, i + 1)))
+                        @foreach (var (r, idx) in prescricoes.Select((r, i) => (r, i + 1)))
                         {
                             <div class="vp-receita-card">
-                                <div class="vp-receita-num">#@(receitas.Count - idx + 1)</div>
+                                <div class="vp-receita-num">#@(prescricoes.Count - idx + 1)</div>
                                 <div class="vp-receita-info">
                                     <span class="vp-receita-data">
                                         <i class="bi bi-calendar3"></i> @r.DataCriacao.ToString("dd/MM/yyyy")
                                     </span>
                                     <span class="vp-receita-meds-count">
-                                        <i class="bi bi-capsule"></i> @r.ReceitaMeds.Count @(r.ReceitaMeds.Count == 1 ? "medicamento" : "medicamentos")
+                                        <i class="bi bi-capsule"></i> @r.PrescricaoMeds.Count @(r.PrescricaoMeds.Count == 1 ? "medicamento" : "medicamentos")
                                     </span>
                                 </div>
                                 <div class="vp-receita-ict">
@@ -165,9 +165,19 @@
                                         <i class="bi bi-x-circle-fill"></i> <span>Aderiu</span>
                                     }
                                 </div>
-                                <button class="btn-ver-receita" onclick="abrirReceita(@r.Id)">
-                                    <i class="bi bi-eye"></i> Ver receita
-                                </button>
+                                <div class="vp-receita-acoes" style="display:flex;gap:6px;align-items:center">
+                                    <button class="btn-ver-receita" onclick="abrirPrescricao(@r.Id)">
+                                        <i class="bi bi-eye"></i> Ver
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-primary" title="Editar prescrição"
+                                            onclick="editarPrescricao(@r.Id)">
+                                        <i class="bi bi-pencil"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-danger" title="Excluir prescrição"
+                                            onclick="excluirPrescricao(@r.Id, @r.PrescricaoMeds.Count)">
+                                        <i class="bi bi-trash3"></i>
+                                    </button>
+                                </div>
                             </div>
                         }
                     </div>
@@ -187,7 +197,7 @@
 
 
 @* ══════════════════════════════════════════
-   MODAL — Detalhamento da Receita
+   MODAL — Detalhamento da Prescrição
 ══════════════════════════════════════════ *@
 <div class="modal fade" id="modalReceita" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
@@ -195,7 +205,7 @@
 
             <div class="modal-header">
                 <h5 class="modal-title">
-                    <i class="bi bi-file-earmark-medical me-2 text-primary"></i>Detalhes da Receita
+                    <i class="bi bi-file-earmark-medical me-2 text-primary"></i>Detalhes da Prescrição
                 </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
             </div>
@@ -208,8 +218,11 @@
 
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                <button type="button" class="btn btn-outline-primary" onclick="editarPrescricaoDoModal()">
+                    <i class="bi bi-pencil"></i> Editar
+                </button>
                 <button type="button" class="btn btn-primary" id="btnGerarPdfReceita" style="display:none"
-                        onclick="gerarPdfReceita()">
+                        onclick="gerarPdfPrescricao()">
                     <i class="bi bi-file-earmark-pdf"></i> Gerar PDF
                 </button>
             </div>
@@ -218,27 +231,71 @@
     </div>
 </div>
 
+@* Modal de edição de prescrição (isolado) *@
+<partial name="_ModalEditarPrescricao" model="Model" />
+
 
 @section Scripts {
 <script>
 const modalReceita = new bootstrap.Modal(document.getElementById('modalReceita'));
 const nomePacienteAtual = @Json.Serialize(Model.NomePaciente);
-let receitaAtualParaPdf = null;
+let prescricaoAtualParaPdf = null;
+let prescricaoAtualId = null;
 
-function abrirReceita(id) {
+// ── Editar / Excluir prescrição ──
+function editarPrescricao(id) {
+    try { modalReceita.hide(); } catch (e) { }
+    if (window.__prescricaoEdit) window.__prescricaoEdit.abrir(id);
+}
+
+function editarPrescricaoDoModal() {
+    if (prescricaoAtualId) editarPrescricao(prescricaoAtualId);
+}
+
+function excluirPrescricao(id, qtdMeds) {
+    const aviso = qtdMeds > 0
+        ? '<p class="text-muted mb-0">' + qtdMeds + ' medicamento(s) e os CIDs vinculados serão removidos.</p>'
+        : '';
+    Swal.fire({
+        icon: 'warning',
+        title: 'Excluir prescrição?',
+        html: '<p>Esta ação não pode ser desfeita.</p>' + aviso,
+        showCancelButton: true,
+        confirmButtonText: 'Sim, excluir',
+        cancelButtonText: 'Cancelar',
+        confirmButtonColor: '#dc3545',
+        reverseButtons: true
+    }).then(result => {
+        if (!result.isConfirmed) return;
+        fetch('/Paciente/DeletarPrescricao?prescricaoId=' + id, { method: 'POST' })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire({ icon: 'success', title: 'Prescrição excluída', timer: 1400, showConfirmButton: false })
+                        .then(() => location.reload());
+                } else {
+                    Swal.fire('Erro', data.message || 'Não foi possível excluir.', 'error');
+                }
+            })
+            .catch(() => Swal.fire('Erro', 'Falha de comunicação com o servidor.', 'error'));
+    });
+}
+
+function abrirPrescricao(id) {
+    prescricaoAtualId = id;
     const body = document.getElementById('receitaModalBody');
     body.innerHTML = `
         <div class="text-center py-4">
             <div class="spinner-border text-primary"></div>
-            <p class="mt-2 text-muted small">Carregando receita...</p>
+            <p class="mt-2 text-muted small">Carregando prescrição...</p>
         </div>`;
     modalReceita.show();
 
-    fetch('/Paciente/DetalharReceita?receitaId=' + id)
+    fetch('/Paciente/DetalharPrescricao?prescricaoId=' + id)
         .then(r => r.json())
         .then(data => {
             if (!data.success) {
-                body.innerHTML = '<p class="text-danger text-center py-3">' + (data.message || 'Erro ao carregar receita.') + '</p>';
+                body.innerHTML = '<p class="text-danger text-center py-3">' + (data.message || 'Erro ao carregar prescrição.') + '</p>';
                 return;
             }
 
@@ -307,7 +364,7 @@ function abrirReceita(id) {
 
                 ${cidsHtml}
             `;
-            receitaAtualParaPdf = data;
+            prescricaoAtualParaPdf = data;
             document.getElementById('btnGerarPdfReceita').style.display = '';
         })
         .catch(() => {
@@ -316,13 +373,13 @@ function abrirReceita(id) {
 }
 
 document.getElementById('modalReceita').addEventListener('hidden.bs.modal', function () {
-    receitaAtualParaPdf = null;
+    prescricaoAtualParaPdf = null;
     document.getElementById('btnGerarPdfReceita').style.display = 'none';
 });
 
-function gerarPdfReceita() {
-    if (!receitaAtualParaPdf) return;
-    const data = receitaAtualParaPdf;
+function gerarPdfPrescricao() {
+    if (!prescricaoAtualParaPdf) return;
+    const data = prescricaoAtualParaPdf;
 
     const btn = document.getElementById('btnGerarPdfReceita');
     btn.disabled = true;
@@ -331,7 +388,7 @@ function gerarPdfReceita() {
     const nomeSanitizado = nomePacienteAtual
         .normalize('NFD').replace(/[̀-ͯ]/g, '')
         .replace(/\s+/g, '_').replace(/[^a-zA-Z0-9_]/g, '');
-    const filename = `receita_${nomeSanitizado}_${data.data.replace(/\//g, '-')}.pdf`;
+    const filename = `prescricao_${nomeSanitizado}_${data.data.replace(/\//g, '-')}.pdf`;
 
     const medsHtml = data.medicamentos.map((m, i) =>
         `<tr style="background:${i % 2 === 0 ? '#f9f9f9' : '#fff'}">
@@ -369,7 +426,7 @@ function gerarPdfReceita() {
     const html =
         '<div style="font-family:Arial,sans-serif;font-size:12px;padding:24px;color:#333">' +
             '<div style="text-align:center;border-bottom:2px solid #4966b1;padding-bottom:12px;margin-bottom:16px">' +
-                '<h2 style="margin:0;color:#4966b1;font-size:20px">Receita</h2>' +
+                '<h2 style="margin:0;color:#4966b1;font-size:20px">Prescrição Médica</h2>' +
                 '<p style="margin:4px 0 0;font-size:10px;color:#888">Sistema ICFT — Índice de Complexidade Terapêutica</p>' +
             '</div>' +
             '<table style="width:100%;margin-bottom:16px;font-size:12px"><tr>' +
@@ -423,7 +480,7 @@ function exportarExcel(pacienteId, nomePaciente) {
 
             const linhas = [cabecalho];
 
-            data.receitas.forEach((r, ri) => {
+            data.prescricoes.forEach((r, ri) => {
                 const meds = r.medicamentos;
                 if (meds.length === 0) {
                     linhas.push([ri + 1, r.data, r.ict, r.adesao ? 'Sim' : 'Não',
@@ -459,7 +516,7 @@ function exportarExcel(pacienteId, nomePaciente) {
             const sheetName = nomePaciente.substring(0, 31);
             XLSX.utils.book_append_sheet(wb, ws, sheetName);
 
-            const nomeArquivo = 'Receitas_' + nomePaciente.replace(/\s+/g, '_') + '.xlsx';
+            const nomeArquivo = 'Prescricoes_' + nomePaciente.replace(/\s+/g, '_') + '.xlsx';
             XLSX.writeFile(wb, nomeArquivo);
         })
         .catch(() => Swal.fire('Erro', 'Falha ao exportar dados.', 'error'));

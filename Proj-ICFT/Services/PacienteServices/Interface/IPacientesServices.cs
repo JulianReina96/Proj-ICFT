@@ -9,7 +9,8 @@ namespace Proj_ICFT.Services.PacienteServices.Interface
         Task<PacienteICT> CadastrarPaciente(string email, string nome, int idade, string sexo);
         Task<PacienteICT?> BuscarPaciente(int id, string email);
         Task DeletarPaciente(int id, string email);
-        Task<Receitum?> BuscarReceitaCompleta(int receitaId, string email);
+        Task<Prescricao?> BuscarPrescricaoCompleta(int prescricaoId, string email);
+        Task DeletarPrescricao(int prescricaoId, string email);
         Task<PacienteICT?> BuscarPacienteParaExport(int id, string email);
     }
 }

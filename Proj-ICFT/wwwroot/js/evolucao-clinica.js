@@ -69,15 +69,15 @@
             const cid = e.cidCodigo
                 ? `<span class="evol-cid-titulo">${cidTitulo}</span><br><span class="evol-cid-code">${e.cidCodigo}</span>`
                 : '<span class="text-muted">—</span>';
-            const receita = e.receitaID
-                ? `Receita #${e.receitaID} — ICT ${e.ictDaReceita?.toFixed(2) ?? '—'}`
-                : '<span class="text-muted">Sem receita</span>';
+            const prescricao = e.prescricaoID
+                ? `Prescrição #${e.prescricaoID} — ICT ${e.ictDaPrescricao?.toFixed(2) ?? '—'}`
+                : '<span class="text-muted">Sem prescrição</span>';
             return `
                 <tr>
                     <td>${data}</td>
                     <td><span class="badge" style="background:${cor}">${e.statusLabel}</span></td>
                     <td>${cid}</td>
-                    <td>${receita}</td>
+                    <td>${prescricao}</td>
                     <td class="text-end">
                         <button class="btn btn-sm btn-outline-secondary btn-ver-evol" data-id="${e.id}" title="Ver">
                             <i class="bi bi-eye"></i>
@@ -211,14 +211,14 @@
             const tabBtn = document.getElementById('tab-evolucoes-btn');
             if (tabBtn) bootstrap.Tab.getOrCreateInstance(tabBtn).show();
             setTimeout(() => {
-                const receitaId = parseInt(params.get('receitaId') || '0', 10) || null;
-                abrirModalEvolucao({ modo: 'criar', receitaIdPreSel: receitaId });
+                const prescricaoId = parseInt(params.get('prescricaoId') || '0', 10) || null;
+                abrirModalEvolucao({ modo: 'criar', prescricaoIdPreSel: prescricaoId });
             }, 400);
         }
     });
 
     // Stub — implementado em Task 22
-    async function abrirModalEvolucao({ modo, id, receitaIdPreSel, cidPreSel } = {}) {
+    async function abrirModalEvolucao({ modo, id, prescricaoIdPreSel, cidPreSel } = {}) {
         // Resetar form
         document.getElementById('formEvolucao').reset();
         document.getElementById('evolucaoId').value = '';
@@ -234,7 +234,7 @@
             btnSalvar.style.display = '';
             habilitarCampos(true);
             document.getElementById('evolDataConsulta').value = new Date().toISOString().substring(0, 10);
-            if (receitaIdPreSel) document.getElementById('evolReceitaId').value = receitaIdPreSel;
+            if (prescricaoIdPreSel) document.getElementById('evolPrescricaoId').value = prescricaoIdPreSel;
             if (cidPreSel) document.getElementById('evolCidId').value = cidPreSel;
             modalEvol.show();
             return;
@@ -263,10 +263,10 @@
 
     async function carregarSelectsModal() {
         const [rRec, rCid] = await Promise.all([
-            fetch(`/EvolucaoClinica/ListarReceitasDoPaciente?pacienteId=${pacienteId}`).then(r => r.json()),
+            fetch(`/EvolucaoClinica/ListarPrescricoesDoPaciente?pacienteId=${pacienteId}`).then(r => r.json()),
             fetch(`/EvolucaoClinica/ListarCIDsDoPaciente?pacienteId=${pacienteId}`).then(r => r.json())
         ]);
-        const selRec = document.getElementById('evolReceitaId');
+        const selRec = document.getElementById('evolPrescricaoId');
         selRec.innerHTML = '<option value="">Nenhuma</option>' +
             (rRec.success ? rRec.data.map(x => {
                 const d = new Date(x.dataCriacao).toLocaleDateString('pt-BR');
@@ -283,7 +283,7 @@
 
     function preencherForm(d) {
         document.getElementById('evolDataConsulta').value = (d.dataConsulta || '').substring(0, 10);
-        document.getElementById('evolReceitaId').value = d.receitaID ?? '';
+        document.getElementById('evolPrescricaoId').value = d.prescricaoID ?? '';
         document.getElementById('evolCidId').value = d.categoriaCID_ID ?? '';
         document.querySelector(`input[name="evolStatus"][value="${d.status}"]`).checked = true;
 
@@ -393,7 +393,7 @@
 
         return {
             PacienteID: pacienteId,
-            ReceitaID: sel('evolReceitaId'),
+            PrescricaoID: sel('evolPrescricaoId'),
             CategoriaCID_ID: sel('evolCidId'),
             DataConsulta: document.getElementById('evolDataConsulta').value,
             Status: parseInt(document.querySelector('input[name="evolStatus"]:checked').value, 10),

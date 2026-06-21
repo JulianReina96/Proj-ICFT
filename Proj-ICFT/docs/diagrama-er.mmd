@@ -1,0 +1,162 @@
+erDiagram
+    Usuarios {
+        int id PK
+        nvarchar Usuario UK "email Firebase"
+        datetime DataCriacao
+    }
+
+    PacienteICT {
+        int ID PK
+        nvarchar NomePaciente
+        datetime DataCriacao
+        int UsuarioCriacaoID FK
+        char Sexo
+        int Idade
+    }
+
+    Prescricao {
+        int Id PK
+        int PacienteID FK
+        int UsuarioCriacaoID FK
+        datetime DataCriacao
+        bit Adesao
+        float ICT
+    }
+
+    PrescricaoMed {
+        int ID PK
+        int PrescricaoID FK
+        int MedicamentoID FK
+        int CategoriaID FK
+        int TipoID FK
+        int FrequenciaID FK
+    }
+
+    PrescricaoCID {
+        int Id PK
+        int PrescricaoID FK
+        int CategoriaCID_ID FK
+    }
+
+    InstrucoesMed {
+        int id PK
+        int Med_PrescricaoID FK
+        int InstrucaoId FK
+    }
+
+    InstrucoesAdicionais {
+        int id PK
+        nvarchar Name
+        int Peso
+    }
+
+    Medicamentos {
+        int Id PK
+        nvarchar NOME_PRODUTO
+        nvarchar PRINCIPIO_ATIVO
+        nvarchar CATEGORIA_REGULATORIA
+        nvarchar CLASSE_TERAPEUTICA
+        nvarchar NUMERO_REGISTRO_PRODUTO
+        nvarchar EMPRESA_DETENTORA_REGISTRO
+        nvarchar SITUACAO_REGISTRO
+    }
+
+    Categoria {
+        int Id PK
+        nvarchar Name
+    }
+
+    Tipo {
+        int id PK
+        nvarchar Name
+        int CategoriaId FK
+        int Peso
+    }
+
+    Frequencia {
+        int id PK
+        nvarchar Name
+        float Peso
+    }
+
+    EvolucaoClinica {
+        int Id PK
+        int PacienteID FK
+        int UsuarioCriacaoID FK
+        int PrescricaoID FK "nullable"
+        int CategoriaCID_ID FK "nullable"
+        datetime DataConsulta
+        datetime DataCriacao
+        int Status "enum StatusEvolucao"
+        nvarchar Subjetivo
+        nvarchar Avaliacao
+        nvarchar Plano
+        nvarchar ObservacaoObjetivo
+        int PaSistolica "nullable"
+        int PaDiastolica "nullable"
+        int FrequenciaCardiaca "nullable"
+        float Peso "nullable"
+        int Spo2 "nullable"
+        float Glicemia "nullable"
+        float Hba1c "nullable"
+        float Creatinina "nullable"
+        int EventosAdversos
+        int Hospitalizacoes
+        int IdasEmergencia
+    }
+
+    Capitulos_CID {
+        int Id PK
+        nvarchar ChapterNo UK
+        nvarchar Title
+        nvarchar TitleEN
+        nvarchar FoundationURI
+        nvarchar LinearizationURI
+    }
+
+    Blocos_CID {
+        int Id PK
+        nvarchar BlockId UK
+        nvarchar Title
+        nvarchar TitleEN
+        nvarchar ChapterNo FK
+        nvarchar Grouping1
+        nvarchar Grouping2
+    }
+
+    Categorias_CID {
+        int Id PK
+        nvarchar Code
+        nvarchar Title
+        nvarchar TitleEN
+        nvarchar BlockId
+        nvarchar ChapterNo FK
+        bit IsLeaf
+    }
+
+    Usuarios            ||--o{ PacienteICT      : "cadastra"
+    Usuarios            ||--o{ Prescricao       : "cria"
+    Usuarios            ||--o{ EvolucaoClinica  : "registra"
+
+    PacienteICT         ||--o{ Prescricao       : "possui"
+    PacienteICT         ||--o{ EvolucaoClinica  : "possui"
+
+    Prescricao          ||--o{ PrescricaoMed    : "contém"
+    Prescricao          ||--o{ PrescricaoCID    : "associa"
+    Prescricao          |o--o{ EvolucaoClinica  : "vinculada a"
+
+    Medicamentos        ||--o{ PrescricaoMed    : "prescrito em"
+    Categoria           ||--o{ PrescricaoMed    : "forma de"
+    Tipo                ||--o{ PrescricaoMed    : "tipo de"
+    Frequencia          ||--o{ PrescricaoMed    : "frequência de"
+
+    Categoria           ||--o{ Tipo             : "agrupa"
+
+    PrescricaoMed       ||--o{ InstrucoesMed         : "tem"
+    InstrucoesAdicionais ||--o{ InstrucoesMed        : "define"
+
+    Categorias_CID      ||--o{ PrescricaoCID     : "classifica"
+    Categorias_CID      |o--o{ EvolucaoClinica   : "monitora"
+
+    Capitulos_CID       ||--o{ Blocos_CID        : "contém"
+    Capitulos_CID       ||--o{ Categorias_CID    : "contém"

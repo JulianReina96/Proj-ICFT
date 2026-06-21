@@ -37,7 +37,7 @@ public partial class Categorias_CID
     public virtual Capitulos_CID ChapterNoNavigation { get; set; } = null!;
 
     [InverseProperty("CategoriaCID")]
-    public virtual ICollection<ReceitaCID> ReceitaCIDs { get; set; } = new List<ReceitaCID>();
+    public virtual ICollection<PrescricaoCID> PrescricaoCIDs { get; set; } = new List<PrescricaoCID>();
 
     [InverseProperty("CategoriaCID")]
     public virtual ICollection<EvolucaoClinica> EvolucaoClinicas { get; set; } = new List<EvolucaoClinica>();

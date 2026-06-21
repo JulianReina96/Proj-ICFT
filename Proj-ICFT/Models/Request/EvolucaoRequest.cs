@@ -5,7 +5,7 @@ namespace Proj_ICFT.Models.Request;
 
 public record SalvarEvolucaoRequest(
     int PacienteID,
-    int? ReceitaID,
+    int? PrescricaoID,
     int? CategoriaCID_ID,
     DateTime DataConsulta,
     StatusEvolucao Status,

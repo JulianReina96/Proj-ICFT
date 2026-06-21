@@ -13,7 +13,7 @@ public partial class EvolucaoClinica
     // Relações estruturais
     public int PacienteID { get; set; }
     public int UsuarioCriacaoID { get; set; }
-    public int? ReceitaID { get; set; }
+    public int? PrescricaoID { get; set; }
     public int? CategoriaCID_ID { get; set; }
 
     // Temporal
@@ -56,8 +56,8 @@ public partial class EvolucaoClinica
     [ForeignKey("UsuarioCriacaoID")]
     public virtual Usuario UsuarioCriacao { get; set; } = null!;
 
-    [ForeignKey("ReceitaID")]
-    public virtual Receitum? Receita { get; set; }
+    [ForeignKey("PrescricaoID")]
+    public virtual Prescricao? Prescricao { get; set; }
 
     [ForeignKey("CategoriaCID_ID")]
     public virtual Categorias_CID? CategoriaCID { get; set; }

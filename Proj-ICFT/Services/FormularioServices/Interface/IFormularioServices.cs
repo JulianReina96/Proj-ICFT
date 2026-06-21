@@ -11,7 +11,8 @@ namespace Proj_ICFT.Services.FormularioServices.Interface
         Task<List<Frequencium>> listarFrequencias();
         Task<List<InstrucoesAdicionai>> listarInstrucoesAdicionais();
         Task<List<RemedioViewModel>> converterMedicamentos(List<MedicamentosExportacaoModel> listaModel);
-        Task<(double ict, int receitaId)> SalvarReceita(string email, SalvarReceitaRequest request);
+        Task<(double ict, int prescricaoId)> SalvarPrescricao(string email, SalvarPrescricaoRequest request);
+        Task<(double ict, int prescricaoId)> AtualizarPrescricao(string email, int prescricaoId, SalvarPrescricaoRequest request);
     }
 
 }

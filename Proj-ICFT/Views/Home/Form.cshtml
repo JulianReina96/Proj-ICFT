@@ -49,6 +49,7 @@
         <div class="main-col">
             <div class="col-header">
                 <i class="fas fa-heartbeat"></i> Enfermidades
+                <span class="optional-text">(opcional)</span>
             </div>
             <div class="col-body">
 
@@ -159,7 +160,7 @@
         @* ── Coluna 3: Pré-visualização ── *@
         <div class="main-col col-preview">
             <div class="col-header" style="justify-content:center">
-                Pré-visualização da Receita
+                Pré-visualização da Prescrição
             </div>
             <div class="col-body" id="cards-wrapper">
                 <div id="empty-state-remedios" class="empty-state">
@@ -530,7 +531,7 @@
                    <p>${medicamentosAdicionados.length} medicamento(s) serão salvos.</p>
                    <p>ICT estimado: <strong>${ictEstimado}</strong></p>`,
             showCancelButton: true,
-            confirmButtonText: 'Salvar receita',
+            confirmButtonText: 'Salvar prescrição',
             cancelButtonText: 'Revisar',
             confirmButtonColor: '#198754'
         });
@@ -554,7 +555,7 @@
         btn.disabled = true;
         btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Salvando...';
 
-        fetch('/Home/SalvarReceita', {
+        fetch('/Home/SalvarPrescricao', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
@@ -563,14 +564,14 @@
         .then(data => {
             if (data.success) {
                 const pacienteIdRedirect = parseInt(payload.pacienteId, 10) || null;
-                const novaReceitaId = data.receitaId;
+                const novaPrescricaoId = data.prescricaoId;
 
                 if (payload.pacienteAnonimo) {
                     Swal.fire({
                         icon: 'success',
-                        title: 'Receita salva!',
+                        title: 'Prescrição salva!',
                         html: '<p style="font-size:1.1rem">ICT calculado: <strong>' + data.ict.toFixed(2) + '</strong></p>',
-                        confirmButtonText: 'Nova receita',
+                        confirmButtonText: 'Nova prescrição',
                         confirmButtonColor: '#198754',
                         showCancelButton: true,
                         cancelButtonText: 'Ver pacientes',
@@ -585,20 +586,20 @@
                 } else {
                     Swal.fire({
                         icon: 'success',
-                        title: 'Receita salva!',
+                        title: 'Prescrição salva!',
                         html: '<p style="font-size:1.1rem">ICT calculado: <strong>' + data.ict.toFixed(2) + '</strong></p>' +
                               '<p style="font-size:0.95rem;color:#6c757d">Deseja registrar evolução clínica desta consulta?</p>',
                         confirmButtonText: 'Registrar evolução',
                         confirmButtonColor: '#0d6efd',
                         showDenyButton: true,
-                        denyButtonText: 'Nova receita',
+                        denyButtonText: 'Nova prescrição',
                         denyButtonColor: '#198754',
                         showCancelButton: true,
                         cancelButtonText: 'Ver pacientes',
                         cancelButtonColor: '#6c757d'
                     }).then(result => {
-                        if (result.isConfirmed && pacienteIdRedirect && novaReceitaId) {
-                            window.location.href = `/Paciente/VerPaciente?id=${pacienteIdRedirect}&abrirEvolucao=1&receitaId=${novaReceitaId}`;
+                        if (result.isConfirmed && pacienteIdRedirect && novaPrescricaoId) {
+                            window.location.href = `/Paciente/VerPaciente?id=${pacienteIdRedirect}&abrirEvolucao=1&prescricaoId=${novaPrescricaoId}`;
                         } else if (result.dismiss === Swal.DismissReason.cancel) {
                             window.location.href = '/Paciente/PacientesAnalisados';
                         } else {
@@ -694,7 +695,7 @@
         const html =
             '<div style="font-family:Arial,sans-serif;font-size:12px;padding:24px;color:#333">' +
                 '<div style="text-align:center;border-bottom:2px solid #007bff;padding-bottom:12px;margin-bottom:16px">' +
-                    '<h2 style="margin:0;color:#007bff;font-size:20px">Receita</h2>' +
+                    '<h2 style="margin:0;color:#007bff;font-size:20px">Prescrição Médica</h2>' +
                     '<p style="margin:4px 0 0;font-size:10px;color:#888">Sistema ICFT — Índice de Complexidade Terapêutica</p>' +
                 '</div>' +
                 '<table style="width:100%;margin-bottom:16px;font-size:12px"><tr>' +
@@ -725,7 +726,7 @@
 
         html2pdf().set({
             margin: 10,
-            filename: 'receita_' + dataAtual.replace(/\//g, '-') + '.pdf',
+            filename: 'prescricao_' + dataAtual.replace(/\//g, '-') + '.pdf',
             html2canvas: { scale: 2, useCORS: true, logging: false },
             jsPDF:       { unit: 'mm', format: 'a4', orientation: 'portrait' }
         }).from(html).save().then(function () {

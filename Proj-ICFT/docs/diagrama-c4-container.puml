@@ -1,0 +1,20 @@
+@startuml diagrama-c4-container
+!include <C4/C4_Container>
+!pragma layout smetana
+
+title Diagrama de Container (C4 — Nível 2) — SimplyFarm
+
+Person(user, "Usuário", "Gestor ou profissional de saúde que utiliza o SimplyFarm")
+
+System_Boundary(sys, "SimplyFarm") {
+    Container(web, "Aplicação Web Simply Farm", "ASP.NET Core MVC (.NET 8) — Monolítico", "Interface do usuário e lógica de negócios integradas (cálculo ICT/MRCI, prescrições, evolução clínica, relatórios)")
+    ContainerDb(db, "Banco de Dados", "SQL Server / Azure SQL Database", "Armazena pacientes, prescrições, evoluções clínicas e a base CID-11")
+}
+
+System_Ext(firebase, "Firebase Authentication", "Google — autenticação dos usuários")
+
+Rel(user, web, "Acessa via navegador", "HTTPS")
+Rel(web, db, "Lê e grava dados", "TCP/IP · EF Core")
+Rel(web, firebase, "Autentica usuários", "HTTPS · JWT")
+
+@enduml

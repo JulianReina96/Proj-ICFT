@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -6,8 +6,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Proj_ICFT.ModelsNew;
 
-[Table("ReceitaMed")]
-public partial class ReceitaMed
+[Table("PrescricaoMed")]
+public partial class PrescricaoMed
 {
     [Key]
     public int ID { get; set; }
@@ -16,32 +16,32 @@ public partial class ReceitaMed
 
     public int FrequenciaID { get; set; }
 
-    public int ReceitaID { get; set; }
+    public int PrescricaoID { get; set; }
 
     public int TipoID { get; set; }
 
     public int MedicamentoID { get; set; }
 
     [ForeignKey("CategoriaID")]
-    [InverseProperty("ReceitaMeds")]
+    [InverseProperty("PrescricaoMeds")]
     public virtual Categorium Categoria { get; set; } = null!;
 
     [ForeignKey("FrequenciaID")]
-    [InverseProperty("ReceitaMeds")]
+    [InverseProperty("PrescricaoMeds")]
     public virtual Frequencium Frequencia { get; set; } = null!;
 
-    [InverseProperty("Med_Receita")]
+    [InverseProperty("Med_Prescricao")]
     public virtual ICollection<InstrucoesMed> InstrucoesMeds { get; set; } = new List<InstrucoesMed>();
 
     [ForeignKey("MedicamentoID")]
-    [InverseProperty("ReceitaMeds")]
+    [InverseProperty("PrescricaoMeds")]
     public virtual Medicamento Medicamento { get; set; } = null!;
 
-    [ForeignKey("ReceitaID")]
-    [InverseProperty("ReceitaMeds")]
-    public virtual Receitum Receita { get; set; } = null!;
+    [ForeignKey("PrescricaoID")]
+    [InverseProperty("PrescricaoMeds")]
+    public virtual Prescricao Prescricao { get; set; } = null!;
 
     [ForeignKey("TipoID")]
-    [InverseProperty("ReceitaMeds")]
+    [InverseProperty("PrescricaoMeds")]
     public virtual Tipo Tipo { get; set; } = null!;
 }

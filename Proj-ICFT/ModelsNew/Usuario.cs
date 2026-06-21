@@ -23,7 +23,7 @@ public partial class Usuario
     public virtual ICollection<PacienteICT> PacienteICTs { get; set; } = new List<PacienteICT>();
 
     [InverseProperty("UsuarioCriacao")]
-    public virtual ICollection<Receitum> Receita { get; set; } = new List<Receitum>();
+    public virtual ICollection<Prescricao> Prescricoes { get; set; } = new List<Prescricao>();
 
     [InverseProperty("UsuarioCriacao")]
     public virtual ICollection<EvolucaoClinica> EvolucaoClinicas { get; set; } = new List<EvolucaoClinica>();

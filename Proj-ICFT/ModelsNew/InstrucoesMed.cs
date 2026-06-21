@@ -12,7 +12,7 @@ public partial class InstrucoesMed
     [Key]
     public int id { get; set; }
 
-    public int Med_ReceitaID { get; set; }
+    public int Med_PrescricaoID { get; set; }
 
     public int InstrucaoId { get; set; }
 
@@ -20,7 +20,7 @@ public partial class InstrucoesMed
     [InverseProperty("InstrucoesMeds")]
     public virtual InstrucoesAdicionai Instrucao { get; set; } = null!;
 
-    [ForeignKey("Med_ReceitaID")]
+    [ForeignKey("Med_PrescricaoID")]
     [InverseProperty("InstrucoesMeds")]
-    public virtual ReceitaMed Med_Receita { get; set; } = null!;
+    public virtual PrescricaoMed Med_Prescricao { get; set; } = null!;
 }

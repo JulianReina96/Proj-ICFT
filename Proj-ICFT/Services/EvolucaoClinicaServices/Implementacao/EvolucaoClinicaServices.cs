@@ -38,10 +38,10 @@ public class EvolucaoClinicaServices : IEvolucaoClinicaServices
     {
         var (usuario, paciente) = await ResolverContexto(r.PacienteID, email);
 
-        if (r.ReceitaID is int rid)
+        if (r.PrescricaoID is int rid)
         {
-            var ok = await _db.Receita.AnyAsync(x => x.Id == rid && x.PacienteID == paciente.ID);
-            if (!ok) throw new InvalidOperationException("Receita inválida para este paciente.");
+            var ok = await _db.Prescricoes.AnyAsync(x => x.Id == rid && x.PacienteID == paciente.ID);
+            if (!ok) throw new InvalidOperationException("Prescrição inválida para este paciente.");
         }
 
         if (r.CategoriaCID_ID is int cid && !await _db.Categorias_CIDs.AnyAsync(c => c.Id == cid))
@@ -54,7 +54,7 @@ public class EvolucaoClinicaServices : IEvolucaoClinicaServices
         {
             PacienteID         = paciente.ID,
             UsuarioCriacaoID   = usuario.id,
-            ReceitaID          = r.ReceitaID,
+            PrescricaoID       = r.PrescricaoID,
             CategoriaCID_ID    = r.CategoriaCID_ID,
             DataConsulta       = r.DataConsulta,
             DataCriacao        = DateTime.Now,
@@ -88,17 +88,17 @@ public class EvolucaoClinicaServices : IEvolucaoClinicaServices
             .FirstOrDefaultAsync(e => e.Id == id && e.PacienteID == paciente.ID)
             ?? throw new InvalidOperationException("Evolução não encontrada ou sem permissão.");
 
-        if (r.ReceitaID is int rid)
+        if (r.PrescricaoID is int rid)
         {
-            var ok = await _db.Receita.AnyAsync(x => x.Id == rid && x.PacienteID == paciente.ID);
-            if (!ok) throw new InvalidOperationException("Receita inválida para este paciente.");
+            var ok = await _db.Prescricoes.AnyAsync(x => x.Id == rid && x.PacienteID == paciente.ID);
+            if (!ok) throw new InvalidOperationException("Prescrição inválida para este paciente.");
         }
         if (r.CategoriaCID_ID is int cid && !await _db.Categorias_CIDs.AnyAsync(c => c.Id == cid))
             throw new InvalidOperationException("CID inválido.");
         if (r.DataConsulta > DateTime.Now.AddDays(1))
             throw new InvalidOperationException("Data da consulta não pode ser futura.");
 
-        ev.ReceitaID          = r.ReceitaID;
+        ev.PrescricaoID       = r.PrescricaoID;
         ev.CategoriaCID_ID    = r.CategoriaCID_ID;
         ev.DataConsulta       = r.DataConsulta;
         ev.Status             = r.Status;
@@ -141,7 +141,7 @@ public class EvolucaoClinicaServices : IEvolucaoClinicaServices
         var (_, paciente) = await ResolverContexto(pacienteId, email);
 
         var evolucoes = await _db.EvolucaoClinicas
-            .Include(e => e.Receita)
+            .Include(e => e.Prescricao)
             .Include(e => e.CategoriaCID)
             .Where(e => e.PacienteID == paciente.ID)
             .OrderByDescending(e => e.DataConsulta)
@@ -149,15 +149,15 @@ public class EvolucaoClinicaServices : IEvolucaoClinicaServices
 
         return evolucoes.Select(e => new EvolucaoListagemViewModel
         {
-            Id             = e.Id,
-            DataConsulta   = e.DataConsulta,
-            Status         = e.Status,
-            StatusLabel    = StatusLabel(e.Status),
-            ReceitaID      = e.ReceitaID,
-            IctDaReceita   = e.Receita?.ICT,
-            ReceitaAdesao  = e.Receita?.Adesao,
-            CidCodigo      = e.CategoriaCID?.Code,
-            CidTitulo      = e.CategoriaCID?.Title
+            Id               = e.Id,
+            DataConsulta     = e.DataConsulta,
+            Status           = e.Status,
+            StatusLabel      = StatusLabel(e.Status),
+            PrescricaoID     = e.PrescricaoID,
+            IctDaPrescricao  = e.Prescricao?.ICT,
+            PrescricaoAdesao = e.Prescricao?.Adesao,
+            CidCodigo        = e.CategoriaCID?.Code,
+            CidTitulo        = e.CategoriaCID?.Title
         }).ToList();
     }
 
@@ -168,7 +168,7 @@ public class EvolucaoClinicaServices : IEvolucaoClinicaServices
 
         var ev = await _db.EvolucaoClinicas
             .Include(e => e.Paciente)
-            .Include(e => e.Receita)
+            .Include(e => e.Prescricao)
             .Include(e => e.CategoriaCID)
             .FirstOrDefaultAsync(e => e.Id == id && e.Paciente.UsuarioCriacaoID == usuario.id);
 
@@ -180,9 +180,9 @@ public class EvolucaoClinicaServices : IEvolucaoClinicaServices
             DataConsulta       = ev.DataConsulta,
             Status             = ev.Status,
             StatusLabel        = StatusLabel(ev.Status),
-            ReceitaID          = ev.ReceitaID,
-            IctDaReceita       = ev.Receita?.ICT,
-            ReceitaAdesao      = ev.Receita?.Adesao,
+            PrescricaoID       = ev.PrescricaoID,
+            IctDaPrescricao    = ev.Prescricao?.ICT,
+            PrescricaoAdesao   = ev.Prescricao?.Adesao,
             CategoriaCID_ID    = ev.CategoriaCID_ID,
             CidCodigo          = ev.CategoriaCID?.Code,
             CidTitulo          = ev.CategoriaCID?.Title,
@@ -208,10 +208,10 @@ public class EvolucaoClinicaServices : IEvolucaoClinicaServices
     {
         var (_, paciente) = await ResolverContexto(pacienteId, email);
 
-        // CIDs vinculados às receitas do paciente (sem duplicar)
-        var cids = await _db.ReceitaCIDs
+        // CIDs vinculados às prescrições do paciente (sem duplicar)
+        var cids = await _db.PrescricaoCIDs
             .Include(rc => rc.CategoriaCID)
-            .Where(rc => rc.Receita.PacienteID == paciente.ID)
+            .Where(rc => rc.Prescricao.PacienteID == paciente.ID)
             .Select(rc => new CIDOpcaoViewModel
             {
                 Id     = rc.CategoriaCID.Id,
@@ -225,14 +225,14 @@ public class EvolucaoClinicaServices : IEvolucaoClinicaServices
         return cids;
     }
 
-    public async Task<List<ReceitaOpcaoViewModel>> ListarReceitasDoPaciente(int pacienteId, string email)
+    public async Task<List<PrescricaoOpcaoViewModel>> ListarPrescricoesDoPaciente(int pacienteId, string email)
     {
         var (_, paciente) = await ResolverContexto(pacienteId, email);
 
-        return await _db.Receita
+        return await _db.Prescricoes
             .Where(r => r.PacienteID == paciente.ID)
             .OrderByDescending(r => r.DataCriacao)
-            .Select(r => new ReceitaOpcaoViewModel
+            .Select(r => new PrescricaoOpcaoViewModel
             {
                 Id          = r.Id,
                 DataCriacao = r.DataCriacao,
@@ -246,7 +246,7 @@ public class EvolucaoClinicaServices : IEvolucaoClinicaServices
         var (_, paciente) = await ResolverContexto(pacienteId, email);
 
         var evolucoes = await _db.EvolucaoClinicas
-            .Include(e => e.Receita)
+            .Include(e => e.Prescricao)
             .Where(e => e.PacienteID == paciente.ID)
             .OrderBy(e => e.DataConsulta)
             .ToListAsync();
@@ -255,7 +255,7 @@ public class EvolucaoClinicaServices : IEvolucaoClinicaServices
         foreach (var e in evolucoes)
         {
             serie.Datas.Add(e.DataConsulta);
-            serie.IctPorEvolucao.Add(e.Receita?.ICT);
+            serie.IctPorEvolucao.Add(e.Prescricao?.ICT);
             serie.StatusPorEvolucao.Add((int)e.Status);
 
             serie.PaSistolica.Add(e.PaSistolica);

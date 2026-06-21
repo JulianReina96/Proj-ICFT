@@ -46,7 +46,7 @@ namespace Proj_ICFT.Controllers
 
         [SessionFilter]
         [HttpPost]
-        public async Task<JsonResult> SalvarReceita([FromBody] SalvarReceitaRequest request)
+        public async Task<JsonResult> SalvarPrescricao([FromBody] SalvarPrescricaoRequest request)
         {
             try
             {
@@ -54,8 +54,8 @@ namespace Proj_ICFT.Controllers
                 if (string.IsNullOrEmpty(email))
                     return Json(new { success = false, message = "Sessão expirada. Faça login novamente." });
 
-                var result = await _formularioServices.SalvarReceita(email, request);
-                return Json(new { success = true, ict = result.ict, receitaId = result.receitaId });
+                var result = await _formularioServices.SalvarPrescricao(email, request);
+                return Json(new { success = true, ict = result.ict, prescricaoId = result.prescricaoId });
             }
             catch (InvalidOperationException ex)
             {
@@ -63,7 +63,30 @@ namespace Proj_ICFT.Controllers
             }
             catch
             {
-                return Json(new { success = false, message = "Erro ao salvar a receita." });
+                return Json(new { success = false, message = "Erro ao salvar a prescrição." });
+            }
+        }
+
+        [SessionFilter]
+        [HttpPost]
+        public async Task<JsonResult> AtualizarPrescricao(int prescricaoId, [FromBody] SalvarPrescricaoRequest request)
+        {
+            try
+            {
+                var email = HttpContext.Session.GetString("_UserEmail");
+                if (string.IsNullOrEmpty(email))
+                    return Json(new { success = false, message = "Sessão expirada. Faça login novamente." });
+
+                var result = await _formularioServices.AtualizarPrescricao(email, prescricaoId, request);
+                return Json(new { success = true, ict = result.ict, prescricaoId = result.prescricaoId });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
+            catch
+            {
+                return Json(new { success = false, message = "Erro ao atualizar a prescrição." });
             }
         }
 
