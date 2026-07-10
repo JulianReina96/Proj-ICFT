@@ -3,6 +3,7 @@ using FirebaseAdmin;
 using FirebaseAdmin.Auth;
 using Google.Apis.Auth.OAuth2;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using Proj_ICFT.Models;
 using Proj_ICFT.Models.DTO;
@@ -15,13 +16,17 @@ namespace Proj_ICFT.Controllers
     public class AccountController : Controller
     {
         FirebaseAuthProvider auth;
+        private readonly FeatureFlags _features;
 
-        public AccountController()
+        public AccountController(IOptions<FeatureFlags> features)
         {
             auth = new FirebaseAuthProvider(
                             new FirebaseConfig("AIzaSyCY6ZiTuU3iDVMe37SK2p1oWCCoe7ltEV4"));
-
+            _features = features.Value;
         }
+
+        private bool Logado() =>
+            !string.IsNullOrEmpty(HttpContext.Session.GetString("_UserToken"));
         public IActionResult Index()
         {
             return View();
@@ -32,9 +37,11 @@ namespace Proj_ICFT.Controllers
             return View();
         }
 
-        [SessionFilter]
         public IActionResult Register()
         {
+            if (!_features.CadastroPublico && !Logado())
+                return RedirectToAction("Login");
+
             return View();
         }
 
@@ -153,9 +160,12 @@ namespace Proj_ICFT.Controllers
             }
         }
 
-        [SessionFilter]
+        [HttpPost]
         public async Task<IActionResult> NewRegister(AdministradorDTO user)
         {
+            if (!_features.CadastroPublico && !Logado())
+                return RedirectToAction("Login");
+
             try
             {
                 ModelUrlJson url = new ModelUrlJson();

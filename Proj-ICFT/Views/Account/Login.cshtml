@@ -1,4 +1,5 @@
 @using Proj_ICFT.Models.DTO
+@inject Microsoft.Extensions.Options.IOptions<Proj_ICFT.Models.FeatureFlags> Features
 @model AdministradorDTO
 @{
     ViewData["Title"] = "Login";
@@ -70,6 +71,11 @@
                     <button type="submit" class="lf-btn-submit">
                         <i class="bi bi-box-arrow-in-right"></i> Entrar
                     </button>
+                }
+
+                @if (Features.Value.CadastroPublico)
+                {
+                    <p class="lf-login-link">Não tem conta? <a href="/Account/Register">Cadastre-se</a></p>
                 }
 
                 @await Html.PartialAsync(Alerta.ALERTAS)
@@ -346,6 +352,23 @@
 
     .lf-btn-submit:hover { background: #3a56a0; transform: translateY(-1px); }
     .lf-btn-submit:active { transform: translateY(0); }
+
+    /* ── Link de cadastro ── */
+    .lf-login-link {
+        text-align: center;
+        font-size: 0.85rem;
+        color: #6c757d;
+        margin-top: 20px;
+        margin-bottom: 0;
+    }
+
+    .lf-login-link a {
+        color: #4966b1;
+        font-weight: 600;
+        text-decoration: none;
+    }
+
+    .lf-login-link a:hover { text-decoration: underline; }
 
     /* ── Responsivo ── */
     @@media (max-width: 680px) {
