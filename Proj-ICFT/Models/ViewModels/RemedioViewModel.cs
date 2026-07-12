@@ -1,16 +1,18 @@
-﻿namespace Proj_ICFT.Models.ViewModels
+﻿using Proj_ICFT.ModelsNew;
+
+namespace Proj_ICFT.Models.ViewModels
 {
     public class RemedioViewModel
     {
 
-        public Categoria categoria { get; set; }
+        public Categorium categoria { get; set; }
         public Tipo subcategoria { get; set; }
-        public Frequencia frequencia { get; set; }
-        public List<InstrucoesAdicionais> instrucoes { get; set; }
+        public Frequencium frequencia { get; set; }
+        public List<InstrucoesAdicionai> instrucoes { get; set; }
         public double PesoTotal => frequencia.Peso + instrucoes.Sum(i => i.Peso);
 
 
-        public RemedioViewModel(Categoria categoria, Tipo subcategoria, Frequencia frequencia, List<InstrucoesAdicionais> instrucoes)
+        public RemedioViewModel(Categorium categoria, Tipo subcategoria, Frequencium frequencia, List<InstrucoesAdicionai> instrucoes)
         {
             this.categoria = categoria;
             this.subcategoria = subcategoria;

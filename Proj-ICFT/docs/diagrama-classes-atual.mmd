@@ -1,0 +1,181 @@
+classDiagram
+    direction TB
+
+    class Capitulos_CID {
+        +Id : int  PK
+        +ChapterNo : string  UQ
+        +Title : string
+        +TitleEN : string
+        +FoundationURI : string
+        +LinearizationURI : string
+    }
+
+    class Blocos_CID {
+        +Id : int  PK
+        +BlockId : string  UQ
+        +Title : string
+        +TitleEN : string
+        +ChapterNo : string  FK
+        +Grouping1 : string
+        +Grouping2 : string
+    }
+
+    class Categorias_CID {
+        +Id : int  PK
+        +Code : string
+        +Title : string
+        +TitleEN : string
+        +BlockId : string
+        +ChapterNo : string  FK
+        +IsLeaf : bool
+    }
+
+    class Usuario {
+        +id : int  PK
+        +Usuario1 : string  UQ
+        +DataCriacao : DateTime
+    }
+
+    class PacienteICT {
+        +ID : int  PK
+        +NomePaciente : string
+        +DataCriacao : DateTime
+        +UsuarioCriacaoID : int  FK
+        +Sexo : char
+        +Idade : int
+    }
+
+    class Prescricao {
+        +Id : int  PK
+        +PacienteID : int  FK
+        +UsuarioCriacaoID : int  FK
+        +DataCriacao : DateTime
+        +Adesao : bool
+        +ICT : double
+    }
+
+    class PrescricaoMed {
+        +ID : int  PK
+        +PrescricaoID : int  FK
+        +MedicamentoID : int  FK
+        +CategoriaID : int  FK
+        +TipoID : int  FK
+        +FrequenciaID : int  FK
+    }
+
+    class PrescricaoCID {
+        +Id : int  PK
+        +PrescricaoID : int  FK
+        +CategoriaCID_ID : int  FK
+    }
+
+    class InstrucoesMed {
+        +id : int  PK
+        +Med_PrescricaoID : int  FK
+        +InstrucaoId : int  FK
+    }
+
+    class InstrucoesAdicionai {
+        +id : int  PK
+        +Name : string
+        +Peso : int
+    }
+
+    class Medicamento {
+        +Id : int  PK
+        +NOME_PRODUTO : string
+        +PRINCIPIO_ATIVO : string
+        +CATEGORIA_REGULATORIA : string
+        +CLASSE_TERAPEUTICA : string
+        +NUMERO_REGISTRO_PRODUTO : string
+        +EMPRESA_DETENTORA_REGISTRO : string
+        +SITUACAO_REGISTRO : string
+    }
+
+    class Categorium {
+        +Id : int  PK
+        +Name : string
+    }
+
+    class Tipo {
+        +id : int  PK
+        +Name : string
+        +CategoriaId : int  FK
+        +Peso : int
+    }
+
+    class Frequencium {
+        +id : int  PK
+        +Name : string
+        +Peso : double
+    }
+
+    class EvolucaoClinica {
+        +Id : int  PK
+        +PacienteID : int  FK
+        +UsuarioCriacaoID : int  FK
+        +PrescricaoID : int  FK nullable
+        +CategoriaCID_ID : int  FK nullable
+        +DataConsulta : DateTime
+        +DataCriacao : DateTime
+        +Status : StatusEvolucao
+        +Subjetivo : string
+        +Avaliacao : string
+        +Plano : string
+        +ObservacaoObjetivo : string
+        +PaSistolica : int?
+        +PaDiastolica : int?
+        +FrequenciaCardiaca : int?
+        +Peso : double?
+        +Spo2 : int?
+        +Glicemia : double?
+        +Hba1c : double?
+        +Creatinina : double?
+        +EventosAdversos : int
+        +Hospitalizacoes : int
+        +IdasEmergencia : int
+    }
+
+    class StatusEvolucao {
+        <<enumeration>>
+        Inconclusivo = 0
+        Melhorou = 1
+        Estavel = 2
+        Piorou = 3
+    }
+
+    %% ───── Hierarquia CID ─────
+    Capitulos_CID "1" --> "0..*" Blocos_CID : contém
+    Capitulos_CID "1" --> "0..*" Categorias_CID : contém
+
+    %% ───── Usuário cria ─────
+    Usuario "1" --> "0..*" PacienteICT : cria
+    Usuario "1" --> "0..*" Prescricao : cria
+    Usuario "1" --> "0..*" EvolucaoClinica : cria
+
+    %% ───── Paciente ─────
+    PacienteICT "1" --> "0..*" Prescricao : possui
+    PacienteICT "1" --> "0..*" EvolucaoClinica : possui
+
+    %% ───── Prescrição ─────
+    Prescricao "1" --> "0..*" PrescricaoMed : possui
+    Prescricao "1" --> "0..*" PrescricaoCID : possui
+    Prescricao "1" --> "0..*" EvolucaoClinica : vincula (0..1)
+
+    %% ───── Linha de prescrição ─────
+    PrescricaoMed "0..*" --> "1" Medicamento : prescreve
+    PrescricaoMed "0..*" --> "1" Categorium : categorizado por
+    PrescricaoMed "0..*" --> "1" Tipo : usa
+    PrescricaoMed "0..*" --> "1" Frequencium : usa
+    PrescricaoMed "1" --> "0..*" InstrucoesMed : possui
+    InstrucoesMed "0..*" --> "1" InstrucoesAdicionai : define
+
+    %% ───── CID associado ─────
+    PrescricaoCID "0..*" --> "1" Categorias_CID : associa
+    EvolucaoClinica "0..*" --> "0..1" Categorias_CID : monitora
+
+    %% ───── Categoria / Tipo ─────
+    Categorium "1" --> "0..*" Tipo : pertence a
+
+    %% ───── Enum ─────
+    EvolucaoClinica ..> StatusEvolucao : usa

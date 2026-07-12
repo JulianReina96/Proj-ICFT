@@ -1,6 +1,6 @@
-﻿namespace Proj_ICFT.Models.ViewModels
+namespace Proj_ICFT.Models.ViewModels
 {
-    public class ReceitaViewModel
+    public class PrescricaoViewModel
     {
         public string NomePaciente { get; set; } //caso precise salvar, transformar em entidade
         public List<RemedioViewModel> RemedioList { get; set; }

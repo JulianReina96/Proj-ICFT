@@ -1,0 +1,530 @@
+@model Proj_ICFT.ModelsNew.PacienteICT
+
+@{
+    ViewData["Title"] = "Detalhes do Paciente";
+    var nomePacienteAnonimo = (string?)ViewBag.NomePacienteAnonimo ?? "Paciente Anônimo";
+    var isAnonimo   = Model.NomePaciente == nomePacienteAnonimo;
+    var isFemale    = Model.Sexo == "F";
+    var sexoLabel   = isFemale ? "Feminino" : "Masculino";
+    var generoIcon  = isFemale ? "bi-gender-female" : "bi-gender-male";
+
+    var words = Model.NomePaciente.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+    var iniciais = isAnonimo ? "?" : (words.Length >= 2
+        ? $"{words[0][0]}{words[^1][0]}"
+        : words[0].Substring(0, Math.Min(2, words[0].Length))).ToUpper();
+
+    var prescricoes      = Model.Prescricoes.OrderByDescending(r => r.DataCriacao).ToList();
+    var totalPrescricoes = prescricoes.Count;
+    var avgIct           = totalPrescricoes > 0 ? prescricoes.Average(r => r.ICT) : 0;
+    var pctAdesao        = totalPrescricoes > 0
+        ? (int)Math.Round(prescricoes.Count(r => r.Adesao) * 100.0 / totalPrescricoes)
+        : 0;
+}
+
+<link rel="stylesheet" href="~/css/pacientes.css" asp-append-version="true" />
+<link rel="stylesheet" href="~/css/ver-paciente.css" asp-append-version="true" />
+
+<div class="vp-page">
+    <div class="vp-inner">
+
+        @* ── Voltar ── *@
+        <a href="/Paciente/PacientesAnalisados" class="vp-back">
+            <i class="bi bi-arrow-left"></i> Voltar para pacientes
+        </a>
+
+        @* ── Cabeçalho do paciente ── *@
+        <div class="vp-header-card">
+            <div class="vp-avatar @(isAnonimo ? "anonimo" : (isFemale ? "female" : ""))">@iniciais</div>
+
+            <div class="vp-header-info">
+                <div class="vp-name-row">
+                    <h2 class="vp-name">@Model.NomePaciente</h2>
+                    @if (isAnonimo)
+                    {
+                        <span class="badge-sistema"><i class="bi bi-shield-lock-fill"></i> Sistema</span>
+                    }
+                </div>
+
+                @if (!isAnonimo)
+                {
+                    <div class="vp-meta">
+                        <span><i class="bi bi-calendar3"></i> Cadastrado em @Model.DataCriacao.ToString("dd/MM/yyyy")</span>
+                        <span><i class="bi @generoIcon"></i> @sexoLabel</span>
+                        <span><i class="bi bi-person-badge"></i> @Model.Idade @(Model.Idade == 1 ? "ano" : "anos")</span>
+                    </div>
+                }
+                else
+                {
+                    <p class="vp-meta-anonimo">Registro gerenciado pelo sistema — prescrições sem identificação de paciente.</p>
+                }
+            </div>
+
+            <div class="d-flex gap-2 ms-auto flex-wrap">
+                @if (!isAnonimo)
+                {
+                    <a href="/Home/Form?pacienteId=@Model.ID" class="btn-novo-paciente">
+                        <i class="bi bi-plus-lg"></i> Nova prescrição
+                    </a>
+                }
+                @if (totalPrescricoes > 0)
+                {
+                    <button class="btn-exportar-excel" onclick="exportarExcel(@Model.ID, '@Html.Raw(Model.NomePaciente.Replace("'", "\\'"))')">
+                        <i class="bi bi-file-earmark-spreadsheet"></i> Exportar Excel
+                    </button>
+                }
+            </div>
+        </div>
+
+        @* ── Estatísticas ── *@
+        <div class="vp-stats-row">
+            <div class="vp-stat-card">
+                <div class="stat-icon stat-icon-blue"><i class="bi bi-file-earmark-medical-fill"></i></div>
+                <div class="stat-content">
+                    <span class="stat-label">Prescrições cadastradas</span>
+                    <span class="stat-value">@totalPrescricoes</span>
+                </div>
+            </div>
+            <div class="vp-stat-card">
+                <div class="stat-icon stat-icon-purple"><i class="bi bi-calculator-fill"></i></div>
+                <div class="stat-content">
+                    <span class="stat-label">ICT médio</span>
+                    <span class="stat-value">@avgIct.ToString("F1")</span>
+                </div>
+            </div>
+            <div class="vp-stat-card">
+                <div class="stat-icon @(pctAdesao >= 70 ? "stat-icon-green" : "stat-icon-orange")">
+                    <i class="bi bi-heart-pulse-fill"></i>
+                </div>
+                <div class="stat-content">
+                    <span class="stat-label">Taxa de adesão</span>
+                    <span class="stat-value">@pctAdesao%</span>
+                </div>
+            </div>
+        </div>
+
+        @* ── Tabs: Prescrições / Evoluções ── *@
+        <ul class="nav nav-tabs mb-3" id="pacienteTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="tab-prescricoes-btn" data-bs-toggle="tab"
+                        data-bs-target="#tab-prescricoes" type="button" role="tab">
+                    <i class="bi bi-file-earmark-medical me-1"></i> Prescrições
+                </button>
+            </li>
+            @if (!isAnonimo)
+            {
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="tab-evolucoes-btn" data-bs-toggle="tab"
+                        data-bs-target="#tab-evolucoes" type="button" role="tab">
+                    <i class="bi bi-graph-up-arrow me-1"></i> Evoluções Clínicas
+                </button>
+            </li>
+            }
+        </ul>
+
+        <div class="tab-content">
+            <div class="tab-pane fade show active" id="tab-prescricoes" role="tabpanel">
+                @if (!prescricoes.Any())
+                {
+                    <div class="vp-empty">
+                        <i class="bi bi-file-earmark-x"></i>
+                        <p>Nenhuma prescrição cadastrada para este paciente.</p>
+                        @if (!isAnonimo)
+                        {
+                            <a href="/Home/Form?pacienteId=@Model.ID" class="btn-novo-paciente">
+                                <i class="bi bi-plus-lg"></i> Criar primeira prescrição
+                            </a>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <div class="vp-receitas-list">
+                        @foreach (var (r, idx) in prescricoes.Select((r, i) => (r, i + 1)))
+                        {
+                            <div class="vp-receita-card">
+                                <div class="vp-receita-num">#@(prescricoes.Count - idx + 1)</div>
+                                <div class="vp-receita-info">
+                                    <span class="vp-receita-data">
+                                        <i class="bi bi-calendar3"></i> @r.DataCriacao.ToString("dd/MM/yyyy")
+                                    </span>
+                                    <span class="vp-receita-meds-count">
+                                        <i class="bi bi-capsule"></i> @r.PrescricaoMeds.Count @(r.PrescricaoMeds.Count == 1 ? "medicamento" : "medicamentos")
+                                    </span>
+                                </div>
+                                <div class="vp-receita-ict">
+                                    <span class="vp-ict-label">ICT</span>
+                                    <span class="vp-ict-value">@r.ICT.ToString("F2")</span>
+                                </div>
+                                <div class="vp-receita-adesao @(r.Adesao ? "aderiu" : "nao-aderiu")">
+                                    @if (r.Adesao)
+                                    {
+                                        <i class="bi bi-check-circle-fill"></i> <span>Aderiu</span>
+                                    }
+                                    else
+                                    {
+                                        <i class="bi bi-x-circle-fill"></i> <span>Aderiu</span>
+                                    }
+                                </div>
+                                <div class="vp-receita-acoes" style="display:flex;gap:6px;align-items:center">
+                                    <button class="btn-ver-receita" onclick="abrirPrescricao(@r.Id)">
+                                        <i class="bi bi-eye"></i> Ver
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-primary" title="Editar prescrição"
+                                            onclick="editarPrescricao(@r.Id)">
+                                        <i class="bi bi-pencil"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-danger" title="Excluir prescrição"
+                                            onclick="excluirPrescricao(@r.Id, @r.PrescricaoMeds.Count)">
+                                        <i class="bi bi-trash3"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+
+            @if (!isAnonimo)
+            {
+            <div class="tab-pane fade" id="tab-evolucoes" role="tabpanel">
+                <partial name="_EvolucoesTab" model="Model" />
+            </div>
+            }
+        </div>
+
+    </div>
+</div>
+
+
+@* ══════════════════════════════════════════
+   MODAL — Detalhamento da Prescrição
+══════════════════════════════════════════ *@
+<div class="modal fade" id="modalReceita" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="bi bi-file-earmark-medical me-2 text-primary"></i>Detalhes da Prescrição
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+            </div>
+
+            <div class="modal-body" id="receitaModalBody">
+                <div class="text-center py-4">
+                    <div class="spinner-border text-primary"></div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                <button type="button" class="btn btn-outline-primary" onclick="editarPrescricaoDoModal()">
+                    <i class="bi bi-pencil"></i> Editar
+                </button>
+                <button type="button" class="btn btn-primary" id="btnGerarPdfReceita" style="display:none"
+                        onclick="gerarPdfPrescricao()">
+                    <i class="bi bi-file-earmark-pdf"></i> Gerar PDF
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+@* Modal de edição de prescrição (isolado) *@
+<partial name="_ModalEditarPrescricao" model="Model" />
+
+
+@section Scripts {
+<script>
+const modalReceita = new bootstrap.Modal(document.getElementById('modalReceita'));
+const nomePacienteAtual = @Json.Serialize(Model.NomePaciente);
+let prescricaoAtualParaPdf = null;
+let prescricaoAtualId = null;
+
+// ── Editar / Excluir prescrição ──
+function editarPrescricao(id) {
+    try { modalReceita.hide(); } catch (e) { }
+    if (window.__prescricaoEdit) window.__prescricaoEdit.abrir(id);
+}
+
+function editarPrescricaoDoModal() {
+    if (prescricaoAtualId) editarPrescricao(prescricaoAtualId);
+}
+
+function excluirPrescricao(id, qtdMeds) {
+    const aviso = qtdMeds > 0
+        ? '<p class="text-muted mb-0">' + qtdMeds + ' medicamento(s) e os CIDs vinculados serão removidos.</p>'
+        : '';
+    Swal.fire({
+        icon: 'warning',
+        title: 'Excluir prescrição?',
+        html: '<p>Esta ação não pode ser desfeita.</p>' + aviso,
+        showCancelButton: true,
+        confirmButtonText: 'Sim, excluir',
+        cancelButtonText: 'Cancelar',
+        confirmButtonColor: '#dc3545',
+        reverseButtons: true
+    }).then(result => {
+        if (!result.isConfirmed) return;
+        fetch('/Paciente/DeletarPrescricao?prescricaoId=' + id, { method: 'POST' })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire({ icon: 'success', title: 'Prescrição excluída', timer: 1400, showConfirmButton: false })
+                        .then(() => location.reload());
+                } else {
+                    Swal.fire('Erro', data.message || 'Não foi possível excluir.', 'error');
+                }
+            })
+            .catch(() => Swal.fire('Erro', 'Falha de comunicação com o servidor.', 'error'));
+    });
+}
+
+function abrirPrescricao(id) {
+    prescricaoAtualId = id;
+    const body = document.getElementById('receitaModalBody');
+    body.innerHTML = `
+        <div class="text-center py-4">
+            <div class="spinner-border text-primary"></div>
+            <p class="mt-2 text-muted small">Carregando prescrição...</p>
+        </div>`;
+    modalReceita.show();
+
+    fetch('/Paciente/DetalharPrescricao?prescricaoId=' + id)
+        .then(r => r.json())
+        .then(data => {
+            if (!data.success) {
+                body.innerHTML = '<p class="text-danger text-center py-3">' + (data.message || 'Erro ao carregar prescrição.') + '</p>';
+                return;
+            }
+
+            const adesaoHtml = data.adesao
+                ? '<span class="rm-badge rm-badge-success"><i class="bi bi-check-circle-fill me-1"></i>Aderiu ao tratamento</span>'
+                : '<span class="rm-badge rm-badge-danger"><i class="bi bi-x-circle-fill me-1"></i>Aderiu ao tratamento</span>';
+
+            const medsHtml = data.medicamentos.length === 0
+                ? '<p class="text-muted small text-center py-2">Nenhum medicamento registrado.</p>'
+                : data.medicamentos.map((m, i) => `
+                    <div class="rm-med-card">
+                        <div class="rm-med-num">${i + 1}</div>
+                        <div class="rm-med-body">
+                            <p class="rm-med-name">${m.medicamento}</p>
+                            <div class="rm-med-grid">
+                                <div>
+                                    <span class="rm-detail-label">Forma de dosagem</span>
+                                    <span class="rm-detail-value">${m.categoria}</span>
+                                </div>
+                                <div>
+                                    <span class="rm-detail-label">Tipo</span>
+                                    <span class="rm-detail-value">${m.tipo}</span>
+                                </div>
+                                <div>
+                                    <span class="rm-detail-label">Frequência</span>
+                                    <span class="rm-detail-value">${m.frequencia}</span>
+                                </div>
+                                ${m.instrucoes.length > 0 ? `
+                                <div class="rm-full-col">
+                                    <span class="rm-detail-label">Instruções adicionais</span>
+                                    <div class="rm-instrucoes">
+                                        ${m.instrucoes.map(i => `<span class="rm-instrucao-chip">${i}</span>`).join('')}
+                                    </div>
+                                </div>` : ''}
+                            </div>
+                        </div>
+                    </div>`).join('');
+
+            const cidsHtml = data.cids.length === 0
+                ? ''
+                : `<div class="rm-section-title"><i class="bi bi-heart-pulse me-2 text-primary"></i>Diagnósticos (CID-11)</div>
+                   <div class="rm-cid-list">
+                       ${data.cids.map(c => `
+                           <div class="rm-cid-item">
+                               <span class="rm-cid-code">${c.code || '—'}</span>
+                               <span class="rm-cid-title">${c.title || '—'}</span>
+                           </div>`).join('')}
+                   </div>`;
+
+            body.innerHTML = `
+                <div class="rm-header">
+                    <div class="rm-header-left">
+                        <span class="rm-data"><i class="bi bi-calendar3 me-1"></i>${data.data}</span>
+                        ${adesaoHtml}
+                    </div>
+                    <div class="rm-ict-block">
+                        <span class="rm-ict-label">ICT</span>
+                        <span class="rm-ict-value">${data.ict.toFixed(2)}</span>
+                    </div>
+                </div>
+
+                <div class="rm-section-title">
+                    <i class="bi bi-capsule me-2 text-primary"></i>Medicamentos (${data.medicamentos.length})
+                </div>
+                ${medsHtml}
+
+                ${cidsHtml}
+            `;
+            prescricaoAtualParaPdf = data;
+            document.getElementById('btnGerarPdfReceita').style.display = '';
+        })
+        .catch(() => {
+            body.innerHTML = '<p class="text-danger text-center py-3">Erro de comunicação com o servidor.</p>';
+        });
+}
+
+document.getElementById('modalReceita').addEventListener('hidden.bs.modal', function () {
+    prescricaoAtualParaPdf = null;
+    document.getElementById('btnGerarPdfReceita').style.display = 'none';
+});
+
+function gerarPdfPrescricao() {
+    if (!prescricaoAtualParaPdf) return;
+    const data = prescricaoAtualParaPdf;
+
+    const btn = document.getElementById('btnGerarPdfReceita');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Gerando...';
+
+    const nomeSanitizado = nomePacienteAtual
+        .normalize('NFD').replace(/[̀-ͯ]/g, '')
+        .replace(/\s+/g, '_').replace(/[^a-zA-Z0-9_]/g, '');
+    const filename = `prescricao_${nomeSanitizado}_${data.data.replace(/\//g, '-')}.pdf`;
+
+    const medsHtml = data.medicamentos.map((m, i) =>
+        `<tr style="background:${i % 2 === 0 ? '#f9f9f9' : '#fff'}">
+            <td style="padding:5px 8px">${i + 1}</td>
+            <td style="padding:5px 8px">${m.medicamento}</td>
+            <td style="padding:5px 8px">${m.categoria}</td>
+            <td style="padding:5px 8px">${m.tipo}</td>
+            <td style="padding:5px 8px">${m.frequencia}</td>
+            <td style="padding:5px 8px">${m.instrucoes.join(', ') || '—'}</td>
+        </tr>`
+    ).join('');
+
+    const cidHtml = data.cids.map((c, i) =>
+        `<tr style="background:${i % 2 === 0 ? '#f9f9f9' : '#fff'}">
+            <td style="padding:5px 8px">${i + 1}</td>
+            <td style="padding:5px 8px">${c.title || '—'}</td>
+            <td style="padding:5px 8px">${c.code || '—'}</td>
+        </tr>`
+    ).join('');
+
+    const cidSection = data.cids.length > 0
+        ? `<h3 style="color:#4966b1;font-size:13px;margin:16px 0 6px;text-transform:uppercase;letter-spacing:.05em">Diagnósticos (CID-11)</h3>
+           <table style="width:100%;border-collapse:collapse;font-size:11px">
+               <thead><tr style="background:#4966b1;color:#fff">
+                   <th style="padding:6px 8px;width:36px">#</th>
+                   <th style="padding:6px 8px;text-align:left">Enfermidade</th>
+                   <th style="padding:6px 8px;text-align:left">Código</th>
+               </tr></thead>
+               <tbody>${cidHtml}</tbody>
+           </table>`
+        : '';
+
+    const adesaoTexto = data.adesao ? 'Sim' : 'Não';
+
+    const html =
+        '<div style="font-family:Arial,sans-serif;font-size:12px;padding:24px;color:#333">' +
+            '<div style="text-align:center;border-bottom:2px solid #4966b1;padding-bottom:12px;margin-bottom:16px">' +
+                '<h2 style="margin:0;color:#4966b1;font-size:20px">Prescrição Médica</h2>' +
+                '<p style="margin:4px 0 0;font-size:10px;color:#888">Sistema ICFT — Índice de Complexidade Terapêutica</p>' +
+            '</div>' +
+            '<table style="width:100%;margin-bottom:16px;font-size:12px"><tr>' +
+                `<td><strong>Paciente:</strong> ${nomePacienteAtual}</td>` +
+                `<td style="text-align:center"><strong>Data:</strong> ${data.data}</td>` +
+                `<td style="text-align:right"><strong>ICT:</strong> ${data.ict.toFixed(2)} &nbsp;|&nbsp; <strong>Adesão:</strong> ${adesaoTexto}</td>` +
+            '</tr></table>' +
+            '<h3 style="color:#4966b1;font-size:13px;margin:0 0 6px;text-transform:uppercase;letter-spacing:.05em">Medicamentos</h3>' +
+            '<table style="width:100%;border-collapse:collapse;font-size:11px">' +
+                '<thead><tr style="background:#4966b1;color:#fff">' +
+                    '<th style="padding:6px 8px;width:36px">#</th>' +
+                    '<th style="padding:6px 8px;text-align:left">Medicamento</th>' +
+                    '<th style="padding:6px 8px;text-align:left">Forma</th>' +
+                    '<th style="padding:6px 8px;text-align:left">Tipo</th>' +
+                    '<th style="padding:6px 8px;text-align:left">Frequência</th>' +
+                    '<th style="padding:6px 8px;text-align:left">Instruções</th>' +
+                '</tr></thead>' +
+                `<tbody>${medsHtml}</tbody>` +
+            '</table>' +
+            cidSection +
+            `<div style="margin-top:40px;border-top:1px solid #ddd;padding-top:10px;font-size:10px;color:#999;text-align:center">` +
+                `Gerado em ${new Date().toLocaleDateString('pt-BR')} — Sistema ICFT` +
+            '</div>' +
+        '</div>';
+
+    html2pdf().set({
+        margin: 10,
+        filename: filename,
+        html2canvas: { scale: 2, useCORS: true, logging: false },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    }).from(html).save().then(function () {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="bi bi-file-earmark-pdf"></i> Gerar PDF';
+    });
+}
+
+function exportarExcel(pacienteId, nomePaciente) {
+    fetch('/Paciente/ExportarDadosPaciente?id=' + pacienteId)
+        .then(r => r.json())
+        .then(data => {
+            if (!data.success) {
+                Swal.fire('Erro', data.message || 'Falha ao carregar dados.', 'error');
+                return;
+            }
+
+            const cabecalho = [
+                '#', 'Data', 'ICT', 'Adesão',
+                'Medicamento', 'Forma de Dosagem', 'Tipo', 'Frequência',
+                'Instruções Adicionais', 'Diagnósticos (CID-11)'
+            ];
+
+            const linhas = [cabecalho];
+
+            data.prescricoes.forEach((r, ri) => {
+                const meds = r.medicamentos;
+                if (meds.length === 0) {
+                    linhas.push([ri + 1, r.data, r.ict, r.adesao ? 'Sim' : 'Não',
+                        '—', '—', '—', '—', '—', r.cids || '—']);
+                } else {
+                    meds.forEach((m, mi) => {
+                        linhas.push([
+                            mi === 0 ? ri + 1 : '',
+                            mi === 0 ? r.data  : '',
+                            mi === 0 ? r.ict   : '',
+                            mi === 0 ? (r.adesao ? 'Sim' : 'Não') : '',
+                            m.medicamento,
+                            m.categoria,
+                            m.tipo,
+                            m.frequencia,
+                            m.instrucoes || '—',
+                            mi === 0 ? (r.cids || '—') : ''
+                        ]);
+                    });
+                }
+            });
+
+            const ws = XLSX.utils.aoa_to_sheet(linhas);
+
+            // Larguras aproximadas por coluna
+            ws['!cols'] = [
+                { wch: 4 }, { wch: 12 }, { wch: 7 }, { wch: 8 },
+                { wch: 40 }, { wch: 20 }, { wch: 25 }, { wch: 20 },
+                { wch: 35 }, { wch: 45 }
+            ];
+
+            const wb = XLSX.utils.book_new();
+            const sheetName = nomePaciente.substring(0, 31);
+            XLSX.utils.book_append_sheet(wb, ws, sheetName);
+
+            const nomeArquivo = 'Prescricoes_' + nomePaciente.replace(/\s+/g, '_') + '.xlsx';
+            XLSX.writeFile(wb, nomeArquivo);
+        })
+        .catch(() => Swal.fire('Erro', 'Falha ao exportar dados.', 'error'));
+}
+</script>
+@if (!isAnonimo)
+{
+<link rel="stylesheet" href="~/css/evolucao-clinica.css" asp-append-version="true" />
+<script src="~/js/evolucao-clinica.js" asp-append-version="true"></script>
+}
+}

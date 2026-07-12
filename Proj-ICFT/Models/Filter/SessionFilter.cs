@@ -36,8 +36,6 @@ namespace Proj_ICFT.Models.Filter
             else
                 context.Result = new RedirectToRouteResult(new RouteValueDictionary { { "controller", "Account" }, { "action", "Login" } });
 
-            ((Controller)context.Controller).TempData.Clear();
-            ((Controller)context.Controller).TempData["ErrorMessage"] = "É necessario estar logado para acessar essa página";
         }
 
 

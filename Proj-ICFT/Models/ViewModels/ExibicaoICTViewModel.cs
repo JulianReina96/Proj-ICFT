@@ -1,4 +1,6 @@
-﻿namespace Proj_ICFT.Models.ViewModels
+﻿using Proj_ICFT.ModelsNew;
+
+namespace Proj_ICFT.Models.ViewModels
 {
     public class ExibicaoICTViewModel
     {

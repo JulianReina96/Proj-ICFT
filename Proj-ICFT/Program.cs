@@ -1,9 +1,17 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
-using Proj_ICFT.Data;
+using Proj_ICFT.DataNew;
+using Proj_ICFT.Models;
+using Proj_ICFT.MedicamentosServices.Implementacao;
+using Proj_ICFT.Services.CIDServices.Interface;
+using Proj_ICFT.Services.EvolucaoClinicaServices.Implementacao;
+using Proj_ICFT.Services.EvolucaoClinicaServices.Interface;
 using Proj_ICFT.Services.FormularioServices.Implementacao;
 using Proj_ICFT.Services.FormularioServices.Interface;
+using Proj_ICFT.Services.MedicamentosServices.Interface;
 using Proj_ICFT.Services.PacienteServices.Interface;
+using Proj_ICFT.Services.RelatorioService.Interface;
+using Proj_ICFT.Services.RelatorioService.Implementacao;
 using Proj_ICFT.Services.UsuariosService.Implementacao;
 using Proj_ICFT.Services.UsuariosService.Interface;
 
@@ -14,22 +22,24 @@ var configuration = builder.Configuration;
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
-
-
-builder.Services.AddSqlServer<FrequenciaDbContext>(builder.Configuration.GetConnectionString("DefaultConnection"));
-builder.Services.AddSqlServer<TipoDbContext>(builder.Configuration.GetConnectionString("DefaultConnection"));
-builder.Services.AddSqlServer<CategoriaDbContext>(builder.Configuration.GetConnectionString("DefaultConnection"));
-builder.Services.AddSqlServer<InstrucoesAdicionaisDbContext>(builder.Configuration.GetConnectionString("DefaultConnection"));
-builder.Services.AddSqlServer<PacienteICTDbContext>(builder.Configuration.GetConnectionString("DefaultConnection"));
-builder.Services.AddSqlServer<UsuariosDbContext>(builder.Configuration.GetConnectionString("DefaultConnection"));
-builder.Services.AddSqlServer<InstrucoesAdicionaisPacienteDbContext>(builder.Configuration.GetConnectionString("DefaultConnection"));
+builder.Services.Configure<FeatureFlags>(
+    builder.Configuration.GetSection(FeatureFlags.SectionName));
 
 
 
+builder.Services.AddSqlServer<AppDbContextNew>(
+    builder.Configuration.GetConnectionString("DefaultConnection"),
+    options => { },
+    contextOptions => contextOptions.EnableSensitiveDataLogging()
+        .LogTo(Console.WriteLine, Microsoft.Extensions.Logging.LogLevel.Information));
 
 builder.Services.AddScoped<IFormularioServices, FormularioServices>();
 builder.Services.AddScoped<IPacienteServices, PacienteServices>();
 builder.Services.AddScoped<IUsuarioService, UsuarioService>();
+builder.Services.AddScoped<ICIDServices, CIDServices>();
+builder.Services.AddScoped<IMedicamentoService, MedicamentosServices>();
+builder.Services.AddScoped<IEvolucaoClinicaServices, EvolucaoClinicaServices>();
+builder.Services.AddScoped<IRelatorioService, RelatorioService>();
 
 
 builder.Services
@@ -55,7 +65,7 @@ services.AddSession(options =>
     options.IdleTimeout = TimeSpan.FromMinutes(60);
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = false;
-}); //adicionado tempo de sessão ativa
+}); //adicionado tempo de sessï¿½o ativa
 
 // Add services to the container.
 services.AddMvc().AddSessionStateTempDataProvider();

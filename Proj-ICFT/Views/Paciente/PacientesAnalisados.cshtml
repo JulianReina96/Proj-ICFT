@@ -1,276 +1,537 @@
-﻿
-@using Proj_ICFT.Models.ViewModels;
-@using X.PagedList
-@using X.PagedList.Extensions
-@using X.PagedList.Mvc.Core
-
-
-@model  ExibicaoICTViewModel
+@model List<Proj_ICFT.ModelsNew.PacienteICT>
 
 @{
-    ViewData["Title"] = "PacientesAnalisados";
-    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    ViewData["Title"] = "Pacientes";
+    var nomePacienteAnonimo = (string?)ViewBag.NomePacienteAnonimo ?? "Paciente Anônimo";
+    int totalPacientes   = Model.Count(p => p.NomePaciente != nomePacienteAnonimo);
+    int totalPrescricoes = Model.Sum(p => p.Prescricoes?.Count ?? 0);
+}
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="~/css/pacientes.css" asp-append-version="true" />
+
+<div class="patients-page">
+    <div class="patients-inner">
+
+        @* ── Cabeçalho ── *@
+        <div class="patients-header">
+            <div class="patients-header-left">
+                <h2>Pacientes</h2>
+                <p>Gerencie os pacientes cadastrados no sistema.</p>
+            </div>
+            <button class="btn-novo-paciente" id="btnNovosPaciente">
+                <i class="bi bi-plus-lg"></i> Novo paciente
+            </button>
+        </div>
+
+        @* ── Stat cards + busca ── *@
+        <div class="stat-cards-row">
+            <div class="stat-card">
+                <div class="stat-icon stat-icon-blue">
+                    <i class="bi bi-people-fill"></i>
+                </div>
+                <div class="stat-content">
+                    <span class="stat-label">Pacientes cadastrados</span>
+                    <span class="stat-value">@totalPacientes</span>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon stat-icon-green">
+                    <i class="bi bi-file-earmark-medical-fill"></i>
+                </div>
+                <div class="stat-content">
+                    <span class="stat-label">Prescrições no total</span>
+                    <span class="stat-value">@totalPrescricoes</span>
+                </div>
+            </div>
+            <div class="stat-card stat-search">
+                <i class="bi bi-search stat-search-icon"></i>
+                <input type="text" id="searchPaciente"
+                       placeholder="Buscar paciente por nome..."
+                       autocomplete="off" />
+            </div>
+        </div>
+
+        @* ── Grid de cards ── *@
+        @if (!Model.Any())
+        {
+            <div class="empty-state-patients">
+                <i class="bi bi-person-x"></i>
+                <h5>Nenhum paciente cadastrado</h5>
+                <p>Adicione o primeiro paciente para começar a gerenciar prescrições.</p>
+                <button class="btn-novo-paciente" id="btnNovosPacienteEmpty">
+                    <i class="bi bi-plus-lg"></i> Cadastrar Paciente
+                </button>
+            </div>
+        }
+        else
+        {
+            <div class="patients-grid" id="patientsGrid">
+                @foreach (var p in Model)
+                {
+                    var isAnonimo  = p.NomePaciente == nomePacienteAnonimo;
+                    var qtdPrescricoes = p.Prescricoes?.Count ?? 0;
+
+                    string iniciais, avatarClass, sexoLabel, generoIcon;
+
+                    if (isAnonimo)
+                    {
+                        iniciais    = "?";
+                        avatarClass = "anonimo";
+                        sexoLabel   = "";
+                        generoIcon  = "";
+                    }
+                    else
+                    {
+                        var words = p.NomePaciente.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+                        iniciais = words.Length >= 2
+                            ? $"{words[0][0]}{words[^1][0]}"
+                            : words[0].Substring(0, Math.Min(2, words[0].Length));
+                        iniciais = iniciais.ToUpper();
+
+                        var isFemale = p.Sexo == "F";
+                        avatarClass = isFemale ? "female" : "";
+                        sexoLabel   = isFemale ? "Feminino" : "Masculino";
+                        generoIcon  = isFemale ? "bi-gender-female" : "bi-gender-male";
+                    }
+
+                    <div class="patient-card @(isAnonimo ? "patient-card-anonimo" : "")"
+                         data-name="@p.NomePaciente.ToLower()">
+
+                        @* topo: avatar + nome *@
+                        <div class="patient-card-top">
+                            <div class="patient-avatar @avatarClass">@iniciais</div>
+                            <div class="patient-card-header-text">
+                                <p class="patient-card-name">
+                                    @p.NomePaciente
+                                    @if (isAnonimo)
+                                    {
+                                        <span class="badge-sistema"><i class="bi bi-shield-lock-fill"></i> Sistema</span>
+                                    }
+                                </p>
+                                <p class="patient-card-sub">
+                                    @if (isAnonimo)
+                                    {
+                                        <span>Prescrições sem identificação de paciente</span>
+                                    }
+                                    else
+                                    {
+                                        <i class="bi bi-calendar3 me-1"></i><span>Cadastrado em @p.DataCriacao.ToString("dd/MM/yyyy")</span>
+                                    }
+                                </p>
+                            </div>
+                        </div>
+
+                        @* info inline OU nota anônimo *@
+                        @if (!isAnonimo)
+                        {
+                            <div class="patient-info-inline">
+                                <span class="info-chip">
+                                    <i class="bi bi-calendar3"></i>
+                                    @p.Idade @(p.Idade == 1 ? "ano" : "anos")
+                                </span>
+                                <span class="info-chip">
+                                    <i class="bi @generoIcon"></i>
+                                    @sexoLabel
+                                </span>
+                                <span class="info-chip info-chip-receipts">
+                                    <i class="bi bi-file-earmark-medical"></i>
+                                    @qtdPrescricoes @(qtdPrescricoes == 1 ? "prescrição" : "prescrições")
+                                </span>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="anonimo-note">
+                                <i class="bi bi-info-circle-fill"></i>
+                                <span>Registro gerenciado pelo sistema. Use o checkbox "Paciente Anônimo" no formulário para criar prescrições sem identificação.</span>
+                            </div>
+                            <div class="patient-info-inline">
+                                <span class="info-chip info-chip-receipts">
+                                    <i class="bi bi-file-earmark-medical"></i>
+                                    @qtdPrescricoes @(qtdPrescricoes == 1 ? "prescrição" : "prescrições")
+                                </span>
+                            </div>
+                        }
+
+                        @* rodapé: ações *@
+                        <div class="patient-card-footer">
+                            @if (!isAnonimo)
+                            {
+                                <a href="/Home/Form?pacienteId=@p.ID" class="btn-card-primary">
+                                    <i class="bi bi-plus-lg"></i> Nova prescrição
+                                </a>
+                                <a href="/Paciente/VerPaciente?id=@p.ID" class="btn-card-outline">
+                                    <i class="bi bi-eye"></i> Detalhes
+                                </a>
+                                <button class="btn-card-icon-danger"
+                                        onclick="confirmarExclusao(@p.ID, '@Html.Raw(p.NomePaciente.Replace("'", "\\'"))', @qtdPrescricoes)"
+                                        title="Excluir paciente">
+                                    <i class="bi bi-trash3"></i>
+                                </button>
+                            }
+                            else
+                            {
+                                <a href="/Paciente/VerPaciente?id=@p.ID" class="btn-card-outline btn-card-full">
+                                    <i class="bi bi-eye"></i> Ver detalhes
+                                </a>
+                            }
+                        </div>
+
+                    </div>
+                }
+            </div>
+
+            @* ── Sem resultados na busca ── *@
+            <div id="emptySearch" class="empty-search" style="display:none">
+                <i class="bi bi-search"></i>
+                <p>Nenhum paciente encontrado para "<span id="emptySearchTerm"></span>".</p>
+            </div>
+
+            @* ── Paginação ── *@
+            <div class="pagination-bar" id="paginationBar">
+                <button class="page-btn" id="btnPrev" disabled>
+                    <i class="bi bi-chevron-left"></i>
+                </button>
+                <span class="page-info" id="pageInfo"></span>
+                <button class="page-btn" id="btnNext">
+                    <i class="bi bi-chevron-right"></i>
+                </button>
+            </div>
+        }
+
+    </div>
+</div>
+
+
+@* ══════════════════════════════════════════
+   MODAL — Novo Paciente
+══════════════════════════════════════════ *@
+<div class="modal fade" id="modalCadastrarPaciente" tabindex="-1"
+     aria-labelledby="modalCadastrarLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalCadastrarLabel">
+                    <i class="bi bi-person-plus-fill me-2"></i>Novo Paciente
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label">Nome completo *</label>
+                    <input type="text" id="inputNome" class="form-control"
+                           placeholder="Nome do paciente" maxlength="100" />
+                </div>
+                <div class="row">
+                    <div class="col-6">
+                        <div class="mb-3">
+                            <label class="form-label">Idade *</label>
+                            <input type="number" id="inputIdade" class="form-control"
+                                   placeholder="0" min="0" max="150" />
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="mb-3">
+                            <label class="form-label">Sexo *</label>
+                            <select id="inputSexo" class="form-select">
+                                <option value="">Selecione</option>
+                                <option value="M">Masculino</option>
+                                <option value="F">Feminino</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" id="btnSalvarPaciente">
+                    <i class="bi bi-check2 me-1"></i>Salvar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@* ══════════════════════════════════════════
+   MODAL — Detalhes do Paciente
+══════════════════════════════════════════ *@
+<div class="modal fade" id="modalDetalhesPaciente" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="bi bi-person-badge me-2"></i>Detalhes do Paciente
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+            </div>
+            <div class="modal-body" id="detalhesPacienteBody"></div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+<script>
+/* ══════════════════════════════════════════
+   BUSCA + PAGINAÇÃO
+══════════════════════════════════════════ */
+const ITEMS_PER_PAGE = 6;
+let currentPage  = 1;
+let searchTerm   = '';
+
+const allCards   = Array.from(document.querySelectorAll('#patientsGrid .patient-card'));
+const grid       = document.getElementById('patientsGrid');
+const emptyEl    = document.getElementById('emptySearch');
+const emptyTerm  = document.getElementById('emptySearchTerm');
+const pageInfo   = document.getElementById('pageInfo');
+const btnPrev    = document.getElementById('btnPrev');
+const btnNext    = document.getElementById('btnNext');
+const paginBar   = document.getElementById('paginationBar');
+
+function getFiltered() {
+    if (!searchTerm) return allCards;
+    return allCards.filter(c => c.dataset.name.includes(searchTerm));
+}
+
+function render() {
+    const filtered = getFiltered();
+    const total    = filtered.length;
+    const pages    = Math.max(1, Math.ceil(total / ITEMS_PER_PAGE));
+
+    if (currentPage > pages) currentPage = pages;
+
+    const start = (currentPage - 1) * ITEMS_PER_PAGE;
+    const end   = start + ITEMS_PER_PAGE;
+
+    allCards.forEach(c => c.style.display = 'none');
+    filtered.slice(start, end).forEach(c => c.style.display = '');
+
+    // estado de vazio da busca
+    if (emptyEl) {
+        if (total === 0 && searchTerm) {
+            emptyEl.style.display = '';
+            if (emptyTerm) emptyTerm.textContent = searchTerm;
+        } else {
+            emptyEl.style.display = 'none';
+        }
+    }
+
+    // paginação — só exibe se há mais de uma página
+    if (paginBar) {
+        paginBar.style.display = pages > 1 ? '' : 'none';
+        if (pageInfo) pageInfo.textContent = 'Página ' + currentPage + ' de ' + pages;
+        if (btnPrev)  btnPrev.disabled  = currentPage === 1;
+        if (btnNext)  btnNext.disabled  = currentPage === pages;
+    }
+}
+
+if (btnPrev) btnPrev.addEventListener('click', () => { currentPage--; render(); });
+if (btnNext) btnNext.addEventListener('click', () => { currentPage++; render(); });
+
+const searchInput = document.getElementById('searchPaciente');
+if (searchInput) {
+    searchInput.addEventListener('input', function () {
+        searchTerm  = this.value.trim().toLowerCase();
+        currentPage = 1;
+        render();
+    });
+}
+
+render();
+
+
+/* ══════════════════════════════════════════
+   MODAL — NOVO PACIENTE
+══════════════════════════════════════════ */
+const modalCadastrar = new bootstrap.Modal(document.getElementById('modalCadastrarPaciente'));
+
+function abrirModalCadastrar() {
+    document.getElementById('inputNome').value  = '';
+    document.getElementById('inputIdade').value = '';
+    document.getElementById('inputSexo').value  = '';
+    modalCadastrar.show();
+}
+
+document.getElementById('btnNovosPaciente').addEventListener('click', abrirModalCadastrar);
+const btnEmpty = document.getElementById('btnNovosPacienteEmpty');
+if (btnEmpty) btnEmpty.addEventListener('click', abrirModalCadastrar);
+
+document.getElementById('btnSalvarPaciente').addEventListener('click', function () {
+    const nome  = document.getElementById('inputNome').value.trim();
+    const idade = parseInt(document.getElementById('inputIdade').value);
+    const sexo  = document.getElementById('inputSexo').value;
+
+    if (!nome || isNaN(idade) || idade < 0 || !sexo) {
+        Swal.fire({ icon: 'warning', title: 'Atenção', text: 'Preencha todos os campos obrigatórios.' });
+        return;
+    }
+
+    const btn = this;
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Salvando...';
+
+    fetch('/Paciente/CadastrarPaciente', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nome, idade, sexo })
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) {
+            modalCadastrar.hide();
+            Swal.fire({ icon: 'success', title: 'Paciente cadastrado!', timer: 1400, showConfirmButton: false })
+                .then(() => location.reload());
+        } else {
+            Swal.fire({ icon: 'error', title: 'Erro', text: data.message || 'Erro ao cadastrar.' });
+            btn.disabled = false;
+            btn.innerHTML = '<i class="bi bi-check2 me-1"></i>Salvar';
+        }
+    })
+    .catch(() => {
+        Swal.fire({ icon: 'error', title: 'Erro', text: 'Erro de comunicação com o servidor.' });
+        btn.disabled = false;
+        btn.innerHTML = '<i class="bi bi-check2 me-1"></i>Salvar';
+    });
+});
+
+
+/* ══════════════════════════════════════════
+   EXCLUIR PACIENTE
+══════════════════════════════════════════ */
+function confirmarExclusao(id, nome, qtdPrescricoes) {
+    const temPrescricoes   = qtdPrescricoes > 0;
+    const textoPrescricoes = qtdPrescricoes === 1 ? '1 prescrição vinculada' : qtdPrescricoes + ' prescrições vinculadas';
+
+    Swal.fire({
+        icon: temPrescricoes ? 'warning' : 'question',
+        title: 'Excluir paciente?',
+        html: temPrescricoes
+            ? '<p>O paciente <strong>' + nome + '</strong> possui <strong>' + textoPrescricoes + '</strong>.</p>' +
+              '<p class="text-danger mb-0"><strong>Todas as prescrições serão permanentemente excluídas junto com o paciente.</strong></p>'
+            : '<p>Deseja excluir o paciente <strong>' + nome + '</strong>?</p>' +
+              '<p class="text-muted mb-0">Esta ação não pode ser desfeita.</p>',
+        showCancelButton: true,
+        confirmButtonText: 'Sim, excluir',
+        cancelButtonText: 'Cancelar',
+        confirmButtonColor: '#dc3545',
+        cancelButtonColor: '#6c757d',
+        reverseButtons: true
+    }).then(result => {
+        if (!result.isConfirmed) return;
+
+        fetch('/Paciente/DeletarPaciente?id=' + id, { method: 'DELETE' })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire({ icon: 'success', title: 'Paciente excluído', text: nome + ' foi removido com sucesso.', timer: 1800, showConfirmButton: false })
+                        .then(() => location.reload());
+                } else {
+                    Swal.fire({ icon: 'error', title: 'Erro', text: data.message || 'Não foi possível excluir.' });
+                }
+            })
+            .catch(() => Swal.fire({ icon: 'error', title: 'Erro', text: 'Erro de comunicação com o servidor.' }));
+    });
 }
 
 
+/* ══════════════════════════════════════════
+   MODAL — DETALHES DO PACIENTE
+══════════════════════════════════════════ */
+const modalDetalhes = new bootstrap.Modal(document.getElementById('modalDetalhesPaciente'));
 
-<fieldset>
+function abrirDetalhes(id) {
+    const body = document.getElementById('detalhesPacienteBody');
+    body.innerHTML = `
+        <div class="text-center py-4">
+            <div class="spinner-border text-primary"></div>
+            <p class="mt-2 text-muted small">Carregando...</p>
+        </div>`;
+    modalDetalhes.show();
 
-    <div id="loading" class="loading" style="display:none;">
-        <div class="loading-spinner"></div>
-    </div>
-
-
-    @{
-        int qtdArtigos = Model.PacienteICT.Count;
-        
-    }
-
-    <div class="containerProperty container w-100 p-3 border ">
-
-        <div class="containerGridArtigo">
-            <div style="display: flex; align-items: end">
-                <h4 style="color: white">Total de pacientes: @Html.DisplayFor(x => qtdArtigos)</h4>
-            </div>
-            <center><h1 style="color:white">Pacientes Analisados</h1></center>
-            
-        </div>
-       @*  <div class="containerGridArtigo">
-            <div>
-                <h4 style="color: white">
-                    Artigos analisados: @Html.DisplayFor(x => qtdAnalisados)
-                </h4>
-            </div> *@            
-        <div class="fieldset-content">
-            <div class="form-group">
-                <div class="table-responsive custom-table-responsive">
-
-                    <table class="table myTable custom-table">
-                        <thead>
-                            <tr>
-
-                                @{
-                                    string FilterName; string FilterData; string FilterAnalise;
-                                    FilterName = FilterData = FilterAnalise = "bi bi-funnel";
-
-                                    if (Model.Ordenacao == "nome")
-                                    {
-                                        FilterName = "bi bi-funnel-fill";
-                                    }
-                                    else if (Model.Ordenacao == "data")
-                                    {
-                                        FilterData = "bi bi-funnel-fill";
-                                    }
-                                    else if (Model.Ordenacao == "ict")
-                                    {
-                                        FilterAnalise = "bi bi-funnel-fill";
-                                    }
-
-                                }
-
-                                @*Local*@
-                                @* <th scope="col">Nome do artigo<a data-toggle="tooltip" data-placement="top" title="Filtrar por nome" href="/Analise/ArtigosPublicados?ordenacao=nome&pagina=@Model.Pagina" style="border:none" id="teste"><i class="@FilterName"></i></a></th>
-                                <th scope="col">Data do Upload<a data-toggle="tooltip" data-placement="top" title="Filtrar por Data" href="/Analise/ArtigosPublicados?ordenacao=data&pagina=@Model.Pagina" style="border:none"><i class="@FilterData"></i></a></th>
-                                <th scope="col">Análise RR<a data-toggle="tooltip" data-placement="top" title="Filtrar por Status Analise" href="/Analise/ArtigosPublicados?ordenacao=analise&pagina=@Model.Pagina" style="border:none"><i class="@FilterAnalise"></i></a></th>*@
-
-                                @*Publicado*@
-                            <th scope="col">Identidade Paciente<a data-toggle="tooltip" data-placement="top" title="Filtrar por identidade" href="PacientesAnalisados?ordenacao=nome&pagina=@Model.Pagina" style="border:none" id="teste"><i class="@FilterName"></i></a></th>
-                                <th scope="col">Data do Upload<a data-toggle="tooltip" data-placement="top" title="Filtrar por Data" href="PacientesAnalisados?ordenacao=data&pagina=@Model.Pagina" style="border:none"><i class="@FilterData"></i></a></th>
-                            <th scope="col">ICT<a data-toggle="tooltip" data-placement="top" title="Filtrar por ICT" href="PacientesAnalisados?ordenacao=analise&pagina=@Model.Pagina" style="border:none"><i class="@FilterAnalise"></i></a></th>
-
-                            <th scope="col"></th>
-
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @{
-                                int numeroPagina = 1;
-                                if (Model.Pagina > 0)
-                                    numeroPagina = Convert.ToInt32(Model.Pagina);
-
-                                int tamanhoPagina = 10;
-                            IPagedList<PacienteICT> pagedList = Model.PacienteICT.ToPagedList(numeroPagina, tamanhoPagina);
-
-                            }
-
-
-
-                            @foreach (var item in pagedList)
-                            {
-
-                                @using (Html.BeginForm("DeletarPaciente", "Paciente", Microsoft.AspNetCore.Mvc.Rendering.FormMethod.Post, new { id = "teste" + item.ID }))
-                                {
-
-                                    <tr class="spacer"><td colspan="2"></td></tr>
-                                    <tr scope="row">
-                                        <td class="MarcadorSize">
-
-                                            <b> @Html.DisplayFor(model => item.NomePaciente)</b>
-                                            
-                                        </td>
-
-                                        <td>
-                                            <div class="inputPercentual col-1 data">
-                                                <b>@Html.DisplayFor(model => item.dataCriacao)</b>
-                                                <span></span>
-                                            </div>
-                                        </td>
-
-                                        <td>
-                                            <div class="inputPercentual col-1">
-                                                <b>@Html.DisplayFor(model => item.ICT)</b>
-                                            </div>
-
-                                        </td>
-
-                                        <td>
-                                            <input asp-for="id" hidden type="number" id="paciente" value="@item.ID">                                                                                        
-                                            <input type="hidden" name="deleteClicked" value="false" />
-                                            <input type="hidden" name="pagina" value="@Model.Pagina" />
-                                            <input type="hidden" name="ordenacao" value="@Model.Ordenacao" />
-
-
-                                            <div>
-                                                
-                                                <button id="btn-Detalhar" hidden @* data-itemid="@item.Id"*@ class="btn btn-info submit-button @Html.DisplayFor(model => item.ID)">Detalhar análise</button>
-                                                <button type="button" class="btn delete-button" name="delete-button-@item.ID" id="@item.ID">
-                                                    <i class="fa fa-trash" aria-hidden="true"></i>
-                                                </button>
-                                            </div>                                            
-                                        </td>
-
-
-                                    </tr>
-                                    <tr class="spacer"><td colspan="2"></td></tr>
-
-                                }
-                            }
-
-
-                        </tbody>
-                    </table>
-                    <div>
-                        @{
-                            var ordenacao = Model.Ordenacao;
-                        }
-
-
-
-                    @Html.PagedListPager(pagedList, pagina => Url.Action("PacientesAnalisados", new { pagina, ordenacao = ordenacao }),
-                                 new PagedListRenderOptions
-                        {
-                            LiElementClasses = new string[] { "page-item" },
-                            UlElementClasses = new string[] { "pagination justify-content-center" },
-                            PageClasses = new string[] { "page-link" },
-                            //DisplayLinkToNextPage =X.PagedList.Web.Common.PagedListDisplayMode.Always,
-                            //DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
-                            MaximumPageNumbersToDisplay = 15,
-                            DisplayEllipsesWhenNotShowingAllPageNumbers = true,
-                        })
-
-                    </div>
-                    <div><button onclick="exportExcel()" class="btn btn-primary">Exportar ICT</button></div>
-                </div>
-            </div>
-        </div>
-        </div>
-
-
-    @await Html.PartialAsync("~/Views/Alertas/_Alertas.cshtml", Model.Alerta)
-
-
-</fieldset>
-
-<style>
-
-
-</style>
-
-<script type="text/javascript" src="~/js/Artigos.js"></script>
-
-<script>
-
-    function exportExcel() {                
-        $.ajax({
-            url: '@Url.Action("ExportarTodosPacientes", "Paciente")', // Substitua por sua action
-            type: 'GET',
-            contentType: 'application/json',
-            success: function (response) {
-
-                downloadExcel(response);
-
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Dados exportados com sucesso!',
-                    text: response.message,
-                    allowOutsideClick: false,
-                    allowEscapeKey: false,
-
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        location.reload(); // Substitua pela URL desejada
-                    }
-                });
-
-            },
-            error: function (xhr, status, error) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Erro ao exportar dados',
-                    text: xhr.responseText
-                });
+    fetch('/Paciente/DetalharPaciente?id=' + id)
+        .then(r => r.json())
+        .then(data => {
+            if (!data.success) {
+                body.innerHTML = '<p class="text-danger text-center py-3">Erro ao carregar dados do paciente.</p>';
+                return;
             }
+
+            const prescricoesHtml = data.prescricoes.length === 0
+                ? '<p class="text-muted text-center py-3 small">Nenhuma prescrição cadastrada para este paciente.</p>'
+                : data.prescricoes.map(r => `
+                    <div class="receita-item-modal">
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="bi bi-file-earmark-medical text-primary"></i>
+                            <span>${r.data}</span>
+                        </div>
+                        <span class="ict-score">ICT ${r.ict.toFixed(2)}</span>
+                    </div>`).join('');
+
+            if (data.anonimo) {
+                body.innerHTML = `
+                    <div class="text-center mb-4">
+                        <div class="modal-avatar-lg anonimo">?</div>
+                        <h5 class="fw-bold mb-1">
+                            ${data.nome}
+                            <span class="badge-sistema"><i class="bi bi-shield-lock-fill"></i> Sistema</span>
+                        </h5>
+                        <span class="text-muted small">Registro gerenciado pelo sistema</span>
+                    </div>
+                    <div class="anonimo-note anonimo-note-block mb-4">
+                        <i class="bi bi-info-circle-fill"></i>
+                        <span>Este registro agrupa todas as prescrições criadas sem identificação de paciente. Não pode ser editado ou excluído.</span>
+                    </div>
+                    <div class="mb-4">
+                        <div class="detail-row">
+                            <span class="detail-label">Total de prescrições</span>
+                            <span class="detail-value">${data.prescricoes.length}</span>
+                        </div>
+                    </div>
+                    <h6 class="fw-semibold mb-3">
+                        <i class="bi bi-file-earmark-medical me-2 text-primary"></i>Prescrições cadastradas
+                    </h6>
+                    ${prescricoesHtml}`;
+            } else {
+                const isFemale    = data.sexo === 'F';
+                const avatarClass = isFemale ? 'female' : '';
+                const sexoLabel   = isFemale ? 'Feminino' : 'Masculino';
+                const words       = data.nome.split(' ').filter(w => w.length > 0);
+                const iniciais    = words.length >= 2
+                    ? (words[0][0] + words[words.length - 1][0]).toUpperCase()
+                    : data.nome.substring(0, 2).toUpperCase();
+
+                body.innerHTML = `
+                    <div class="text-center mb-4">
+                        <div class="modal-avatar-lg ${avatarClass}">${iniciais}</div>
+                        <h5 class="fw-bold mb-1">${data.nome}</h5>
+                        <span class="text-muted small">${sexoLabel} · ${data.idade} ${data.idade === 1 ? 'ano' : 'anos'}</span>
+                    </div>
+                    <div class="mb-4">
+                        <div class="detail-row">
+                            <span class="detail-label">Data de cadastro</span>
+                            <span class="detail-value">${data.dataCriacao}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Total de prescrições</span>
+                            <span class="detail-value">${data.prescricoes.length}</span>
+                        </div>
+                    </div>
+                    <h6 class="fw-semibold mb-3">
+                        <i class="bi bi-file-earmark-medical me-2 text-primary"></i>Prescrições cadastradas
+                    </h6>
+                    ${prescricoesHtml}`;
+            }
+        })
+        .catch(() => {
+            body.innerHTML = '<p class="text-danger text-center py-3">Erro de comunicação com o servidor.</p>';
         });
-    }
-
-    function downloadExcel(data) {  
-           var rows = data.map(paciente => ({
-            NomePaciente: paciente.nomePaciente,
-               ICT: paciente.ict
-           }));
-
-           const wb = XLSX.utils.book_new();
-           const ws = XLSX.utils.json_to_sheet(rows);
-           XLSX.utils.book_append_sheet(wb, ws, 'Dados');
-           XLSX.writeFile(wb, 'Pacientes_Analisados.xlsx');
-       }
-
-
-
-
-    var deleteButtons = document.querySelectorAll('.delete-button');
-
-   
-
-    deleteButtons.forEach(function (button) {
-        button.addEventListener('click', function (event) {
-            var form = document.getElementById('teste' + button.id)
-            Swal.fire({
-                title: '<strong style="color:#f8bb86;">Atenção !</strong>',
-                type: 'warning',
-                html: 'Tem certeza que deseja deletar esse paciente?',
-                customClass: 'swal-wide',
-                showCloseButton: false,
-                showCancelButton: true,
-                focusConfirm: false,
-                allowOutsideClick: false,
-                confirmButtonText: ' Deletar ',
-                confirmButtonAriaLabel: 'Deletar',
-                cancelButtonText: 'Cancelar',
-                confirmButtonColor: '#dd3333',
-                cancelButtonColor: '#b2bcc5'
-
-            })
-                .then((result) => {
-                    if (result.value) {
-                        var ancestor = event.target.closest('td');
-                        var input = ancestor.querySelector('input[name="deleteClicked"]');
-                        input.value = 'true';
-                        form.submit();
-                    }
-                });
-        });
-    });
-
+}
 </script>
+}

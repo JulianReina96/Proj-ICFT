@@ -1,0 +1,163 @@
+@model Proj_ICFT.ModelsNew.PacienteICT
+
+@*
+   Modal de edição de prescrição — isolado e autocontido.
+   Reutiliza os endpoints /Medicamentos/BuscarMedicamentos e /CID/ListarCategoriasPorBloco
+   e os dados de referência injetados pelo controller (ViewBag.*Json).
+   Lógica em ~/js/prescricao-edit.js. IDs prefixados com "edit-" para não colidir.
+*@
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" />
+
+<style>
+    #modalEditarPrescricao .ep-col-header {
+        font-weight: 600; color: #4966b1; font-size: .9rem;
+        display: flex; align-items: center; gap: 6px; margin-bottom: 10px;
+    }
+    #modalEditarPrescricao .ep-card {
+        border: 1px solid #e3e7ef; border-radius: 8px; padding: 10px 12px;
+        margin-bottom: 8px; position: relative; background: #fff;
+    }
+    #modalEditarPrescricao .ep-card .ep-remove {
+        position: absolute; top: 8px; right: 8px; border: none; background: transparent;
+        color: #dc3545; cursor: pointer; font-size: .9rem;
+    }
+    #modalEditarPrescricao .ep-card-title { font-weight: 600; font-size: .88rem; padding-right: 22px; }
+    #modalEditarPrescricao .ep-card-sub { font-size: .78rem; color: #6c757d; }
+    #modalEditarPrescricao .ep-chip {
+        display: inline-block; background: #eef1fa; color: #4966b1; border-radius: 4px;
+        padding: 1px 7px; font-size: .72rem; font-weight: 600; margin: 2px 4px 0 0;
+    }
+    #modalEditarPrescricao .ep-empty { color: #adb5bd; font-size: .82rem; text-align: center; padding: 14px 0; }
+    #modalEditarPrescricao .ep-instrucoes-box { max-height: 130px; overflow: auto; border: 1px solid #e3e7ef; border-radius: 8px; padding: 8px 10px; }
+    #modalEditarPrescricao .ep-ict {
+        background: #f8f9ff; border: 1px solid #e3e7ef; border-radius: 8px; padding: 10px 12px; margin-top: 10px;
+    }
+    #modalEditarPrescricao .ep-ict-row { display: flex; justify-content: space-between; font-size: .82rem; padding: 2px 0; }
+    #modalEditarPrescricao .ep-ict-total { border-top: 1px dashed #cdd5e6; margin-top: 6px; padding-top: 6px; font-weight: 700; color: #4966b1; }
+    #modalEditarPrescricao .select2-container { z-index: 2000; }
+</style>
+
+<div class="modal fade" id="modalEditarPrescricao" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl modal-dialog-scrollable">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="bi bi-pencil-square me-2 text-primary"></i>Editar Prescrição
+                    <span class="text-muted small" id="edit-presc-id-label"></span>
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+            </div>
+
+            <div class="modal-body">
+                <input type="hidden" id="edit-prescricaoId" />
+
+                <div class="form-check form-switch mb-3">
+                    <input class="form-check-input" type="checkbox" id="edit-adesao" />
+                    <label class="form-check-label" for="edit-adesao">Adere ao tratamento</label>
+                </div>
+
+                <div class="row g-4">
+
+                    @* ── Coluna: Medicamento ── *@
+                    <div class="col-lg-6">
+                        <div class="ep-col-header"><i class="bi bi-capsule"></i> Adicionar medicamento</div>
+
+                        <div class="mb-2">
+                            <label class="form-label small mb-1">Medicamento</label>
+                            <select id="edit-remedio" class="form-select form-select-sm" style="width:100%"></select>
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label small mb-1">Forma de dosagem</label>
+                            <select id="edit-categorias" class="form-select form-select-sm">
+                                <option value="" disabled selected>Selecione a forma</option>
+                            </select>
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label small mb-1">Tipo</label>
+                            <select id="edit-subcategorias" class="form-select form-select-sm">
+                                <option value="">Selecione o tipo</option>
+                            </select>
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label small mb-1">Frequência</label>
+                            <select id="edit-frequencia" class="form-select form-select-sm">
+                                <option value="" disabled selected>Selecione a frequência</option>
+                            </select>
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label small mb-1">Instruções adicionais <span class="text-muted">(opcional)</span></label>
+                            <div class="ep-instrucoes-box" id="edit-instrucoes-box"></div>
+                        </div>
+                        <button type="button" class="btn btn-outline-primary btn-sm w-100" id="edit-addMedicamento">
+                            <i class="bi bi-plus-lg"></i> Adicionar medicamento
+                        </button>
+                    </div>
+
+                    @* ── Coluna: Enfermidades (CID) ── *@
+                    <div class="col-lg-6">
+                        <div class="ep-col-header">
+                            <i class="bi bi-heart-pulse"></i> Enfermidades (CID)
+                            <span class="text-muted small">(opcional)</span>
+                        </div>
+
+                        <div class="mb-2">
+                            <label class="form-label small mb-1">Grupo de enfermidades</label>
+                            <select id="edit-blocoCid" class="form-select form-select-sm" style="width:100%">
+                                <option value="">Selecione um grupo</option>
+                            </select>
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label small mb-1">Enfermidade</label>
+                            <select id="edit-enfermidadeId" class="form-select form-select-sm" style="width:100%" disabled>
+                                <option value="">Primeiro selecione um grupo</option>
+                            </select>
+                        </div>
+                        <button type="button" class="btn btn-outline-primary btn-sm w-100 mb-3" id="edit-addEnfermidade">
+                            <i class="bi bi-plus-lg"></i> Adicionar enfermidade
+                        </button>
+
+                        <div id="edit-cards-enfermidades"></div>
+                        <div id="edit-empty-enfermidades" class="ep-empty">Nenhuma enfermidade adicionada.</div>
+                    </div>
+                </div>
+
+                <hr class="my-3" />
+
+                @* ── Pré-visualização dos medicamentos ── *@
+                <div class="ep-col-header"><i class="bi bi-list-check"></i> Medicamentos da prescrição</div>
+                <div id="edit-cards-remedios"></div>
+                <div id="edit-empty-remedios" class="ep-empty">Nenhum medicamento adicionado.</div>
+
+                <div class="ep-ict" id="edit-ict-box" hidden>
+                    <div class="ep-ict-row"><span>Formas de dosagem <small class="text-muted">(1× por tipo distinto)</small></span><span id="edit-ict-formas">0.0</span></div>
+                    <div class="ep-ict-row"><span>Frequências</span><span id="edit-ict-freq">0.0</span></div>
+                    <div class="ep-ict-row"><span>Instruções adicionais</span><span id="edit-ict-instr">0.0</span></div>
+                    <div class="ep-ict-row ep-ict-total"><span>ICT estimado</span><span id="edit-ict-total">0.00</span></div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" id="edit-salvar">
+                    <i class="bi bi-check2-circle"></i> Salvar alterações
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+    window.__prescEditRef = {
+        pacienteId: @Model.ID,
+        categorias: @Html.Raw((string)ViewBag.CategoriasJson),
+        tiposPorCategoria: @Html.Raw((string)ViewBag.TiposPorCategoriaJson),
+        frequencias: @Html.Raw((string)ViewBag.FrequenciasJson),
+        instrucoes: @Html.Raw((string)ViewBag.InstrucoesJson),
+        blocos: @Html.Raw((string)ViewBag.BlocosJson)
+    };
+</script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script src="~/js/prescricao-edit.js" asp-append-version="true"></script>

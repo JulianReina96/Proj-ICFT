@@ -1,0 +1,423 @@
+/* ============================================================
+   ver-paciente.css — Tela de detalhamento do paciente
+   ============================================================ */
+
+/* ── página ─────────────────────────────────────────── */
+.vp-page {
+    background: var(--light-bg);
+    min-height: calc(100vh - 90px);
+    padding: 32px 28px 72px;
+    font-family: 'Roboto', sans-serif;
+}
+
+.vp-inner {
+    max-width: 960px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+/* ── link voltar ─────────────────────────────────────── */
+.vp-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 0.85rem;
+    color: var(--secondary);
+    text-decoration: none;
+    transition: color 0.15s;
+    width: fit-content;
+}
+
+.vp-back:hover { color: var(--primary); }
+
+/* ── card do paciente ───────────────────────────────── */
+.vp-header-card {
+    background: #fff;
+    border: 1px solid var(--medium-border);
+    border-radius: var(--radius);
+    padding: 24px 28px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    box-shadow: var(--shadow-sm);
+    flex-wrap: wrap;
+}
+
+.vp-avatar {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: var(--primary);
+    color: #fff;
+    font-size: 1.5rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.vp-avatar.female  { background: var(--female-color, #c0396e); }
+.vp-avatar.anonimo { background: var(--secondary); font-size: 1.7rem; }
+
+.vp-header-info { flex: 1; min-width: 0; }
+
+.vp-name-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 6px;
+}
+
+.vp-name {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--dark-text);
+    margin: 0;
+}
+
+.vp-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    font-size: 0.83rem;
+    color: var(--secondary);
+}
+
+.vp-meta i { margin-right: 3px; }
+
+.vp-meta-anonimo {
+    font-size: 0.83rem;
+    color: var(--secondary);
+    margin: 0;
+}
+
+/* ── stats ──────────────────────────────────────────── */
+.vp-stats-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+}
+
+.vp-stat-card {
+    background: #fff;
+    border: 1px solid var(--medium-border);
+    border-radius: var(--radius);
+    padding: 18px 20px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    box-shadow: var(--shadow-sm);
+}
+
+.stat-icon-purple { background: #f0ebff; color: #6f42c1; }
+.stat-icon-orange { background: #fff3e0; color: #e67e22; }
+
+/* ── título de seção ────────────────────────────────── */
+.vp-section-title {
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--secondary);
+}
+
+/* ── lista de receitas ──────────────────────────────── */
+.vp-receitas-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.vp-receita-card {
+    background: #fff;
+    border: 1px solid var(--medium-border);
+    border-radius: var(--radius);
+    padding: 18px 22px;
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    box-shadow: var(--shadow-sm);
+    transition: box-shadow 0.15s;
+    flex-wrap: wrap;
+}
+
+.vp-receita-card:hover { box-shadow: var(--shadow); }
+
+.vp-receita-num {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--secondary);
+    min-width: 28px;
+    text-align: center;
+}
+
+.vp-receita-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 1;
+    min-width: 0;
+}
+
+.vp-receita-data {
+    font-size: 0.9rem;
+    color: var(--dark-text);
+    font-weight: 500;
+}
+
+.vp-receita-meds-count {
+    font-size: 0.78rem;
+    color: var(--secondary);
+}
+
+.vp-receita-data i,
+.vp-receita-meds-count i { margin-right: 4px; }
+
+.vp-receita-ict {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: var(--primary);
+    color: #fff;
+    border-radius: 10px;
+    padding: 8px 18px;
+    min-width: 72px;
+    text-align: center;
+}
+
+.vp-ict-label { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; opacity: 0.85; }
+.vp-ict-value { font-size: 1.15rem; font-weight: 700; line-height: 1.1; }
+
+.vp-receita-adesao {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    border-radius: 20px;
+    padding: 5px 13px;
+}
+
+.vp-receita-adesao.aderiu     { background: #e6f4ea; color: var(--success); }
+.vp-receita-adesao.nao-aderiu { background: #fdecea; color: var(--danger); }
+
+.btn-ver-receita {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 7px 16px;
+    font-size: 0.83rem;
+    font-weight: 500;
+    color: var(--body-text);
+    cursor: pointer;
+    transition: border-color 0.15s, color 0.15s, background 0.15s;
+    white-space: nowrap;
+}
+
+.btn-ver-receita:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+    background: var(--primary-light);
+}
+
+.btn-exportar-excel {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    background: #1d6f42;
+    border: none;
+    border-radius: 8px;
+    padding: 9px 18px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #fff;
+    cursor: pointer;
+    transition: background 0.15s, box-shadow 0.15s;
+    white-space: nowrap;
+    text-decoration: none;
+}
+
+.btn-exportar-excel:hover {
+    background: #155232;
+    box-shadow: 0 2px 8px rgba(29,111,66,0.25);
+}
+
+/* ── empty state ────────────────────────────────────── */
+.vp-empty {
+    text-align: center;
+    padding: 56px 24px;
+    color: var(--secondary);
+}
+
+.vp-empty i { font-size: 3rem; display: block; margin-bottom: 12px; color: var(--border); }
+.vp-empty p { margin-bottom: 20px; }
+
+/* ══════════════════════════════════════════════════════
+   MODAL — conteúdo da receita
+══════════════════════════════════════════════════════ */
+
+/* cabeçalho da receita no modal */
+.rm-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: 24px;
+    padding-bottom: 18px;
+    border-bottom: 1px solid var(--medium-border);
+    flex-wrap: wrap;
+}
+
+.rm-header-left {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.rm-data {
+    font-size: 0.9rem;
+    color: var(--body-text);
+}
+
+.rm-badge {
+    display: inline-flex;
+    align-items: center;
+    border-radius: 20px;
+    padding: 4px 12px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.rm-badge-success { background: #e6f4ea; color: var(--success); }
+.rm-badge-danger  { background: #fdecea; color: var(--danger); }
+
+.rm-ict-block {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: var(--primary);
+    color: #fff;
+    border-radius: 12px;
+    padding: 12px 24px;
+    text-align: center;
+}
+
+.rm-ict-label { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; opacity: 0.85; }
+.rm-ict-value { font-size: 1.9rem; font-weight: 700; line-height: 1; }
+
+/* título de seção interna */
+.rm-section-title {
+    font-size: 0.82rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--secondary);
+    margin: 20px 0 12px;
+}
+
+/* card de medicamento */
+.rm-med-card {
+    display: flex;
+    gap: 14px;
+    background: var(--light-bg);
+    border: 1px solid var(--medium-border);
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-bottom: 10px;
+}
+
+.rm-med-num {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--secondary);
+    min-width: 20px;
+    padding-top: 2px;
+}
+
+.rm-med-body { flex: 1; min-width: 0; }
+
+.rm-med-name {
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: var(--dark-text);
+    margin: 0 0 10px;
+}
+
+.rm-med-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px 16px;
+}
+
+.rm-full-col { grid-column: 1 / -1; }
+
+.rm-detail-label {
+    display: block;
+    font-size: 0.67rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--secondary);
+    margin-bottom: 2px;
+}
+
+.rm-detail-value {
+    display: block;
+    font-size: 0.85rem;
+    color: var(--dark-text);
+}
+
+.rm-instrucoes { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+
+.rm-instrucao-chip {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 3px 10px;
+    font-size: 0.78rem;
+    color: var(--body-text);
+}
+
+/* lista de CIDs */
+.rm-cid-list { display: flex; flex-direction: column; gap: 8px; }
+
+.rm-cid-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--light-bg);
+    border: 1px solid var(--medium-border);
+    border-radius: 8px;
+    padding: 10px 14px;
+}
+
+.rm-cid-code {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--primary);
+    background: var(--primary-light);
+    border-radius: 6px;
+    padding: 2px 8px;
+    white-space: nowrap;
+}
+
+.rm-cid-title {
+    font-size: 0.85rem;
+    color: var(--dark-text);
+}
+
+/* ── responsivo ─────────────────────────────────────── */
+@media (max-width: 680px) {
+    .vp-page         { padding: 20px 14px 48px; }
+    .vp-stats-row    { grid-template-columns: 1fr; }
+    .vp-header-card  { flex-direction: column; align-items: flex-start; }
+    .vp-receita-card { gap: 12px; }
+    .rm-med-grid     { grid-template-columns: 1fr; }
+}

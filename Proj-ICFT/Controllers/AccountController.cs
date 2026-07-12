@@ -3,6 +3,7 @@ using FirebaseAdmin;
 using FirebaseAdmin.Auth;
 using Google.Apis.Auth.OAuth2;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using Proj_ICFT.Models;
 using Proj_ICFT.Models.DTO;
@@ -15,13 +16,17 @@ namespace Proj_ICFT.Controllers
     public class AccountController : Controller
     {
         FirebaseAuthProvider auth;
+        private readonly FeatureFlags _features;
 
-        public AccountController()
+        public AccountController(IOptions<FeatureFlags> features)
         {
             auth = new FirebaseAuthProvider(
                             new FirebaseConfig("AIzaSyCY6ZiTuU3iDVMe37SK2p1oWCCoe7ltEV4"));
-
+            _features = features.Value;
         }
+
+        private bool Logado() =>
+            !string.IsNullOrEmpty(HttpContext.Session.GetString("_UserToken"));
         public IActionResult Index()
         {
             return View();
@@ -32,9 +37,11 @@ namespace Proj_ICFT.Controllers
             return View();
         }
 
-        [SessionFilter]
         public IActionResult Register()
         {
+            if (!_features.CadastroPublico && !Logado())
+                return RedirectToAction("Login");
+
             return View();
         }
 
@@ -55,6 +62,7 @@ namespace Proj_ICFT.Controllers
                 if (firebaseAuthLink.FirebaseToken != null)
                 {
                     HttpContext.Session.SetString("_UserToken", firebaseAuthLink.FirebaseToken);
+                    HttpContext.Session.SetString("_UserEmail", Adm.Email);
                     var usertoken = HttpContext.Session.GetString("_UserToken");
                     HttpClient httpClient = new HttpClient();
                     httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {firebaseAuthLink.FirebaseToken}");
@@ -106,10 +114,14 @@ namespace Proj_ICFT.Controllers
                 }
             }
 
-            catch (Exception ex)
+            catch (Firebase.Auth.FirebaseAuthException)
             {
-                TempData["ErrorMessage"] = "Não foi possivel realizar o login. Tente novamente em alguns instantes" + ex.Message;
-
+                TempData["ErrorMessage"] = "E-mail ou senha incorretos.";
+                return View("Login");
+            }
+            catch
+            {
+                TempData["ErrorMessage"] = "Não foi possível realizar o login. Tente novamente em alguns instantes.";
                 return View("Login");
             }
         }
@@ -148,9 +160,12 @@ namespace Proj_ICFT.Controllers
             }
         }
 
-        [SessionFilter]
+        [HttpPost]
         public async Task<IActionResult> NewRegister(AdministradorDTO user)
         {
+            if (!_features.CadastroPublico && !Logado())
+                return RedirectToAction("Login");
+
             try
             {
                 ModelUrlJson url = new ModelUrlJson();

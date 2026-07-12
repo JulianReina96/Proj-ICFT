@@ -1,110 +1,395 @@
-﻿
 @using Proj_ICFT.Models.DTO
+@inject Microsoft.Extensions.Options.IOptions<Proj_ICFT.Models.FeatureFlags> Features
 @model AdministradorDTO
 @{
     ViewData["Title"] = "Login";
+    Layout = "_Layout";
 }
 
-<body>
-    <div style="margin-top: 85px">
-        <div class="container-sm containerProperty  w-100 p-3 border ">
-            @using (Html.BeginForm("Signin2", "Account", FormMethod.Post)) //alterar para caminho da controller
-            {
-                <center><h1 style="color:white">Acesso ao Portal</h1></center>
-                <center><img src="~/img/ictLogo.png" width="200px" class="logoLogin"></center>
+<div class="login-page">
+    <div class="login-card" data-aos="fade-up">
 
-
-                <div class="col-md-6 offset-md-3">
-                    <label asp-for="Email"></label>
-                    <div class="col-md-12">
-                        <input asp-for="Email" class="form-control" id="login" aria-describedby="login" placeholder=" Insira o login" required>
-                        <span asp-validation-for="Email" class="text-danger"></span>
-                    </div>
+        <!-- Painel esquerdo -->
+        <div class="login-left">
+            <div class="login-left-content">
+                <div class="login-left-top">
+                    <h2 class="login-welcome">Bem-vindo(a) de volta!</h2>
+                    <p class="login-subtitle">Acesse o portal e gerencie prescrições,<br>pacientes e muito mais.</p>
                 </div>
 
-                <div class="col-md-6 offset-md-3">
-                    <label asp-for="Senha"></label>
-                    <div class="col-md-12">
-                        <input asp-for="Senha" type="password" class="form-control" id="senha" placeholder="Senha" required>
-                        <span asp-validation-for="Senha" class="text-danger"></span>
+                <div class="login-illustration">
+                    <img src="~/img/ictLogo.png" alt="ICFT Logo" class="login-illus-img" />
+                </div>
 
+                <div class="login-security-badge">
+                    <i class="bi bi-shield-check-fill"></i>
+                    <div>
+                        <strong>Seus dados protegidos</strong>
+                        <span>Segurança e privacidade são nossa prioridade.</span>
                     </div>
                 </div>
-                <center>
-                    <button type="submit" id="btnLogin" class="btn btn-primary btn-lg btn-block" style="width: 200px; margin: 15px">Login</button>
-                </center>
-
-            }
-            @*<partial name="~/Views/Alertas/_Alertas.cshtml" for="Alertas" view-data="ViewData"/>*@
-
-            @await Html.PartialAsync(Alerta.ALERTAS)
-            <form action="~/Account/ForgotPassword">
-                <center>
-                    <button type="submit" id="btnForgot" class="btn btn-primary btn-lg btn-block" style="width: 150px;height: 30px;font-size: small;line-height: 0px;">Esqueci a senha</button>
-                </center>
-            </form>
-
+            </div>
         </div>
 
-        <!--Redirecionamento pela url local, alterar ao final do projeto-->
+        <!-- Painel direito -->
+        <div class="login-right">
+            <div class="login-form-wrap">
+                <h1 class="login-title">Acesso ao Portal</h1>
+                <p class="login-hint">Informe suas credenciais para continuar.</p>
 
+                @using (Html.BeginForm("Signin2", "Account", FormMethod.Post))
+                {
+                    <div class="lf-group">
+                        <label class="lf-label" asp-for="Email">Email</label>
+                        <div class="lf-input-wrap">
+                            <i class="bi bi-envelope lf-icon"></i>
+                            <input asp-for="Email" type="email" class="lf-input" placeholder="seu@email.com" required />
+                        </div>
+                        <span asp-validation-for="Email" class="lf-error"></span>
+                    </div>
 
-        <button id="btnLoginGoogle" onclick="login()" class="btn btn-primary btn-lg btn-block col-md-6 offset-md-3" hidden>Google</button>
+                    <div class="lf-group">
+                        <label class="lf-label" asp-for="Senha">Senha</label>
+                        <div class="lf-input-wrap">
+                            <i class="bi bi-lock lf-icon"></i>
+                            <input asp-for="Senha" type="password" class="lf-input" id="senhaInput" placeholder="••••••••" required />
+                            <button type="button" class="lf-eye" onclick="toggleSenha()" tabindex="-1">
+                                <i class="bi bi-eye" id="eyeIcon"></i>
+                            </button>
+                        </div>
+                        <span asp-validation-for="Senha" class="lf-error"></span>
+                    </div>
 
-        @*<script src="https://www.gstatic.com/firebasejs/9.17.2/firebase-app.js"></script>
-        <script src="https://www.gstatic.com/firebasejs/6.2.0/firebase-auth.js"></script>
+                    <div class="lf-row">
+                        <label class="lf-remember">
+                            <input type="checkbox" name="lembrar" />
+                            <span>Lembrar meu acesso</span>
+                        </label>
+                        <a href="/Account/ForgotPassword" class="lf-forgot">Esqueci a senha</a>
+                    </div>
 
-        <script>
+                    <button type="submit" class="lf-btn-submit">
+                        <i class="bi bi-box-arrow-in-right"></i> Entrar
+                    </button>
+                }
 
-        const firebaseConfig = {
-        apiKey: "AIzaSyCk1aomK6uaqR2q0hglXd-36cxqPDZTaEw",
-        authDomain: "prac-f7996.firebaseapp.com",
-        projectId: "prac-f7996",
-        storageBucket: "prac-f7996.appspot.com",
-        messagingSenderId: "24438927052",
-        appId: "1:24438927052:web:220c20decf46210bea1c69",
-        measurementId: "G-LDQN1Z2L22"
-        };
+                @if (Features.Value.CadastroPublico)
+                {
+                    <p class="lf-login-link">Não tem conta? <a href="/Account/Register">Cadastre-se</a></p>
+                }
 
-        // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
-        var provider = new firebase.auth.GoogleAuthProvider();
-        provider.addScope('https://www.googleapis.com/auth/contacts.readonly');
-        function login() {
-
-
-        firebase.auth().signInWithPopup(provider).then(function (result) {
-        // ESTE NÃO É O JWT, É O TOKEN PARA OBTER INFOS DO GOOGLE
-        var token = result.credential.accessToken;
-        console.log("!!!");
-        var user = result.user;
-        firebase.auth()
-        .currentUser
-        .getIdToken()
-        .then((idToken) => {
-        // ESTE É O TOKEN JWT QUE VAMOS MANDAR PARA API
-        console.log(idToken);
-
-        // chamo controller Front -> Controller Web API
-
-        }).catch(function (error) {
-        console.log(error);
-
-        Swal.fire({
-        title: 'Usuário não autorizado',
-        icon: 'error',
-        confirmButtonText: 'Ok'
-        })
-        });
-        }).catch(function (error) {
-        // DEU RUIM
-        console.log(error);
-        });
-        }
-
-
-        </script>
-        *@
+                @await Html.PartialAsync(Alerta.ALERTAS)
+            </div>
+        </div>
 
     </div>
-</body>
+</div>
+
+<style>
+    .login-page {
+        min-height: calc(100vh - 80px);
+        background: #eef2fb;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 40px 16px;
+    }
+
+    .login-card {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        max-width: 900px;
+        width: 100%;
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 8px 40px rgba(0, 0, 0, 0.13);
+    }
+
+    /* ── Painel esquerdo ── */
+    .login-left {
+        background: linear-gradient(145deg, #3a56a0 0%, #4966b1 100%);
+        padding: 52px 44px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .login-left::before {
+        content: '';
+        position: absolute;
+        width: 260px;
+        height: 260px;
+        background: rgba(255,255,255,0.06);
+        border-radius: 50%;
+        top: -80px;
+        right: -80px;
+    }
+
+    .login-left::after {
+        content: '';
+        position: absolute;
+        width: 180px;
+        height: 180px;
+        background: rgba(255,255,255,0.05);
+        border-radius: 50%;
+        bottom: 40px;
+        left: -60px;
+    }
+
+    .login-left-content {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        gap: 32px;
+        position: relative;
+        z-index: 1;
+    }
+
+    .login-brand-icon {
+        font-size: 2rem;
+        color: rgba(255,255,255,0.7);
+        margin-bottom: 4px;
+    }
+
+    .login-welcome {
+        color: #fff;
+        font-size: 1.6rem;
+        font-weight: 700;
+        margin: 0;
+        line-height: 1.3;
+    }
+
+    .login-subtitle {
+        color: rgba(255,255,255,0.8);
+        font-size: 0.92rem;
+        margin: 0;
+        line-height: 1.6;
+    }
+
+    .login-illustration {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .login-illus-img {
+        max-width: 200px;
+        width: 100%;
+        border-radius: 16px;
+        box-shadow: 0 4px 24px rgba(0,0,0,0.18);
+    }
+
+    .login-security-badge {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        background: rgba(255,255,255,0.12);
+        border-radius: 12px;
+        padding: 14px 16px;
+    }
+
+    .login-security-badge > i {
+        font-size: 1.4rem;
+        color: rgba(255,255,255,0.9);
+        flex-shrink: 0;
+    }
+
+    .login-security-badge strong {
+        display: block;
+        color: #fff;
+        font-size: 0.88rem;
+        font-weight: 700;
+    }
+
+    .login-security-badge span {
+        display: block;
+        color: rgba(255,255,255,0.7);
+        font-size: 0.78rem;
+    }
+
+    /* ── Painel direito ── */
+    .login-right {
+        background: #fff;
+        padding: 52px 44px;
+        display: flex;
+        align-items: center;
+    }
+
+    .login-form-wrap { width: 100%; }
+
+    .login-title {
+        font-size: 1.55rem;
+        font-weight: 700;
+        color: #1a1f36;
+        margin: 0 0 6px;
+    }
+
+    .login-hint {
+        font-size: 0.88rem;
+        color: #6c757d !important;
+        margin: 0 0 28px;
+    }
+
+    /* ── Campos ── */
+    .lf-group { margin-bottom: 18px; }
+
+    .lf-label {
+        display: block;
+        font-size: 0.82rem;
+        font-weight: 600;
+        color: #374151;
+        margin-bottom: 6px;
+    }
+
+    .lf-input-wrap {
+        position: relative;
+        display: flex;
+        align-items: center;
+    }
+
+    .lf-icon {
+        position: absolute;
+        left: 14px;
+        color: #9ca3af;
+        font-size: 0.9rem;
+        pointer-events: none;
+    }
+
+    .lf-input {
+        width: 100%;
+        padding: 11px 42px 11px 38px;
+        border: 1.5px solid #e5e7eb;
+        border-radius: 10px;
+        font-size: 0.9rem;
+        color: #1a1f36;
+        background: #f9fafb;
+        outline: none;
+        transition: border-color 0.15s, box-shadow 0.15s;
+        box-sizing: border-box;
+    }
+
+    .lf-input:focus {
+        border-color: #4966b1;
+        box-shadow: 0 0 0 3px rgba(73, 102, 177, 0.15);
+        background: #fff;
+    }
+
+    .lf-eye {
+        position: absolute;
+        right: 12px;
+        background: none;
+        border: none;
+        color: #9ca3af;
+        cursor: pointer;
+        padding: 4px;
+        font-size: 0.9rem;
+        line-height: 1;
+    }
+
+    .lf-eye:hover { color: #4966b1; }
+
+    .lf-error {
+        display: block;
+        font-size: 0.78rem;
+        color: #dc3545;
+        margin-top: 4px;
+    }
+
+    /* ── Linha lembrar / esqueci ── */
+    .lf-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 24px;
+    }
+
+    .lf-remember {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.85rem;
+        color: #374151;
+        cursor: pointer;
+    }
+
+    .lf-remember input[type="checkbox"] {
+        width: 15px;
+        height: 15px;
+        accent-color: #4966b1;
+        cursor: pointer;
+        flex-shrink: 0;
+    }
+
+    .lf-forgot {
+        font-size: 0.85rem;
+        color: #4966b1;
+        text-decoration: none;
+        font-weight: 500;
+    }
+
+    .lf-forgot:hover { text-decoration: underline; }
+
+    /* ── Botão submit ── */
+    .lf-btn-submit {
+        width: 100%;
+        padding: 13px;
+        background: #4966b1;
+        color: #fff;
+        font-size: 0.95rem;
+        font-weight: 600;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        transition: background 0.15s, transform 0.1s;
+    }
+
+    .lf-btn-submit:hover { background: #3a56a0; transform: translateY(-1px); }
+    .lf-btn-submit:active { transform: translateY(0); }
+
+    /* ── Link de cadastro ── */
+    .lf-login-link {
+        text-align: center;
+        font-size: 0.85rem;
+        color: #6c757d;
+        margin-top: 20px;
+        margin-bottom: 0;
+    }
+
+    .lf-login-link a {
+        color: #4966b1;
+        font-weight: 600;
+        text-decoration: none;
+    }
+
+    .lf-login-link a:hover { text-decoration: underline; }
+
+    /* ── Responsivo ── */
+    @@media (max-width: 680px) {
+        .login-card { grid-template-columns: 1fr; }
+        .login-left { display: none; }
+        .login-right { padding: 40px 28px; }
+    }
+</style>
+
+@section Scripts {
+    <script>
+        function toggleSenha() {
+            const input = document.getElementById('senhaInput');
+            const icon = document.getElementById('eyeIcon');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.className = 'bi bi-eye-slash';
+            } else {
+                input.type = 'password';
+                icon.className = 'bi bi-eye';
+            }
+        }
+    </script>
+}

@@ -1,7 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Proj_ICFT.Data;
+using Proj_ICFT.DataNew;
 using Proj_ICFT.Models;
 using Proj_ICFT.Models.ViewModels;
+using Proj_ICFT.ModelsNew;
 using Proj_ICFT.Services.UsuariosService.Interface;
 
 namespace Proj_ICFT.Services.UsuariosService.Implementacao
@@ -9,16 +10,16 @@ namespace Proj_ICFT.Services.UsuariosService.Implementacao
     public class UsuarioService : IUsuarioService
     {
 
-        private readonly UsuariosDbContext _usuariosDbContext;
-        public UsuarioService(UsuariosDbContext usuariosDbContext)
+        private readonly AppDbContextNew _appDbContextNew;
+        public UsuarioService(AppDbContextNew appDbContextNew)
         {
-            _usuariosDbContext = usuariosDbContext;
+            _appDbContextNew = appDbContextNew;
         }
 
 
-        public Usuarios GetUsuarioByEmail(string email) 
+        public Usuario GetUsuarioByEmail(string email)
         {
-            return _usuariosDbContext.Usuarios.Include(r => r.Usuario == email).FirstOrDefault();
+            return _appDbContextNew.Usuarios.FirstOrDefault(u => u.Usuario1 == email);
         }
 
         public void CadastrarUsuario(UsuarioViewModel usuario) 
@@ -26,12 +27,12 @@ namespace Proj_ICFT.Services.UsuariosService.Implementacao
             try
             {
 
-                Usuarios usuarioEntity = new Usuarios();
-                usuarioEntity.Usuario = usuario.Usuario;
+                Usuario usuarioEntity = new Usuario();
+                usuarioEntity.Usuario1 = usuario.Usuario;
                 usuarioEntity.DataCriacao = usuario.DataCriacao;
 
-                _usuariosDbContext.Add(usuarioEntity);
-                _usuariosDbContext.SaveChanges();
+                _appDbContextNew.Usuarios.Add(usuarioEntity);
+                _appDbContextNew.SaveChanges();
             }
             catch (Exception ex) 
             {

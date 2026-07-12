@@ -21,7 +21,7 @@
 /* Colors */
 :root {
     --color-default: #222222;
-    --color-primary: #008d7d;
+    --color-primary: #4966b1;
     --color-secondary: #f85a40;
     /*#008d7d*/
 }
@@ -45,7 +45,7 @@ a {
 }
 
     a:hover {
-        color: #00b6a1;
+        color: #3a56a0;
         text-decoration: none;
     }
 
@@ -333,6 +333,58 @@ section {
         .header .logo h1 span {
             color: #f96f59;
         }
+
+/* ── Wordmark "Simply Pharm" (cabeçalho e rodapé) ── */
+.brand-wordmark {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    flex-shrink: 0;
+    text-decoration: none;
+    line-height: 1;
+    white-space: nowrap;
+}
+
+    .brand-wordmark .brand-icon {
+        font-size: 1.85rem;
+        color: #fff;
+        transform: rotate(-45deg);
+        display: inline-block;
+    }
+
+    .brand-wordmark .brand-text {
+        font-family: var(--font-primary);
+        font-size: 1.6rem;
+        letter-spacing: 0.4px;
+    }
+
+    .brand-wordmark .brand-simply {
+        font-weight: 400;
+        color: rgba(255, 255, 255, 0.9);
+    }
+
+    .brand-wordmark .brand-pharm {
+        font-weight: 800;
+        color: #fff;
+    }
+
+.brand-wordmark-footer .brand-icon {
+    font-size: 1.35rem;
+}
+
+.brand-wordmark-footer .brand-text {
+    font-size: 1.2rem;
+}
+
+@media (max-width: 575.98px) {
+    .brand-wordmark .brand-icon {
+        font-size: 1.5rem;
+    }
+
+    .brand-wordmark .brand-text {
+        font-size: 1.3rem;
+    }
+}
 
 .sticked-header-offset {
     margin-top: 70px;
@@ -673,7 +725,7 @@ section {
 .about .play-btn {
     width: 94px;
     height: 94px;
-    background: radial-gradient(var(--color-primary) 50%, rgba(0, 131, 116, 0.4) 52%);
+    background: radial-gradient(var(--color-primary) 50%, rgba(73, 102, 177, 0.4) 52%);
     border-radius: 50%;
     display: block;
     position: absolute;
@@ -867,7 +919,7 @@ section {
     width: 94px;
     height: 94px;
     margin-bottom: 20px;
-    background: radial-gradient(var(--color-primary) 50%, rgba(0, 131, 116, 0.4) 52%);
+    background: radial-gradient(var(--color-primary) 50%, rgba(73, 102, 177, 0.4) 52%);
     border-radius: 50%;
     display: inline-block;
     position: relative;
@@ -2611,13 +2663,27 @@ section {
 
 
 /*--------------------------------------------------------------
+# Sticky footer — mantém o rodapé no fim da janela em páginas curtas
+--------------------------------------------------------------*/
+body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+    body > .container-fluid.p-0 {
+        flex: 1 0 auto;
+    }
+
+/*--------------------------------------------------------------
 # Footer
 --------------------------------------------------------------*/
 .footer {
     font-size: 14px;
     background-color: var(--color-primary);
-    padding: 50px 0;
+    padding: 10px 0;
     color: white;
+    flex-shrink: 0;
 }
 
     .footer .footer-info .logo {
@@ -3388,12 +3454,12 @@ tr#filhos {
 
 .control:hover input ~ .control__indicator,
 .control input:focus ~ .control__indicator {
-    border: 2px solid #007bff;
+    border: 2px solid #4966b1;
 }
 
 .control input:checked ~ .control__indicator {
-    border: 2px solid #007bff;
-    background: #007bff;
+    border: 2px solid #4966b1;
+    background: #4966b1;
 }
 
 .control input:disabled ~ .control__indicator {
@@ -3428,9 +3494,9 @@ tr#filhos {
 }
 
 .control--checkbox input:disabled:checked ~ .control__indicator {
-    background-color: #007bff;
+    background-color: #4966b1;
     opacity: .2;
-    border: 2px solid #007bff;
+    border: 2px solid #4966b1;
 }
 
 .ui-spinner-button {
@@ -3459,7 +3525,7 @@ tr#filhos {
     color: #222222;
 }
 
-/*Sess�o resultados*/
+/*Sess�o resultados*/
 
 .resultados {
     border: 1px solid #32CD3200;

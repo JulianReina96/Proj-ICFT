@@ -1,0 +1,82 @@
+@startuml diagrama-casos-uso
+!pragma layout smetana
+left to right direction
+skinparam dpi 200
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam usecase {
+  BackgroundColor #FFFFFF
+  BorderColor #555555
+}
+
+actor "Usuário" as U
+
+rectangle "Simply Pharm" {
+
+  package "Autenticação" {
+    usecase "Registrar-se"        as UC_reg
+    usecase "Login"               as UC_login
+    usecase "Recuperar senha"     as UC_senha
+  }
+
+  package "Pacientes" {
+    usecase "Cadastrar paciente"          as UC_pac_add
+    usecase "Visualizar pacientes"        as UC_pac_ver
+    usecase "Excluir paciente"            as UC_pac_del
+    usecase "Validar exclusão"            as UC_pac_val
+    usecase "Exportar dados do paciente"  as UC_pac_exp
+  }
+
+  package "Prescrições" {
+    usecase "Cadastrar prescrição"        as UC_presc_add
+    usecase "Calcular ICT (MRCI)"         as UC_ict
+    usecase "Associar diagnóstico (CID)"  as UC_cid
+    usecase "Visualizar prescrições"      as UC_presc_ver
+    usecase "Gerar PDF da prescrição"     as UC_presc_pdf
+    usecase "Editar prescrição"           as UC_presc_edit
+    usecase "Excluir prescrição"          as UC_presc_del
+  }
+
+  package "Evolução Clínica" {
+    usecase "Registrar evolução (SOAP)"        as UC_evo_add
+    usecase "Visualizar evoluções e gráficos"  as UC_evo_ver
+    usecase "Editar evolução"                  as UC_evo_edit
+    usecase "Excluir evolução"                 as UC_evo_del
+  }
+
+  package "Relatórios" {
+    usecase "Gerar relatórios analíticos"  as UC_rel
+    usecase "Exportar relatórios (Excel)"  as UC_rel_exp
+  }
+
+  ' ── Relações entre casos de uso ──
+  UC_pac_del    ..> UC_pac_val    : <<include>>
+  UC_presc_add  ..> UC_ict        : <<include>>
+  UC_cid        ..> UC_presc_add  : <<extend>>
+  UC_presc_edit ..> UC_presc_ver  : <<extend>>
+  UC_presc_del  ..> UC_presc_ver  : <<extend>>
+  UC_evo_edit   ..> UC_evo_ver    : <<extend>>
+  UC_evo_del    ..> UC_evo_ver    : <<extend>>
+  UC_rel_exp    ..> UC_rel        : <<extend>>
+}
+
+' ── Ator → casos de uso ──
+U --> UC_reg
+U --> UC_login
+U --> UC_senha
+
+U --> UC_pac_add
+U --> UC_pac_ver
+U --> UC_pac_del
+U --> UC_pac_exp
+
+U --> UC_presc_add
+U --> UC_presc_ver
+U --> UC_presc_pdf
+
+U --> UC_evo_add
+U --> UC_evo_ver
+
+U --> UC_rel
+
+@enduml
