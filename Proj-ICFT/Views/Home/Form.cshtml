@@ -120,7 +120,7 @@
                             <option value="" disabled selected>Selecione a frequência</option>
                             @foreach (var option in Model.Frequencias)
                             {
-                                <option value="@option.id" data-peso="@option.Peso">@option.Name</option>
+                                <option value="@option.id" data-peso="@option.Peso.ToString(System.Globalization.CultureInfo.InvariantCulture)">@option.Name</option>
                             }
                         </select>
                     </div>
@@ -141,7 +141,7 @@
                                                id="instrucao_@option.id"
                                                name="InstrucoesAdicionais"
                                                value="@option.id"
-                                               data-peso="@option.Peso" />
+                                               data-peso="@option.Peso.ToString(System.Globalization.CultureInfo.InvariantCulture)" />
                                         <label for="instrucao_@option.id" class="checkbox-label">@option.Name</label>
                                     </div>
                                 }

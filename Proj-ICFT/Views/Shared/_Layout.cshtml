@@ -111,7 +111,10 @@
                     <li><a asp-action="Form" asp-controller="Home">Prescrição</a></li>
                     <li><a asp-action="PacientesAnalisados" asp-controller="Paciente">Pacientes</a></li>
                     <li><a asp-action="Index" asp-controller="Relatorio">Relatórios</a></li>
-                    <li><a asp-action="Register" asp-controller="Account">Registrar</a></li>
+                    @if (!Features.Value.CadastroPublico)
+                    {
+                        <li><a asp-action="Register" asp-controller="Account">Registrar</a></li>
+                    }
                     <li><a asp-action="Logout" asp-controller="Account">Sair</a></li>
                     @* <li><a href="/prac#portfolio">Artigos</a></li>
                     <li><a asp-action="TCLE" asp-controller="Home">Formulário</a></li>
